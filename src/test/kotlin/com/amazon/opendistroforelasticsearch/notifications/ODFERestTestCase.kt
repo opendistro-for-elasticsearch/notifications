@@ -61,7 +61,7 @@ abstract class ODFERestTestCase : ESRestTestCase() {
 
     @Throws(IOException::class)
     @After
-    public open fun wipeAllODFEIndices() {
+    open fun wipeAllODFEIndices() {
         val response = client().performRequest(Request("GET", "/_cat/indices?format=json&expand_wildcards=all"))
 
         val xContentType = XContentType.fromMediaTypeOrFormat(response.entity.contentType.value)

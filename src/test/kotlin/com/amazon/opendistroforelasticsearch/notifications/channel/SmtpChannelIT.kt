@@ -18,18 +18,25 @@ package com.amazon.opendistroforelasticsearch.notifications.channel
 
 import com.amazon.opendistroforelasticsearch.notifications.NotificationsRestTestCase
 import com.amazon.opendistroforelasticsearch.notifications.TestUtils
+import org.junit.Ignore
 
 internal class SmtpChannelIT : NotificationsRestTestCase() {
+    val refTag = "sample raf name"
+    val title = "sample title"
+    val textDescription = "Description for notification in text"
+    val htmlDescription = "Description for notification in json encode html format"
+    val attachment = TestUtils.jsonify("{\"fileName\": \"odfe.data\",\"fileEncoding\" : \"base64\", \"fileContentType\" : \"application/octet-stream\", \"fileData\" : \"VGVzdCBtZXNzYWdlCgo=\"}")
 
-    fun `test send email over Smtp server`() {
-        val refTag = "sample raf name";
-        val recipients = listOf("mailto:fizhang@amazon.com")
-        val title = "sample title"
-        val textDescription = "Description for notification in text"
-        val htmlDescription = "Description for notification in json encode html format"
-        val attachment = TestUtils.jsonify("{\"fileName\": \"odfe.data\",\"fileEncoding\" : \"base64\", \"fileContentType\" : \"application/octet-stream\", \"fileData\" : \"VGVzdCBtZXNzYWdlCgo=\"}")
+    fun `test send email to one recipient over Smtp server`() {
+        val recipients = listOf("test@localhost")
+        val response = executeRequest(refTag, recipients, title, textDescription, htmlDescription, attachment)
+        TestUtils.verifyResponse(response, refTag, recipients)
+    }
 
-        val response = executeRequestToJson(refTag, recipients, title, textDescription, htmlDescription, attachment)
-
+    @Ignore
+    fun `test send email to multiple recipient over Smtp server`() {
+        val recipients = listOf("test1@localhost", "test2@localhost", "test3@localhost")
+        val response = executeRequest(refTag, recipients, title, textDescription, htmlDescription, attachment)
+        TestUtils.verifyResponse(response, refTag, recipients)
     }
 }

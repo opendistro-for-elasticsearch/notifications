@@ -16,7 +16,6 @@
 
 package com.amazon.opendistroforelasticsearch.notifications
 
-
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import org.elasticsearch.client.Response
@@ -25,6 +24,7 @@ import java.io.IOException
 import java.io.InputStreamReader
 import java.nio.charset.StandardCharsets
 import java.util.Locale
+import kotlin.test.assertEquals
 
 class TestUtils {
     companion object {
@@ -49,9 +49,28 @@ class TestUtils {
         fun jsonify(text: String): JsonObject {
             return JsonParser.parseString(text).asJsonObject
         }
+
+        fun verifyResponse(response: JsonObject, refTag: String, recipients: List<String>) {
+            // verify ref tag is consistent
+            val actualRefTag = response.get("refTag").asString
+            assertEquals(refTag, actualRefTag)
+
+            // verify status to each recipient
+            val actualRecipients = response.getAsJsonArray("recipients")
+            actualRecipients.forEach { item ->
+                val recipient = item.asJsonObject.get("recipient").asString
+                assert(recipients.contains(recipient))
+
+                val statusCode = item.asJsonObject.get("statusCode").asInt
+                assertEquals(200, statusCode)
+
+                val statusText = item.asJsonObject.get("statusText").asString
+                assertEquals("Success", statusText)
+            }
+        }
     }
 
-    /* Util class to build Json entity of request body */
+    /** Util class to build Json entity of request body */
     class NotificationsJsonEntity(
         private val refTag: String?,
         private val recipients: List<String>,
