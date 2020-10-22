@@ -35,8 +35,8 @@ internal class SmtpChannelIT : NotificationsRestTestCase() {
 
     @Ignore
     fun `test send email to multiple recipient over Smtp server`() {
-        val recipients = listOf("test1@localhost", "test2@localhost", "test3@localhost")
-        val response = executeRequest(refTag, recipients, title, textDescription, htmlDescription, attachment)
-        TestUtils.verifyResponse(response, refTag, recipients)
+//        val recipients = listOf("test1@localhost", "test2@localhost", "test3@localhost")
+//        val response = executeRequest(refTag, recipients, title, textDescription, htmlDescription, attachment)
+//        TestUtils.verifyResponse(response, refTag, recipients)
     }
 }

@@ -19,10 +19,6 @@ package com.amazon.opendistroforelasticsearch.notifications
 import com.amazon.opendistroforelasticsearch.notifications.resthandler.SendRestHandler.Companion.SEND_BASE_URI
 import com.amazon.opendistroforelasticsearch.notifications.settings.PluginSettings
 import com.google.gson.JsonObject
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancelChildren
-import kotlinx.coroutines.launch
 import org.elasticsearch.client.Request
 import org.elasticsearch.client.RequestOptions
 import org.junit.After
@@ -35,11 +31,10 @@ import java.util.Properties
 abstract class NotificationsRestTestCase : ODFERestTestCase() {
 
     private val props: Properties = System.getProperties()
+    private val smtpPort = PluginSettings.smtpPort
     private val smtpServer: TestMailServer.SmtpServer
-    private lateinit var coroutineJob: Job
 
     init {
-        val smtpPort = PluginSettings.smtpPort
         smtpServer = TestMailServer.smtp(smtpPort)
     }
 
@@ -50,7 +45,6 @@ abstract class NotificationsRestTestCase : ODFERestTestCase() {
             initClient()
         }
         configServers()
-        coroutineJob = GlobalScope.launch { smtpServer.run() }
 
         init()
     }
@@ -58,7 +52,7 @@ abstract class NotificationsRestTestCase : ODFERestTestCase() {
     @After
     open fun tearDownServer() {
         smtpServer.stop()
-        coroutineJob.cancelChildren()
+        smtpServer.resetServer()
     }
 
     @After
@@ -113,8 +107,8 @@ abstract class NotificationsRestTestCase : ODFERestTestCase() {
     protected fun configServers() {
         props["mail.smtp.host"] = "127.0.0.1"
         props["mail.smtp.auth"] = "true"
-        props["mail.smtp.port"] = smtpServer.port
-        props["spring.mail.port"] = smtpServer.port
+        props["mail.smtp.port"] = smtpPort
+        props["spring.mail.port"] = smtpPort
         props["mail.transport.protocol"] = "smtp"
     }
 
