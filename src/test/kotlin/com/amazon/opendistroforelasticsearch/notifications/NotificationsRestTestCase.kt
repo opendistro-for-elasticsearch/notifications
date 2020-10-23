@@ -25,7 +25,6 @@ import org.junit.After
 import org.junit.Before
 import org.springframework.integration.test.mail.TestMailServer
 import java.io.IOException
-import java.util.Locale
 
 abstract class NotificationsRestTestCase : ODFERestTestCase() {
 
@@ -71,8 +70,8 @@ abstract class NotificationsRestTestCase : ODFERestTestCase() {
 
     protected fun executeRequest(request: Request): JsonObject {
         val response = client().performRequest(request)
-        val responseBody = TestUtils.getResponseBody(response, true)
-        return TestUtils.jsonify(responseBody)
+        val responseBody = getResponseBody(response, true)
+        return jsonify(responseBody)
     }
 
     protected fun buildRequest(
@@ -85,7 +84,7 @@ abstract class NotificationsRestTestCase : ODFERestTestCase() {
     ): Request {
         val request = Request("POST", SEND_BASE_URI)
 
-        val jsonEntity = TestUtils.NotificationsJsonEntity.Builder()
+        val jsonEntity = NotificationsJsonEntity.Builder()
             .setRefTag(refTag)
             .setRecipients(recipients)
             .setTitle(title)

@@ -17,9 +17,9 @@
 package com.amazon.opendistroforelasticsearch.notifications.channel
 
 import com.amazon.opendistroforelasticsearch.notifications.NotificationsRestTestCase
-import com.amazon.opendistroforelasticsearch.notifications.TestUtils.Companion.jsonify
-import com.amazon.opendistroforelasticsearch.notifications.TestUtils.Companion.verifyResponse
+import com.amazon.opendistroforelasticsearch.notifications.jsonify
 import com.amazon.opendistroforelasticsearch.notifications.settings.PluginSettings
+import com.amazon.opendistroforelasticsearch.notifications.verifyResponse
 import com.google.gson.JsonObject
 import org.elasticsearch.rest.RestStatus
 
