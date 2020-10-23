@@ -16,18 +16,17 @@
 
 package com.amazon.opendistroforelasticsearch.notifications.action
 
-import com.amazon.opendistroforelasticsearch.notifications.NotificationPlugin.Companion.PLUGIN_NAME
+import com.amazon.opendistroforelasticsearch.notifications.NotificationPlugin.Companion.LOG_PREFIX
 import com.amazon.opendistroforelasticsearch.notifications.channel.ChannelFactory
 import com.amazon.opendistroforelasticsearch.notifications.core.ChannelMessageResponse
 import com.amazon.opendistroforelasticsearch.notifications.core.NotificationMessage
 import com.amazon.opendistroforelasticsearch.notifications.throttle.Accountant
 import com.amazon.opendistroforelasticsearch.notifications.throttle.Counters
+import com.amazon.opendistroforelasticsearch.notifications.util.logger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import org.apache.logging.log4j.LogManager
 import org.elasticsearch.client.node.NodeClient
 import org.elasticsearch.common.xcontent.XContentType
 import org.elasticsearch.rest.BytesRestResponse
@@ -43,59 +42,66 @@ internal class SendAction(
     private val client: NodeClient,
     private val restChannel: RestChannel
 ) {
-    private val log = LogManager.getLogger(javaClass)
+
+    internal companion object {
+        private val log by logger(SendAction::class.java)
+    }
 
     /**
      * Send notification for the given [request] on the provided [restChannel].
      */
     fun send() {
-        log.debug("$PLUGIN_NAME:send")
-        val message = RestRequestParser.parse(request)
+        log.debug("$LOG_PREFIX:send")
+        val contentParser = request.contentParser()
+        contentParser.nextToken()
+        val message = NotificationMessage.parse(contentParser)
         val response = restChannel.newBuilder(XContentType.JSON, false).startObject()
             .field("refTag", message.refTag)
         var restStatus = RestStatus.OK // Default to success
-        runBlocking {
-            val isMessageQuotaAvailableDeferred = async(Dispatchers.IO) { isMessageQuotaAvailable(message) }
-            val isMessageQuotaAvailable = isMessageQuotaAvailableDeferred.await()
-            if (isMessageQuotaAvailable) {
-                response.startArray("recipients")
-                val counters = Counters()
-                counters.requestCount.incrementAndGet()
-                // Fire all the email sending in parallel
-                val statusDeferredList = message.recipients.map {
-                    async(Dispatchers.IO) { sendMessageToChannel(it, message, counters) }
+        if (isMessageQuotaAvailable(message)) {
+            response.startArray("recipients")
+            val statusList: List<Pair<String, ChannelMessageResponse>> = sendMessagesInParallel(message)
+            // Get all the response in sequence
+            statusList.forEach {
+                val statusCode = it.second.statusCode
+                val statusText = it.second.statusText
+                if (statusCode != RestStatus.OK && statusCode != restStatus) {
+                    // if any of the value != success then return corresponding status or 207
+                    restStatus = RestStatus.MULTI_STATUS
                 }
-                val statusList = statusDeferredList.awaitAll()
-                // After all operation are executed, update the counters
-                launch(Dispatchers.IO) { Accountant.incrementCounters(counters) }
-                // Get all the response in sequence
-                statusList.forEach {
-                    val statusCode = it.second.statusCode
-                    val statusText = it.second.statusText
-                    if (statusCode != RestStatus.OK) {
-                        // if any of the value != success then return corresponding status or 207
-                        if (statusCode != restStatus) {
-                            restStatus = RestStatus.MULTI_STATUS
-                        }
-                    }
-                    response.startObject()
-                        .field("recipient", it.first)
-                        .field("statusCode", statusCode.status)
-                        .field("statusText", statusText)
-                        .endObject()
-                    log.info("$PLUGIN_NAME:${message.refTag}:statusCode=$statusCode, statusText=$statusText")
-                }
-                response.endArray()
-            } else {
-                restStatus = RestStatus.TOO_MANY_REQUESTS
-                val statusText = "Message Sending quota not available"
-                response.field("statusCode", restStatus)
+                response.startObject()
+                    .field("recipient", it.first)
+                    .field("statusCode", statusCode.status)
                     .field("statusText", statusText)
-                log.info("$PLUGIN_NAME:${message.refTag}:statusCode=$restStatus, statusText=$statusText")
+                    .endObject()
+                log.info("$LOG_PREFIX:${message.refTag}:statusCode=$statusCode, statusText=$statusText")
             }
+            response.endArray()
+        } else {
+            restStatus = RestStatus.TOO_MANY_REQUESTS
+            val statusText = "Message Sending quota not available"
+            response.field("statusCode", restStatus)
+                .field("statusText", statusText)
+            log.info("$LOG_PREFIX:${message.refTag}:statusCode=$restStatus, statusText=$statusText")
         }
         response.endObject()
         restChannel.sendResponse(BytesRestResponse(restStatus, response))
+    }
+
+    private fun sendMessagesInParallel(message: NotificationMessage): List<Pair<String, ChannelMessageResponse>> {
+        val counters = Counters()
+        counters.requestCount.incrementAndGet()
+        val statusList: List<Pair<String, ChannelMessageResponse>>
+        // Fire all the message sending in parallel
+        runBlocking {
+            val statusDeferredList = message.recipients.map {
+                async(Dispatchers.IO) { sendMessageToChannel(it, message, counters) }
+            }
+            statusList = statusDeferredList.awaitAll()
+        }
+        // After all operation are executed, update the counters
+        Accountant.incrementCounters(counters)
+        return statusList
     }
 
     private fun sendMessageToChannel(recipient: String, message: NotificationMessage, counters: Counters): Pair<String, ChannelMessageResponse> {
