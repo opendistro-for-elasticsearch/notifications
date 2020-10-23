@@ -82,7 +82,7 @@ class TestUtils {
 
         var jsonEntityString: String = ""
 
-        private constructor(builder: Builder): this(builder.refTag, builder.recipients, builder.title,
+        private constructor(builder: Builder) : this(builder.refTag, builder.recipients, builder.title,
             builder.textDescription, builder.htmlDescription, builder.attachment)
 
         fun getJsonEntityAsString(): String {
@@ -91,7 +91,7 @@ class TestUtils {
         }
 
         private fun updateJsonEntity() {
-            jsonEntityString = String.format(
+            jsonEntityString = String.format(Locale.ROOT,
                 """
                     {
                       "refTag": "%s",

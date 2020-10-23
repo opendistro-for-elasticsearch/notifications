@@ -59,7 +59,7 @@ internal class SmtpChannelIT : NotificationsRestTestCase() {
         assertEquals(RestStatus.NOT_IMPLEMENTED.status, statusCode)
 
         val statusText = getStatusText(response)
-        assertEquals( "Email from: address not configured", statusText)
+        assertEquals("Email from: address not configured", statusText)
         resetFromAddress()
     }
 

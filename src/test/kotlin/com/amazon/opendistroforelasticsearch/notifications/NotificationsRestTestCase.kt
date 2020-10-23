@@ -25,11 +25,10 @@ import org.junit.After
 import org.junit.Before
 import org.springframework.integration.test.mail.TestMailServer
 import java.io.IOException
-import java.util.Properties
+import java.util.Locale
 
 abstract class NotificationsRestTestCase : ODFERestTestCase() {
 
-    private val props: Properties = System.getProperties()
     private val smtpPort = PluginSettings.smtpPort
     private val smtpServer: TestMailServer.SmtpServer
 
@@ -43,7 +42,6 @@ abstract class NotificationsRestTestCase : ODFERestTestCase() {
         if (client() == null) {
             initClient()
         }
-        configServers()
 
         init()
     }
@@ -59,12 +57,14 @@ abstract class NotificationsRestTestCase : ODFERestTestCase() {
         wipeAllClusterSettings()
     }
 
-    protected fun executeRequest(refTag: String,
-                                 recipients: List<String>,
-                                 title: String,
-                                 textDescription: String,
-                                 htmlDescription: String,
-                                 attachment: JsonObject): JsonObject {
+    protected fun executeRequest(
+        refTag: String,
+        recipients: List<String>,
+        title: String,
+        textDescription: String,
+        htmlDescription: String,
+        attachment: JsonObject
+    ): JsonObject {
         val request = buildRequest(refTag, recipients, title, textDescription, htmlDescription, attachment)
         return executeRequest(request)
     }
@@ -75,12 +75,14 @@ abstract class NotificationsRestTestCase : ODFERestTestCase() {
         return TestUtils.jsonify(responseBody)
     }
 
-    protected fun buildRequest(refTag: String,
-                               recipients: List<String>,
-                               title: String,
-                               textDescription: String,
-                               htmlDescription: String,
-                               attachment: JsonObject): Request {
+    protected fun buildRequest(
+        refTag: String,
+        recipients: List<String>,
+        title: String,
+        textDescription: String,
+        htmlDescription: String,
+        attachment: JsonObject
+    ): Request {
         val request = Request("POST", SEND_BASE_URI)
 
         val jsonEntity = TestUtils.NotificationsJsonEntity.Builder()
@@ -101,14 +103,6 @@ abstract class NotificationsRestTestCase : ODFERestTestCase() {
 
     /** Provided for each test to load test index, data and other setup work */
     protected open fun init() {}
-
-    protected fun configServers() {
-        props["mail.smtp.host"] = "127.0.0.1"
-        props["mail.smtp.auth"] = "true"
-        props["mail.smtp.port"] = smtpPort
-        props["spring.mail.port"] = smtpPort
-        props["mail.transport.protocol"] = "smtp"
-    }
 
     protected fun updateFromAddress(address: String): JsonObject? {
         return updateClusterSettings(
@@ -132,7 +126,7 @@ abstract class NotificationsRestTestCase : ODFERestTestCase() {
     @Throws(IOException::class)
     protected fun updateClusterSettings(setting: ClusterSetting): JsonObject? {
         val request = Request("PUT", "/_cluster/settings")
-        val persistentSetting = String.format("{\"%s\": {\"%s\": %s}}", setting.type, setting.name, setting.value)
+        val persistentSetting = String.format(Locale.ROOT, "{\"%s\": {\"%s\": %s}}", setting.type, setting.name, setting.value)
         request.setJsonEntity(persistentSetting)
         val restOptionsBuilder = RequestOptions.DEFAULT.toBuilder()
         restOptionsBuilder.addHeader("Content-Type", "application/json")
@@ -146,7 +140,7 @@ abstract class NotificationsRestTestCase : ODFERestTestCase() {
         updateClusterSettings(ClusterSetting("transient", "*", null))
     }
 
-   protected class ClusterSetting(val type: String, val name: String, var value: String?) {
+    protected class ClusterSetting(val type: String, val name: String, var value: String?) {
         init {
             this.value = if (value == null) "null" else "\"" + value + "\""
         }
