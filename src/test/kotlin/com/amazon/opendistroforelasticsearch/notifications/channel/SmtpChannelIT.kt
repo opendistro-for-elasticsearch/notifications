@@ -17,26 +17,65 @@
 package com.amazon.opendistroforelasticsearch.notifications.channel
 
 import com.amazon.opendistroforelasticsearch.notifications.NotificationsRestTestCase
-import com.amazon.opendistroforelasticsearch.notifications.TestUtils
-import org.junit.Ignore
+import com.amazon.opendistroforelasticsearch.notifications.TestUtils.Companion.jsonify
+import com.amazon.opendistroforelasticsearch.notifications.TestUtils.Companion.verifyResponse
+import com.amazon.opendistroforelasticsearch.notifications.settings.PluginSettings
+import com.google.gson.JsonObject
+import org.elasticsearch.rest.RestStatus
 
 internal class SmtpChannelIT : NotificationsRestTestCase() {
-    val refTag = "sample raf name"
-    val title = "sample title"
-    val textDescription = "Description for notification in text"
-    val htmlDescription = "Description for notification in json encode html format"
-    val attachment = TestUtils.jsonify("{\"fileName\": \"odfe.data\",\"fileEncoding\" : \"base64\", \"fileContentType\" : \"application/octet-stream\", \"fileData\" : \"VGVzdCBtZXNzYWdlCgo=\"}")
+    private val refTag = "sample raf name"
+    private val title = "sample title"
+    private val textDescription = "Description for notification in text"
+    private val htmlDescription = "Description for notification in json encode html format"
+    private val attachment = jsonify(
+        """
+        {
+          "fileName": "odfe.data",
+          "fileEncoding": "base64",
+          "fileContentType": "application/octet-stream",
+          "fileData": "VGVzdCBtZXNzYWdlCgo="
+        }
+        """.trimIndent())
 
     fun `test send email to one recipient over Smtp server`() {
-        val recipients = listOf("test@localhost")
+        val recipients = listOf("mailto:test@localhost")
         val response = executeRequest(refTag, recipients, title, textDescription, htmlDescription, attachment)
-        TestUtils.verifyResponse(response, refTag, recipients)
+        verifyResponse(response, refTag, recipients)
     }
 
-    @Ignore
     fun `test send email to multiple recipient over Smtp server`() {
-//        val recipients = listOf("test1@localhost", "test2@localhost", "test3@localhost")
-//        val response = executeRequest(refTag, recipients, title, textDescription, htmlDescription, attachment)
-//        TestUtils.verifyResponse(response, refTag, recipients)
+        val recipients = listOf("mailto:test1@localhost", "mailto:test2@abc.com", "mailto:test3@123.com")
+        val response = executeRequest(refTag, recipients, title, textDescription, htmlDescription, attachment)
+        verifyResponse(response, refTag, recipients)
+    }
+
+    fun `test send email with unconfigured address`() {
+        updateFromAddress(PluginSettings.UNCONFIGURED_EMAIL_ADDRESS)
+        val recipients = listOf("mailto:test@localhost")
+        val response = executeRequest(refTag, recipients, title, textDescription, htmlDescription, attachment)
+
+        val statusCode = getStatusCode(response)
+        assertEquals(RestStatus.NOT_IMPLEMENTED.status, statusCode)
+
+        val statusText = getStatusText(response)
+        assertEquals( "Email from: address not configured", statusText)
+        resetFromAddress()
+    }
+
+    /** Private test util to extract status code from response of the first recipient */
+    private fun getStatusCode(response: JsonObject): Int {
+        return response
+            .getAsJsonArray("recipients")
+            .get(0).asJsonObject
+            .get("statusCode").asInt
+    }
+
+    /** Private test util to extract status text from response of the first recipient */
+    private fun getStatusText(response: JsonObject): String {
+        return response
+            .getAsJsonArray("recipients")
+            .get(0).asJsonObject
+            .get("statusText").asString
     }
 }

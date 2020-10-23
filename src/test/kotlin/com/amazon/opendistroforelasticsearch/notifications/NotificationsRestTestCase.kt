@@ -22,7 +22,6 @@ import com.google.gson.JsonObject
 import org.elasticsearch.client.Request
 import org.elasticsearch.client.RequestOptions
 import org.junit.After
-import org.junit.Assert
 import org.junit.Before
 import org.springframework.integration.test.mail.TestMailServer
 import java.io.IOException
@@ -72,7 +71,6 @@ abstract class NotificationsRestTestCase : ODFERestTestCase() {
 
     protected fun executeRequest(request: Request): JsonObject {
         val response = client().performRequest(request)
-        Assert.assertEquals(200, response.statusLine.statusCode)
         val responseBody = TestUtils.getResponseBody(response, true)
         return TestUtils.jsonify(responseBody)
     }
@@ -112,6 +110,16 @@ abstract class NotificationsRestTestCase : ODFERestTestCase() {
         props["mail.transport.protocol"] = "smtp"
     }
 
+    protected fun updateFromAddress(address: String): JsonObject? {
+        return updateClusterSettings(
+            ClusterSetting(
+                "persistent", "opendistro.notifications.email.fromAddress", address))
+    }
+
+    protected fun resetFromAddress(): JsonObject? {
+        return updateFromAddress(PluginSettings.emailFromAddress)
+    }
+
     @Throws(IOException::class)
     protected open fun getAllClusterSettings(): JsonObject? {
         val request = Request("GET", "/_cluster/settings?flat_settings&include_defaults")
@@ -142,9 +150,5 @@ abstract class NotificationsRestTestCase : ODFERestTestCase() {
         init {
             this.value = if (value == null) "null" else "\"" + value + "\""
         }
-
-       fun voidSetting(): ClusterSetting {
-           return ClusterSetting(type, name, null)
-       }
     }
 }

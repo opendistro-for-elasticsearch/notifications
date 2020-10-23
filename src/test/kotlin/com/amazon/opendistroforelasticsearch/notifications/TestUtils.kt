@@ -106,7 +106,7 @@ class TestUtils {
         }
 
         private fun listToString(list: List<String>): String {
-            return "[" + list.joinToString(",", "\"", "\"") + "]"
+            return list.joinToString("\", \"", "[\"", "\"]")
         }
 
         class Builder {
