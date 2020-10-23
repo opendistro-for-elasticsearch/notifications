@@ -126,7 +126,7 @@ abstract class NotificationsRestTestCase : ODFERestTestCase() {
     @Throws(IOException::class)
     protected fun updateClusterSettings(setting: ClusterSetting): JsonObject? {
         val request = Request("PUT", "/_cluster/settings")
-        val persistentSetting = String.format(Locale.ROOT, "{\"%s\": {\"%s\": %s}}", setting.type, setting.name, setting.value)
+        val persistentSetting =  "{\"${setting.type}\": {\"${setting.name}\": ${setting.value}}}"
         request.setJsonEntity(persistentSetting)
         val restOptionsBuilder = RequestOptions.DEFAULT.toBuilder()
         restOptionsBuilder.addHeader("Content-Type", "application/json")

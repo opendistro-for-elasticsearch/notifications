@@ -23,7 +23,6 @@ import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStreamReader
 import java.nio.charset.StandardCharsets
-import java.util.Locale
 import kotlin.test.assertEquals
 
 class TestUtils {
@@ -38,7 +37,7 @@ class TestUtils {
                     while (br.readLine().also { line = it } != null) {
                         sb.append(line)
                         if (retainNewLines) {
-                            sb.append(String.format(Locale.ROOT, "%n"))
+                            sb.appendLine()
                         }
                     }
                 }
@@ -91,18 +90,17 @@ class TestUtils {
         }
 
         private fun updateJsonEntity() {
-            jsonEntityString = String.format(Locale.ROOT,
+            jsonEntityString =
                 """
                     {
-                      "refTag": "%s",
-                      "recipients": %s,
-                      "title": "%s",
-                      "textDescription": "%s",
-                      "htmlDescription": "%s",
-                      "attachment": %s
+                      "refTag": "$refTag",
+                      "recipients": ${listToString(recipients)},
+                      "title": "$title",
+                      "textDescription": "$textDescription",
+                      "htmlDescription": "$htmlDescription",
+                      "attachment": $attachment
                     }
-                """.trimIndent(),
-                refTag, listToString(recipients), title, textDescription, htmlDescription, attachment)
+                """.trimIndent()
         }
 
         private fun listToString(list: List<String>): String {
