@@ -108,7 +108,6 @@ dependencies {
         exclude module: 'annotations' // conflict with org.jetbrains:annotations, integTestRunner fails with error "codebase property already set"
     }
     compile "com.sun.mail:javax.mail:1.6.2"
-    compile 'com.google.code.gson:gson:2.8.6'
 
     testImplementation(
             'org.assertj:assertj-core:3.16.1',
@@ -119,6 +118,7 @@ dependencies {
     testCompile "org.jetbrains.kotlin:kotlin-test:${kotlin_version}"
     testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0"
     testCompile "org.mockito:mockito-core:2.23.0"
+    testCompile 'com.google.code.gson:gson:2.8.6'
     testCompile 'org.springframework.integration:spring-integration-mail:5.2.5.RELEASE'
     testImplementation 'org.springframework.integration:spring-integration-test-support:5.2.5.RELEASE'
 
