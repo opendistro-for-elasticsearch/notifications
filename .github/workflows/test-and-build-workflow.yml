@@ -33,7 +33,7 @@ jobs:
           java-version: 1.14
 
       - name: Build with Gradle
-        run: ./gradlew build assemble
+        run: sudo ./gradlew build assemble
 
       - name: Create Artifact Path
         run: |
