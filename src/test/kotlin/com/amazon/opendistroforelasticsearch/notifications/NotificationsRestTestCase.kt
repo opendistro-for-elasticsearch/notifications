@@ -105,20 +105,24 @@ abstract class NotificationsRestTestCase : ODFERestTestCase() {
     /** Provided for each test to load test index, data and other setup work */
     protected open fun init() {}
 
-    protected fun updateFromAddress(address: String): JsonObject? {
+    protected fun setFromAddress(address: String): JsonObject? {
         return updateClusterSettings(
             ClusterSetting(
                 "persistent", "opendistro.notifications.email.fromAddress", address))
     }
 
     protected fun resetFromAddress(): JsonObject? {
-        return updateFromAddress(fromAddress)
+        return setFromAddress(fromAddress)
     }
 
     protected fun setChannelType(type: String) {
         updateClusterSettings(ClusterSetting(
             "persistent", "opendistro.notifications.email.channel", type
         ))
+    }
+
+    protected fun resetChannelType() {
+        setChannelType(PluginSettings.emailChannel)
     }
 
     @Throws(IOException::class)
@@ -147,7 +151,7 @@ abstract class NotificationsRestTestCase : ODFERestTestCase() {
         updateClusterSettings(ClusterSetting("transient", "*", null))
     }
 
-    protected class ClusterSetting(val type: String, val name: String, var value: String?) {
+    protected class ClusterSetting(val type: String, val name: String, var value: Any?) {
         init {
             this.value = if (value == null) "null" else "\"" + value + "\""
         }

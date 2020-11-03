@@ -21,6 +21,7 @@ import com.amazon.opendistroforelasticsearch.notifications.jsonify
 import com.amazon.opendistroforelasticsearch.notifications.getStatusCode
 import com.amazon.opendistroforelasticsearch.notifications.getStatusText
 import org.elasticsearch.rest.RestStatus
+import org.junit.After
 
 class SesChannelIT : NotificationsRestTestCase() {
     private val refTag = "ref"
@@ -39,6 +40,11 @@ class SesChannelIT : NotificationsRestTestCase() {
 
     override fun init() {
         setChannelType("ses")
+    }
+
+    @After
+    fun reset() {
+        resetChannelType()
     }
 
     fun `test send email over ses channel due to ses authorization failure`() {

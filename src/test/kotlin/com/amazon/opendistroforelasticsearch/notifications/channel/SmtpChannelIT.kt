@@ -52,7 +52,7 @@ internal class SmtpChannelIT : NotificationsRestTestCase() {
     }
 
     fun `test send email with unconfigured address`() {
-        updateFromAddress(PluginSettings.UNCONFIGURED_EMAIL_ADDRESS)
+        setFromAddress(PluginSettings.UNCONFIGURED_EMAIL_ADDRESS)
         val recipients = listOf("mailto:test@localhost")
         val response = executeRequest(refTag, recipients, title, textDescription, htmlDescription, attachment)
 
