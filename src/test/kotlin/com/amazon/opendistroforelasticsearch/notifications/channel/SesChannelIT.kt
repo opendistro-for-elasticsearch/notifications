@@ -22,7 +22,7 @@ import com.amazon.opendistroforelasticsearch.notifications.getStatusCode
 import com.amazon.opendistroforelasticsearch.notifications.getStatusText
 import org.elasticsearch.rest.RestStatus
 
-class SesChannelIT: NotificationsRestTestCase() {
+class SesChannelIT : NotificationsRestTestCase() {
     private val refTag = "ref"
     private val title = "title"
     private val textDescription = "text"
@@ -41,7 +41,7 @@ class SesChannelIT: NotificationsRestTestCase() {
         setChannelType("ses")
     }
 
-    fun `test send email over ses channel`() {
+    fun `test send email over ses channel due to ses authorization failure`() {
         val recipients = listOf("mailto:test@localhost")
         val response = executeRequest(refTag, recipients, title, textDescription, htmlDescription, attachment)
 

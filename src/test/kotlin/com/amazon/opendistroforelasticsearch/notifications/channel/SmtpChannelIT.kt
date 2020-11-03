@@ -22,7 +22,6 @@ import com.amazon.opendistroforelasticsearch.notifications.getStatusText
 import com.amazon.opendistroforelasticsearch.notifications.jsonify
 import com.amazon.opendistroforelasticsearch.notifications.settings.PluginSettings
 import com.amazon.opendistroforelasticsearch.notifications.verifyResponse
-import com.google.gson.JsonObject
 import org.elasticsearch.rest.RestStatus
 
 internal class SmtpChannelIT : NotificationsRestTestCase() {
