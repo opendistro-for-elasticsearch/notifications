@@ -30,6 +30,7 @@ abstract class NotificationsRestTestCase : ODFERestTestCase() {
 
     private val smtpPort = PluginSettings.smtpPort
     private val smtpServer: TestMailServer.SmtpServer
+    private val fromAddress = "from@email.com"
 
     init {
         smtpServer = TestMailServer.smtp(smtpPort)
@@ -42,6 +43,7 @@ abstract class NotificationsRestTestCase : ODFERestTestCase() {
             initClient()
         }
 
+        resetFromAddress()
         init()
     }
 
@@ -110,7 +112,13 @@ abstract class NotificationsRestTestCase : ODFERestTestCase() {
     }
 
     protected fun resetFromAddress(): JsonObject? {
-        return updateFromAddress(PluginSettings.emailFromAddress)
+        return updateFromAddress(fromAddress)
+    }
+
+    protected fun setChannelType(type: String) {
+        updateClusterSettings(ClusterSetting(
+            "persistent", "opendistro.notifications.email.channel", type
+        ))
     }
 
     @Throws(IOException::class)
