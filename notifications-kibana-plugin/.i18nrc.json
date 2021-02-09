@@ -1,7 +1,7 @@
 {
-  "prefix": "opendistroNotificationKibana",
+  "prefix": "opendistroNotificationsKibana",
   "paths": {
-    "opendistroNotificationKibana": "."
+    "opendistroNotificationsKibana": "."
   },
   "translations": ["translations/ja-JP.json"]
 }

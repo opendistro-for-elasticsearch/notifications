@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { i18n } from '@kbn/i18n';
-import { FormattedMessage, I18nProvider } from '@kbn/i18n/react';
-import { BrowserRouter as Router } from 'react-router-dom';
+import React, { useState } from "react";
+import { i18n } from "@kbn/i18n";
+import { FormattedMessage, I18nProvider } from "@kbn/i18n/react";
+import { BrowserRouter as Router } from "react-router-dom";
 
 import {
   EuiButton,
@@ -14,37 +14,37 @@ import {
   EuiPageHeader,
   EuiTitle,
   EuiText,
-} from '@elastic/eui';
+} from "@elastic/eui";
 
-import { CoreStart } from '../../../../src/core/public';
-import { NavigationPublicPluginStart } from '../../../../src/plugins/navigation/public';
+import { CoreStart } from "../../../../src/core/public";
+import { NavigationPublicPluginStart } from "../../../../src/plugins/navigation/public";
 
-import { PLUGIN_ID, PLUGIN_NAME } from '../../common';
+import { PLUGIN_ID, PLUGIN_NAME } from "../../common";
 
-interface OpendistroNotificationKibanaAppDeps {
+interface opendistroNotificationsKibanaAppDeps {
   basename: string;
-  notifications: CoreStart['notifications'];
-  http: CoreStart['http'];
+  notifications: CoreStart["notifications"];
+  http: CoreStart["http"];
   navigation: NavigationPublicPluginStart;
 }
 
-export const OpendistroNotificationKibanaApp = ({
+export const opendistroNotificationsKibanaApp = ({
   basename,
   notifications,
   http,
   navigation,
-}: OpendistroNotificationKibanaAppDeps) => {
+}: opendistroNotificationsKibanaAppDeps) => {
   // Use React hooks to manage state.
   const [timestamp, setTimestamp] = useState<string | undefined>();
 
   const onClickHandler = () => {
     // Use the core http service to make a response to the server API.
-    http.get('/api/opendistro_notification_kibana/example').then((res) => {
+    http.get("/api/opendistro_notification_kibana/example").then((res) => {
       setTimestamp(res.time);
       // Use the core notifications service to display a success message.
       notifications.toasts.addSuccess(
-        i18n.translate('opendistroNotificationKibana.dataUpdated', {
-          defaultMessage: 'Data updated',
+        i18n.translate("opendistroNotificationsKibana.dataUpdated", {
+          defaultMessage: "Data updated",
         })
       );
     });
@@ -67,7 +67,7 @@ export const OpendistroNotificationKibanaApp = ({
                 <EuiTitle size="l">
                   <h1>
                     <FormattedMessage
-                      id="opendistroNotificationKibana.helloWorldText"
+                      id="opendistroNotificationsKibana.helloWorldText"
                       defaultMessage="{name}"
                       values={{ name: PLUGIN_NAME }}
                     />
@@ -79,7 +79,7 @@ export const OpendistroNotificationKibanaApp = ({
                   <EuiTitle>
                     <h2>
                       <FormattedMessage
-                        id="opendistroNotificationKibana.congratulationsTitle"
+                        id="opendistroNotificationsKibana.congratulationsTitle"
                         defaultMessage="Congratulations, you have successfully created a new Kibana Plugin!"
                       />
                     </h2>
@@ -89,21 +89,21 @@ export const OpendistroNotificationKibanaApp = ({
                   <EuiText>
                     <p>
                       <FormattedMessage
-                        id="opendistroNotificationKibana.content"
+                        id="opendistroNotificationsKibana.content"
                         defaultMessage="Look through the generated code and check out the plugin development documentation."
                       />
                     </p>
                     <EuiHorizontalRule />
                     <p>
                       <FormattedMessage
-                        id="opendistroNotificationKibana.timestampText"
+                        id="opendistroNotificationsKibana.timestampText"
                         defaultMessage="Last timestamp: {time}"
-                        values={{ time: timestamp ? timestamp : 'Unknown' }}
+                        values={{ time: timestamp ? timestamp : "Unknown" }}
                       />
                     </p>
                     <EuiButton type="primary" size="s" onClick={onClickHandler}>
                       <FormattedMessage
-                        id="opendistroNotificationKibana.buttonText"
+                        id="opendistroNotificationsKibana.buttonText"
                         defaultMessage="Get data"
                       />
                     </EuiButton>

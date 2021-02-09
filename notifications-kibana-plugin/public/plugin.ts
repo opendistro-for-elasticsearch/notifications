@@ -1,35 +1,47 @@
-import { i18n } from '@kbn/i18n';
-import { AppMountParameters, CoreSetup, CoreStart, Plugin } from '../../../src/core/public';
+import { i18n } from "@kbn/i18n";
 import {
-  OpendistroNotificationKibanaPluginSetup,
-  OpendistroNotificationKibanaPluginStart,
+  AppMountParameters,
+  CoreSetup,
+  CoreStart,
+  Plugin,
+} from "../../../src/core/public";
+import {
+  opendistroNotificationsKibanaPluginSetup,
+  opendistroNotificationsKibanaPluginStart,
   AppPluginStartDependencies,
-} from './types';
-import { PLUGIN_NAME } from '../common';
+} from "./types";
+import { PLUGIN_NAME } from "../common";
 
-export class OpendistroNotificationKibanaPlugin
+export class opendistroNotificationsKibanaPlugin
   implements
-    Plugin<OpendistroNotificationKibanaPluginSetup, OpendistroNotificationKibanaPluginStart> {
-  public setup(core: CoreSetup): OpendistroNotificationKibanaPluginSetup {
+    Plugin<
+      opendistroNotificationsKibanaPluginSetup,
+      opendistroNotificationsKibanaPluginStart
+    > {
+  public setup(core: CoreSetup): opendistroNotificationsKibanaPluginSetup {
     // Register an application into the side navigation menu
     core.application.register({
-      id: 'opendistroNotificationKibana',
+      id: "opendistroNotificationsKibana",
       title: PLUGIN_NAME,
       async mount(params: AppMountParameters) {
         // Load application bundle
-        const { renderApp } = await import('./application');
+        const { renderApp } = await import("./application");
         // Get start services as specified in kibana.json
         const [coreStart, depsStart] = await core.getStartServices();
         // Render the application
-        return renderApp(coreStart, depsStart as AppPluginStartDependencies, params);
+        return renderApp(
+          coreStart,
+          depsStart as AppPluginStartDependencies,
+          params
+        );
       },
     });
 
     // Return methods that should be available to other plugins
     return {
       getGreeting() {
-        return i18n.translate('opendistroNotificationKibana.greetingText', {
-          defaultMessage: 'Hello from {name}!',
+        return i18n.translate("opendistroNotificationsKibana.greetingText", {
+          defaultMessage: "Hello from {name}!",
           values: {
             name: PLUGIN_NAME,
           },
@@ -38,7 +50,7 @@ export class OpendistroNotificationKibanaPlugin
     };
   }
 
-  public start(core: CoreStart): OpendistroNotificationKibanaPluginStart {
+  public start(core: CoreStart): opendistroNotificationsKibanaPluginStart {
     return {};
   }
 

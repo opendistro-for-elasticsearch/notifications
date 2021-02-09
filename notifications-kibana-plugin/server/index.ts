@@ -1,14 +1,14 @@
-import { PluginInitializerContext } from '../../../src/core/server';
-import { OpendistroNotificationKibanaPlugin } from './plugin';
+import { PluginInitializerContext } from "../../../src/core/server";
+import { opendistroNotificationsKibanaPlugin } from "./plugin";
 
 //  This exports static code and TypeScript types,
 //  as well as, Kibana Platform `plugin()` initializer.
 
 export function plugin(initializerContext: PluginInitializerContext) {
-  return new OpendistroNotificationKibanaPlugin(initializerContext);
+  return new opendistroNotificationsKibanaPlugin(initializerContext);
 }
 
 export {
-  OpendistroNotificationKibanaPluginSetup,
-  OpendistroNotificationKibanaPluginStart,
-} from './types';
+  opendistroNotificationsKibanaPluginSetup,
+  opendistroNotificationsKibanaPluginStart,
+} from "./types";

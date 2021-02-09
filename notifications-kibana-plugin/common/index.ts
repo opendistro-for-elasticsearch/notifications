@@ -1,2 +1,2 @@
-export const PLUGIN_ID = 'opendistroNotificationKibana';
-export const PLUGIN_NAME = 'opendistroNotificationKibana';
+export const PLUGIN_ID = "opendistroNotificationsKibana";
+export const PLUGIN_NAME = "opendistroNotificationsKibana";

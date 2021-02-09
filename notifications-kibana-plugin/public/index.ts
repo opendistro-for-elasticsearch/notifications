@@ -1,13 +1,13 @@
-import './index.scss';
+import "./index.scss";
 
-import { OpendistroNotificationKibanaPlugin } from './plugin';
+import { opendistroNotificationsKibanaPlugin } from "./plugin";
 
 // This exports static code and TypeScript types,
 // as well as, Kibana Platform `plugin()` initializer.
 export function plugin() {
-  return new OpendistroNotificationKibanaPlugin();
+  return new opendistroNotificationsKibanaPlugin();
 }
 export {
-  OpendistroNotificationKibanaPluginSetup,
-  OpendistroNotificationKibanaPluginStart,
-} from './types';
+  opendistroNotificationsKibanaPluginSetup,
+  opendistroNotificationsKibanaPluginStart,
+} from "./types";

@@ -1,10 +1,10 @@
-import { NavigationPublicPluginStart } from '../../../src/plugins/navigation/public';
+import { NavigationPublicPluginStart } from "../../../src/plugins/navigation/public";
 
-export interface OpendistroNotificationKibanaPluginSetup {
+export interface opendistroNotificationsKibanaPluginSetup {
   getGreeting: () => string;
 }
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface OpendistroNotificationKibanaPluginStart {}
+export interface opendistroNotificationsKibanaPluginStart {}
 
 export interface AppPluginStartDependencies {
   navigation: NavigationPublicPluginStart;

@@ -4,17 +4,20 @@ import {
   CoreStart,
   Plugin,
   Logger,
-} from '../../../src/core/server';
+} from "../../../src/core/server";
 
 import {
-  OpendistroNotificationKibanaPluginSetup,
-  OpendistroNotificationKibanaPluginStart,
-} from './types';
-import { defineRoutes } from './routes';
+  opendistroNotificationsKibanaPluginSetup,
+  opendistroNotificationsKibanaPluginStart,
+} from "./types";
+import { defineRoutes } from "./routes";
 
-export class OpendistroNotificationKibanaPlugin
+export class opendistroNotificationsKibanaPlugin
   implements
-    Plugin<OpendistroNotificationKibanaPluginSetup, OpendistroNotificationKibanaPluginStart> {
+    Plugin<
+      opendistroNotificationsKibanaPluginSetup,
+      opendistroNotificationsKibanaPluginStart
+    > {
   private readonly logger: Logger;
 
   constructor(initializerContext: PluginInitializerContext) {
@@ -22,7 +25,7 @@ export class OpendistroNotificationKibanaPlugin
   }
 
   public setup(core: CoreSetup) {
-    this.logger.debug('opendistroNotificationKibana: Setup');
+    this.logger.debug("opendistroNotificationsKibana: Setup");
     const router = core.http.createRouter();
 
     // Register server side APIs
@@ -32,7 +35,7 @@ export class OpendistroNotificationKibanaPlugin
   }
 
   public start(core: CoreStart) {
-    this.logger.debug('opendistroNotificationKibana: Started');
+    this.logger.debug("opendistroNotificationsKibana: Started");
     return {};
   }
 

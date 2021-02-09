@@ -1,4 +1,4 @@
-# opendistroNotificationKibana
+# opendistroNotificationsKibana
 
 A Kibana plugin
 
