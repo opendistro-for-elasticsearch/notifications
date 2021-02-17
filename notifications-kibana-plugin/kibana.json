@@ -1,9 +1,9 @@
 {
   "id": "opendistroNotificationsKibana",
-  "version": "1.0.0",
-  "kibanaVersion": "kibana",
-  "server": true,
-  "ui": true,
+  "version": "1.13.0.0",
+  "kibanaVersion": "7.10.2",
+  "configPath": ["opendistro_index_management"],
   "requiredPlugins": ["navigation"],
-  "optionalPlugins": []
+  "server": true,
+  "ui": true
 }
