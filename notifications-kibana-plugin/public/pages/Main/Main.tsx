@@ -24,6 +24,7 @@ import { Component } from 'react';
 import { Redirect, Route, RouteComponentProps, Switch } from 'react-router-dom';
 import { CoreStart } from '../../../../../src/core/public';
 import Notifications from '../Notifications';
+import { Channels } from '../Channels/Channels';
 
 enum Navigation {
   Notifications = 'Notifications',
@@ -102,7 +103,7 @@ export default class Main extends Component<MainProps, object> {
                           <Route
                             path={ROUTES.CHANNELS}
                             render={(props: RouteComponentProps) => (
-                              <div>channel page</div>
+                              <Channels {...props} />
                             )}
                           />
                           <Route

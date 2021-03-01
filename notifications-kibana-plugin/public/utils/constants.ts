@@ -24,6 +24,7 @@ export const ROUTES = Object.freeze({
 export const BREADCRUMBS = Object.freeze({
   NOTIFICATIONS: { text: 'Notifications', href: '#/' },
   DASHBOARD: { text: 'Dashboard', href: `#${ROUTES.NOTIFICATIONS}` },
+  CHANNELS: { text: 'Channels', href: `#${ROUTES.CHANNELS}` },
 });
 
 export const NOTIFICATION_STATUS = Object.freeze({

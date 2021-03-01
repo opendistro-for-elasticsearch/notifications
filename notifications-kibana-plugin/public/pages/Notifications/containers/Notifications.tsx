@@ -44,7 +44,7 @@ import { RouteComponentProps } from 'react-router-dom';
 import { getURLQueryParams, navigateToChannelDetail } from '../utils/helpers';
 import { CoreServicesContext } from '../../../components/coreServices';
 import { CoreStart, HttpStart } from '../../../../../../src/core/public';
-import { NotificationItem } from '../../../../models/interfaces';
+import { NotificationItem, TableState } from '../../../../models/interfaces';
 
 import { NotificationService } from '../../../services';
 import { BREADCRUMBS } from '../../../utils/constants';
@@ -61,16 +61,7 @@ interface NotificationsProps extends RouteComponentProps {
   notificationService: NotificationService;
 }
 
-interface NotificationsState {
-  totalNotifications: number;
-  from: number;
-  size: number;
-  search: string;
-  sortField: any; //keyof NotificationItem;
-  sortDirection: Direction;
-  selectedItems: []; // NotificationItem[];
-  notifications: NotificationItem[]; // NotificationItem[];
-  loadingNotifications: boolean;
+interface NotificationsState extends TableState<NotificationItem> {
   status: string;
   severity: string;
   source: string;
@@ -98,15 +89,15 @@ export default class Notifications extends Component<
     } = getURLQueryParams(this.props.location);
 
     this.state = {
-      totalNotifications: 0,
+      total: 0,
       from,
       size,
       search,
       sortField,
       sortDirection,
-      notifications: [],
+      items: [],
       selectedItems: [],
-      loadingNotifications: true,
+      loading: true,
       status,
       severity,
       source,
@@ -251,7 +242,7 @@ export default class Notifications extends Component<
   }
 
   getNotifications = async () => {
-    this.setState({ loadingNotifications: true });
+    this.setState({ loading: true });
     try {
       const { notificationService, history } = this.props;
       const queryObject = Notifications.getQueryObjectFromState(this.state);
@@ -261,13 +252,13 @@ export default class Notifications extends Component<
         queryObject
       );
       const { notifications, totalNotifications } = getNotificationsResponse;
-      this.setState({ notifications, totalNotifications });
+      this.setState({ items: notifications, total: totalNotifications });
     } catch (err) {
       this.context.notifications.toasts.addDanger(
         getErrorMessage(err, 'There was a problem loading the managed indices')
       );
     }
-    this.setState({ loadingNotifications: false });
+    this.setState({ loading: false });
   };
 
   onTableChange = ({
@@ -316,15 +307,15 @@ export default class Notifications extends Component<
 
   render() {
     const {
-      totalNotifications,
+      total,
       from,
       size,
       search,
       sortField,
       sortDirection,
       selectedItems,
-      notifications,
-      loadingNotifications,
+      items,
+      loading,
     } = this.state;
 
     const filterIsApplied = !!search;
@@ -334,7 +325,7 @@ export default class Notifications extends Component<
       pageIndex: page,
       pageSize: size,
       pageSizeOptions: DEFAULT_PAGE_SIZE_OPTIONS,
-      totalItemCount: totalNotifications,
+      totalItemCount: total,
     };
 
     const sorting: EuiTableSortingType<NotificationItem> = {
@@ -371,7 +362,7 @@ export default class Notifications extends Component<
         >
           <NotificationControls
             activePage={page}
-            pageCount={Math.ceil(totalNotifications / size) || 1}
+            pageCount={Math.ceil(total / size) || 1}
             search={search}
             onSearchChange={this.onSearchChange}
             onPageChange={this.onPageChange}
@@ -387,7 +378,7 @@ export default class Notifications extends Component<
             columns={this.columns}
             itemId="title"
             isSelectable={true}
-            items={notifications}
+            items={items}
             noItemsMessage={
               // TODO: add empty prompt component, pending UXDR
               <div>no item</div>

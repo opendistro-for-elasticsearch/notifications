@@ -41,7 +41,7 @@ const ContentPanel: React.SFC<ContentPanelProps> = ({
   actions,
   children,
 }) => (
-  <EuiPanel style={{ paddingLeft: '0px', paddingRight: '0px', ...panelStyles }}>
+  <EuiPanel style={{ ...panelStyles }}>
     <EuiFlexGroup
       style={{ padding: '0px 10px' }}
       justifyContent="spaceBetween"

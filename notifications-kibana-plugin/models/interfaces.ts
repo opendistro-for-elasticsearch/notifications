@@ -13,6 +13,8 @@
  * permissions and limitations under the License.
  */
 
+import { Direction } from "@elastic/eui";
+
 export interface NotificationItem {
   title: string;
   channel: ChannelOverview; // those will be prepared by kibana server. UI model vs Backend Model
@@ -34,4 +36,24 @@ export interface ChannelOverview {
   id: string;
   name: string;
   type: string;
+}
+
+export interface ChannelsItem {
+  name: string;
+  status: string;
+  type: string;
+  source: string;
+  description: string;
+}
+
+export interface TableState<T> {
+  total: number;
+  from: number;
+  size: number;
+  search: string;
+  sortField: any; // keyof T
+  sortDirection: Direction;
+  selectedItems: T[];
+  items: T[];
+  loading: boolean;
 }
