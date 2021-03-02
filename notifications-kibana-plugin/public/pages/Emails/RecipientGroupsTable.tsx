@@ -13,48 +13,41 @@
  * permissions and limitations under the License.
  */
 
-import { ChannelItemType, TableState } from '../../../models/interfaces';
+import { RecipientGroupItemType, TableState } from '../../../models/interfaces';
+import { Component } from 'react';
+import { CoreServicesContext } from '../../components/coreServices';
 import {
-  Direction,
   EuiBasicTable,
-  EuiHealth,
+  EuiButton,
+  EuiFieldSearch,
   EuiHorizontalRule,
-  EuiLink,
   EuiTableFieldDataColumnType,
   EuiTableSortingType,
-  EuiContextMenuItem,
-  EuiButton,
-  EuiSpacer,
 } from '@elastic/eui';
 import { SORT_DIRECTION } from '../../../common';
+import { BREADCRUMBS, ROUTES } from '../../utils/constants';
+import React from 'react';
+import { Criteria } from '@elastic/eui/src/components/basic_table/basic_table';
 import { Pagination } from '@elastic/eui/src/components/basic_table/pagination_bar';
-import React, { Component } from 'react';
-import { RouteComponentProps } from 'react-router-dom';
+import { DEFAULT_PAGE_SIZE_OPTIONS } from '../Notifications/utils/constants';
 import {
   ContentPanel,
   ContentPanelActions,
 } from '../../components/ContentPanel';
-import { CoreServicesContext } from '../../components/coreServices';
-import { DEFAULT_PAGE_SIZE_OPTIONS } from '../Notifications/utils/constants';
-import { BREADCRUMBS, ROUTES } from '../../utils/constants';
-import { ChannelsControls } from './components/ChannelControls';
-import { ChannelsActions } from './components/ChannelsActions';
-import { Criteria } from '@elastic/eui/src/components/basic_table/basic_table';
 
-interface ChannelsProps extends RouteComponentProps {}
+interface RecipientGroupsTableProps {}
 
-interface ChannelsState extends TableState<ChannelItemType> {
-  state: string;
-  type: string;
-  source: string;
-  isActionsPopoverOpen: boolean;
-}
+interface RecipientGroupsTableState
+  extends TableState<RecipientGroupItemType> {}
 
-export class Channels extends Component<ChannelsProps, ChannelsState> {
+export class RecipientGroupsTable extends Component<
+  RecipientGroupsTableProps,
+  RecipientGroupsTableState
+> {
   static contextType = CoreServicesContext;
-  columns: EuiTableFieldDataColumnType<ChannelItemType>[];
+  columns: EuiTableFieldDataColumnType<RecipientGroupItemType>[];
 
-  constructor(props: ChannelsProps) {
+  constructor(props: RecipientGroupsTableProps) {
     super(props);
 
     this.state = {
@@ -65,25 +58,12 @@ export class Channels extends Component<ChannelsProps, ChannelsState> {
       sortField: 'name',
       sortDirection: SORT_DIRECTION.ASC,
       items: Array.from({ length: 5 }, (v, i) => ({
-        id: `${i}`,
+        id: i.toString(),
         name: 'abc' + i,
-        status: 'Active',
-        type: 'email',
-        allowedFeatures: ['Alerting', 'ISM'],
-        lastUpdatedTime: 0,
-        destination: {
-          slack: {
-            url:
-              'https://hooks.slack.com/services/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',
-          },
-        },
+        email: [{ email: 'no-reply@company.com' }],
       })),
       selectedItems: [],
       loading: true,
-      state: 'ALL',
-      type: 'ALL',
-      source: 'ALL',
-      isActionsPopoverOpen: false,
     };
 
     this.columns = [
@@ -93,35 +73,14 @@ export class Channels extends Component<ChannelsProps, ChannelsState> {
         sortable: true,
         truncateText: true,
         width: '150px',
-        render: (name: string) => (
-          <EuiLink href={`#${ROUTES.CHANNELS}/${name}`}>{name}</EuiLink>
-        ),
       },
       {
-        field: 'status',
-        name: 'Notification status',
-        sortable: true,
-        width: '150px',
-        render: (status: string) => {
-          const color = status == 'Active' ? 'success' : 'subdued';
-          const label = status == 'Active' ? 'Active' : 'subdued';
-          return <EuiHealth color={color}>{label}</EuiHealth>;
-        },
-      },
-      {
-        field: 'type',
-        name: 'Type',
-        sortable: true,
-        truncateText: false,
-        width: '150px',
-      },
-      {
-        field: 'allowedFeatures',
-        name: 'Notification source',
+        field: 'email',
+        name: 'Email addresses',
         sortable: true,
         truncateText: true,
         width: '150px',
-        render: (features: string[]) => features.join(', '),
+        render: (emails: string[]) => emails.length,
       },
       {
         field: 'description',
@@ -134,38 +93,24 @@ export class Channels extends Component<ChannelsProps, ChannelsState> {
   }
 
   async componentDidMount() {
-    this.context.chrome.setBreadcrumbs([
-      BREADCRUMBS.NOTIFICATIONS,
-      BREADCRUMBS.CHANNELS,
-    ]);
     // await this.getNotifications();
   }
 
   onTableChange = ({
     page: tablePage,
     sort,
-  }: Criteria<ChannelItemType>): void => {
+  }: Criteria<RecipientGroupItemType>): void => {
     const { index: page, size } = tablePage!;
     const { field: sortField, direction: sortDirection } = sort!;
     this.setState({ from: page * size, size, sortField, sortDirection });
   };
 
-  onSelectionChange = (selectedItems: ChannelItemType[]): void => {
+  onSelectionChange = (selectedItems: RecipientGroupItemType[]): void => {
     this.setState({ selectedItems });
   };
 
   onSearchChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     this.setState({ from: 0, search: e.target.value });
-  };
-
-  onStateChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    this.setState({ from: 0, state: e.target.value });
-  };
-  onTypeChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    this.setState({ from: 0, type: e.target.value });
-  };
-  onSourceChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    this.setState({ from: 0, source: e.target.value });
   };
 
   onPageChange = (page: number): void => {
@@ -196,7 +141,7 @@ export class Channels extends Component<ChannelsProps, ChannelsState> {
       totalItemCount: total,
     };
 
-    const sorting: EuiTableSortingType<ChannelItemType> = {
+    const sorting: EuiTableSortingType<RecipientGroupItemType> = {
       sort: {
         direction: sortDirection,
         field: sortField,
@@ -216,13 +161,22 @@ export class Channels extends Component<ChannelsProps, ChannelsState> {
               actions={[
                 {
                   component: (
-                    <ChannelsActions selectedItems={this.state.selectedItems} />
+                    <EuiButton size="s" href={`#${ROUTES.CREATE_CHANNEL}`}>
+                      Delete
+                    </EuiButton>
+                  ),
+                },
+                {
+                  component: (
+                    <EuiButton size="s" href={`#${ROUTES.CREATE_CHANNEL}`}>
+                      Edit
+                    </EuiButton>
                   ),
                 },
                 {
                   component: (
                     <EuiButton size="s" fill href={`#${ROUTES.CREATE_CHANNEL}`}>
-                      Create channel
+                      Create sender
                     </EuiButton>
                   ),
                 },
@@ -230,19 +184,14 @@ export class Channels extends Component<ChannelsProps, ChannelsState> {
             />
           }
           bodyStyles={{ padding: 'initial' }}
-          title={`Channels (${this.state.total})`}
+          title={`Recipient groups (${this.state.total})`}
           titleSize="m"
         >
-          <ChannelsControls
-            search={search}
-            state={this.state.state}
-            type={this.state.type}
-            source={this.state.source}
-            onSearchChange={this.onSearchChange}
-            onStateChange={this.onStateChange}
-            onTypeChange={this.onTypeChange}
-            onSourceChange={this.onSourceChange}
-            // onRefresh={this.getNotifications}
+          <EuiFieldSearch
+            fullWidth={true}
+            placeholder="Search"
+            onChange={this.onSearchChange}
+            value={search}
           />
           <EuiHorizontalRule margin="s" />
 

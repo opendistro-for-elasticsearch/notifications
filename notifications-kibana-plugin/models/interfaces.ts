@@ -13,7 +13,7 @@
  * permissions and limitations under the License.
  */
 
-import { Direction } from "@elastic/eui";
+import { Direction } from '@elastic/eui';
 
 export interface NotificationItem {
   title: string;
@@ -38,12 +38,33 @@ export interface ChannelOverview {
   type: string;
 }
 
-export interface ChannelsItem {
+export interface ChannelItemType {
+  id: string;
   name: string;
   status: string;
   type: string;
-  source: string;
-  description: string;
+  allowedFeatures: string[];
+  lastUpdatedTime: number;
+  destination: {
+    [type: string]: object;
+  };
+  description?: string;
+}
+
+export interface SenderItemType {
+  id: string;
+  name: string;
+  from: string; // outbound email address
+  host: string;
+  port: string;
+  method: ENCRYPTION_METHOD;
+}
+
+export interface RecipientGroupItemType {
+  id: string;
+  name: string;
+  email: Array<{ email: string }>;
+  description?: string;
 }
 
 export interface TableState<T> {

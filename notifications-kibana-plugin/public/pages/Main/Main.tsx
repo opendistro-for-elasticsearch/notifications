@@ -27,11 +27,13 @@ import Notifications from '../Notifications';
 import { Channels } from '../Channels/Channels';
 import { CreateChannel } from '../CreateChannels/CreateChannel';
 import { ChannelDetails } from '../Channels/ChannelDetails';
+import { EmailGroups } from '../Emails/EmailGroups';
 
 enum Navigation {
   Notifications = 'Notifications',
   Dashboard = 'Dashboard',
   Channels = 'Channels',
+  EmailGroups = 'Email groups',
 }
 
 enum Pathname {
@@ -64,6 +66,12 @@ export default class Main extends Component<MainProps, object> {
             id: 2,
             href: `#${Pathname.Channels}`,
             isSelected: pathname === Pathname.Channels,
+          },
+          {
+            name: Navigation.EmailGroups,
+            id: 3,
+            href: `#${ROUTES.EMAIL_GROUPS}`,
+            isSelected: pathname === ROUTES.EMAIL_GROUPS,
           },
         ],
       },
@@ -125,6 +133,12 @@ export default class Main extends Component<MainProps, object> {
                                   services.notificationService
                                 }
                               />
+                            )}
+                          />
+                          <Route
+                            path={ROUTES.EMAIL_GROUPS}
+                            render={(props: RouteComponentProps) => (
+                              <EmailGroups {...props} />
                             )}
                           />
                           {/* <Route

@@ -13,13 +13,13 @@
  * permissions and limitations under the License.
  */
 
-import { ChannelsItem } from '.notifications/notifications-kibana-plugin/models/interfaces';
+import { ChannelItemType } from '../../../../models/interfaces';
 import { EuiPopover, EuiButton, EuiContextMenuItem } from '@elastic/eui';
 import React, { useState } from 'react';
 import { ModalConsumer } from '../../../components/Modal';
 import ErrorDetailModal from '../../Notifications/component/ErrorDetailModal/ErrorDetailModel';
 
-export function ChannelsActions(props: { selectedItems: ChannelsItem[] }) {
+export function ChannelsActions(props: { selectedItems: ChannelItemType[] }) {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
   const actions = [
