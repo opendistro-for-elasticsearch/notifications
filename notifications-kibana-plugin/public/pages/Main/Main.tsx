@@ -26,6 +26,7 @@ import { CoreStart } from '../../../../../src/core/public';
 import Notifications from '../Notifications';
 import { Channels } from '../Channels/Channels';
 import { CreateChannel } from '../CreateChannels/CreateChannel';
+import { ChannelDetails } from '../Channels/ChannelDetails';
 
 enum Navigation {
   Notifications = 'Notifications',
@@ -78,8 +79,10 @@ export default class Main extends Component<MainProps, object> {
                     <ModalRoot services={services} />
                     <EuiPage>
                       {/*Hide side navigation bar when creating or editing rollup job*/}
+                      {/* or when viewing channel details */}
                       {pathname != ROUTES.CREATE_CHANNEL &&
-                        pathname != ROUTES.EDIT_CHANNEL && (
+                        pathname != ROUTES.EDIT_CHANNEL &&
+                        !pathname.match(`^${ROUTES.CHANNELS}/.+`) && (
                           <EuiPageSideBar style={{ minWidth: 150 }}>
                             <EuiSideNav
                               style={{ width: 150 }}
@@ -99,6 +102,12 @@ export default class Main extends Component<MainProps, object> {
                             path={ROUTES.EDIT_CHANNEL}
                             render={(props: RouteComponentProps) => (
                               <div>edit channel page</div>
+                            )}
+                          />
+                          <Route
+                            path={`${ROUTES.CHANNELS}/:name`}
+                            render={(props: RouteComponentProps) => (
+                              <ChannelDetails {...props} />
                             )}
                           />
                           <Route

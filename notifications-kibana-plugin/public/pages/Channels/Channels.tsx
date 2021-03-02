@@ -41,7 +41,7 @@ import {
 import { CoreServicesContext } from '../../components/coreServices';
 import { ModalConsumer } from '../../components/Modal';
 import { DEFAULT_PAGE_SIZE_OPTIONS } from '../Notifications/utils/constants';
-import { BREADCRUMBS } from '../../utils/constants';
+import { BREADCRUMBS, ROUTES } from '../../utils/constants';
 import { ChannelsControls } from './components/ChannelControls';
 import { ChannelsActions } from './components/ChannelsActions';
 import ErrorDetailModal from '../Notifications/component/ErrorDetailModal/ErrorDetailModel';
@@ -92,9 +92,7 @@ export class Channels extends Component<ChannelsProps, ChannelsState> {
         truncateText: true,
         width: '150px',
         render: (name: string) => (
-          <EuiLink href="#" target="_blank">
-            {name}
-          </EuiLink>
+          <EuiLink href={`#${ROUTES.CHANNELS}/${name}`}>{name}</EuiLink>
         ),
       },
       {
@@ -216,7 +214,14 @@ export class Channels extends Component<ChannelsProps, ChannelsState> {
                   ),
                 },
                 {
-                  component: <EuiButton>Create channel</EuiButton>,
+                  component: (
+                    <EuiButton
+                      size="s"
+                      onClick={() => location.assign(ROUTES.CREATE_CHANNEL)}
+                    >
+                      Create channel
+                    </EuiButton>
+                  ),
                 },
               ]}
             />
