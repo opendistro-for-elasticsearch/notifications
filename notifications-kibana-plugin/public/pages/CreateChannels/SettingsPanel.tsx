@@ -30,11 +30,24 @@ interface SettingsPanelProps {
 }
 
 export function SettingsPanel(props: SettingsPanelProps) {
+  const [checkboxIdToSelectedMap, setCheckboxIdToSelectedMap] = useState<{
+    [x: string]: boolean;
+  }>({});
+  const checkboxOptions: EuiCheckboxGroupOption[] = [
+    {
+      id: 'header',
+      label: 'Add header',
+    },
+    {
+      id: 'footer',
+      label: 'Add footer',
+    },
+  ];
+
   const [footer, setFooter] = useState('');
   const [selectedTabFooter, setSelectedTabFooter] = React.useState<
     'write' | 'preview'
   >('write');
-
   const [header, setHeader] = useState('');
   const [selectedTabHeader, setSelectedTabHeader] = React.useState<
     'write' | 'preview'
@@ -93,19 +106,6 @@ export function SettingsPanel(props: SettingsPanelProps) {
   };
 
   const renderEmailSettings = () => {
-    const [checkboxIdToSelectedMap, setCheckboxIdToSelectedMap] = useState<{
-      [x: string]: boolean;
-    }>({});
-    const checkboxOptions: EuiCheckboxGroupOption[] = [
-      {
-        id: 'header',
-        label: 'Add header',
-      },
-      {
-        id: 'footer',
-        label: 'Add footer',
-      },
-    ];
     return (
       <>
         <EuiSpacer size="m" />

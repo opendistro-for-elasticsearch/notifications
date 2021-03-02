@@ -19,6 +19,7 @@ import {
   EuiFlexItem,
   EuiHorizontalRule,
   EuiPanel,
+  EuiSpacer,
   EuiTitle,
 } from '@elastic/eui';
 
@@ -69,7 +70,7 @@ const ContentPanel: React.SFC<ContentPanelProps> = ({
       ) : null}
     </EuiFlexGroup>
 
-    <EuiHorizontalRule margin="xs" className={horizontalRuleClassName} />
+    <EuiHorizontalRule margin="s" className={horizontalRuleClassName} />
 
     <div style={{ padding: '0px 10px', ...bodyStyles }}>{children}</div>
   </EuiPanel>

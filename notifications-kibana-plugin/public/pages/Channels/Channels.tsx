@@ -29,6 +29,7 @@ import {
   EuiTableSortingType,
   EuiContextMenuItem,
   EuiButton,
+  EuiSpacer,
 } from '@elastic/eui';
 import { SORT_DIRECTION } from '../../../common';
 import { Pagination } from '@elastic/eui/src/components/basic_table/pagination_bar';
@@ -39,12 +40,10 @@ import {
   ContentPanelActions,
 } from '../../components/ContentPanel';
 import { CoreServicesContext } from '../../components/coreServices';
-import { ModalConsumer } from '../../components/Modal';
 import { DEFAULT_PAGE_SIZE_OPTIONS } from '../Notifications/utils/constants';
 import { BREADCRUMBS, ROUTES } from '../../utils/constants';
 import { ChannelsControls } from './components/ChannelControls';
 import { ChannelsActions } from './components/ChannelsActions';
-import ErrorDetailModal from '../Notifications/component/ErrorDetailModal/ErrorDetailModel';
 
 interface ChannelsProps extends RouteComponentProps {}
 
@@ -215,10 +214,7 @@ export class Channels extends Component<ChannelsProps, ChannelsState> {
                 },
                 {
                   component: (
-                    <EuiButton
-                      size="s"
-                      onClick={() => location.assign(ROUTES.CREATE_CHANNEL)}
-                    >
+                    <EuiButton size="s" fill href={`#${ROUTES.CREATE_CHANNEL}`}>
                       Create channel
                     </EuiButton>
                   ),
@@ -228,6 +224,7 @@ export class Channels extends Component<ChannelsProps, ChannelsState> {
           }
           bodyStyles={{ padding: 'initial' }}
           title={`Channels (${this.state.total})`}
+          titleSize="m"
         >
           <ChannelsControls
             search={search}
@@ -240,7 +237,7 @@ export class Channels extends Component<ChannelsProps, ChannelsState> {
             onSourceChange={this.onSourceChange}
             // onRefresh={this.getNotifications}
           />
-          <EuiHorizontalRule margin="xs" />
+          <EuiHorizontalRule margin="s" />
 
           <EuiBasicTable
             columns={this.columns}

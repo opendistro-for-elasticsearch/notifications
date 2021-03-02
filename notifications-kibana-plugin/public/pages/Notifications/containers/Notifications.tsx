@@ -347,6 +347,8 @@ export default class Notifications extends Component<
             <EuiButton
               href={`${PLUGIN_NAME}#/create-channel`}
               data-test-subj="createChannelButton"
+              fill
+              size="s"
             >
               Create Channel
             </EuiButton>
@@ -359,6 +361,7 @@ export default class Notifications extends Component<
           // actions={<ContentPanelActions actions={actions} />}
           bodyStyles={{ padding: 'initial' }}
           title="Notification History"
+          titleSize="m"
         >
           <NotificationControls
             activePage={page}
@@ -372,7 +375,7 @@ export default class Notifications extends Component<
             // onRefresh={this.getNotifications}
           />
 
-          <EuiHorizontalRule margin="xs" />
+          <EuiHorizontalRule margin="s" />
 
           <EuiBasicTable
             columns={this.columns}

@@ -54,6 +54,7 @@ export function ChannelsActions(props: { selectedItems: ChannelsItem[] }) {
             <EuiButton
               iconType="arrowDown"
               iconSide="right"
+              size="s"
               onClick={() => setIsPopoverOpen(!isPopoverOpen)}
             >
               Actions
