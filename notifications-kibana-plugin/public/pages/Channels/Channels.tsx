@@ -42,8 +42,8 @@ import { CoreServicesContext } from '../../components/coreServices';
 import { ModalConsumer } from '../../components/Modal';
 import { DEFAULT_PAGE_SIZE_OPTIONS } from '../Notifications/utils/constants';
 import { BREADCRUMBS } from '../../utils/constants';
-import { ChannelsControls } from './ChannelControls';
-import { ChannelsActions } from './ChannelsActions';
+import { ChannelsControls } from './components/ChannelControls';
+import { ChannelsActions } from './components/ChannelsActions';
 import ErrorDetailModal from '../Notifications/component/ErrorDetailModal/ErrorDetailModel';
 
 interface ChannelsProps extends RouteComponentProps {}

@@ -25,6 +25,7 @@ export const BREADCRUMBS = Object.freeze({
   NOTIFICATIONS: { text: 'Notifications', href: '#/' },
   DASHBOARD: { text: 'Dashboard', href: `#${ROUTES.NOTIFICATIONS}` },
   CHANNELS: { text: 'Channels', href: `#${ROUTES.CHANNELS}` },
+  CREATE_CHANNEL: { text: 'Create channel', href: `#${ROUTES.CREATE_CHANNEL}` },
 });
 
 export const NOTIFICATION_STATUS = Object.freeze({
@@ -33,6 +34,13 @@ export const NOTIFICATION_STATUS = Object.freeze({
 });
 
 export const NOTIFICATION_SOURCE = Object.freeze({
-  REPORTING: 'Reporting',
   ALERTING: 'Alerting',
+  ISM: 'ISM',
+  REPORTING: 'Reporting',
+});
+
+export const CHANNEL_TYPE = Object.freeze({
+  SLACK: 'Slack',
+  EMAIL: 'Email',
+  CHIME: 'Chime',
 });

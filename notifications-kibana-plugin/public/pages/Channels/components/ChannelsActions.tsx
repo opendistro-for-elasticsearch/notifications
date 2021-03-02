@@ -16,8 +16,8 @@
 import { ChannelsItem } from '.notifications/notifications-kibana-plugin/models/interfaces';
 import { EuiPopover, EuiButton, EuiContextMenuItem } from '@elastic/eui';
 import React, { useState } from 'react';
-import { ModalConsumer } from '../../components/Modal';
-import ErrorDetailModal from '../Notifications/component/ErrorDetailModal/ErrorDetailModel';
+import { ModalConsumer } from '../../../components/Modal';
+import ErrorDetailModal from '../../Notifications/component/ErrorDetailModal/ErrorDetailModel';
 
 export function ChannelsActions(props: { selectedItems: ChannelsItem[] }) {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);

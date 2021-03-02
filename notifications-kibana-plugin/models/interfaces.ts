@@ -57,3 +57,5 @@ export interface TableState<T> {
   items: T[];
   loading: boolean;
 }
+
+export type ENCRYPTION_METHOD = 'SSL' | 'TSL';
