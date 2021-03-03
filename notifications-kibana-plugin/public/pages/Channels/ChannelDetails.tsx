@@ -1,3 +1,18 @@
+/*
+ * Copyright 2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License").
+ * You may not use this file except in compliance with the License.
+ * A copy of the License is located at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * or in the "license" file accompanying this file. This file is distributed
+ * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
 import {
   EuiButton,
   EuiDescriptionList,
@@ -16,11 +31,16 @@ import {
 import { CoreServicesContext } from '../../components/coreServices';
 import { BREADCRUMBS, ROUTES } from '../../utils/constants';
 
-interface ChannelDetailsProps extends RouteComponentProps {}
+interface ListItemType {
+  title: NonNullable<React.ReactNode>;
+  description: NonNullable<React.ReactNode>;
+}
 
-export function ChannelDetails(props) {
+interface ChannelDetailsProps extends RouteComponentProps<{ id: string }> {}
+
+export function ChannelDetails(props: ChannelDetailsProps) {
   const context = useContext(CoreServicesContext)!;
-  const name = props.match.params.name;
+  const id = props.match.params.id;
 
   // TOTO send request
   const muted = false;
@@ -30,61 +50,69 @@ export function ChannelDetails(props) {
       BREADCRUMBS.NOTIFICATIONS,
       BREADCRUMBS.CHANNELS,
       {
-        text: name,
-        href: `${BREADCRUMBS.CHANNELS.href}/${name}`,
+        text: 'test',
+        href: `${BREADCRUMBS.CHANNELS.href}/${id}`,
       },
     ]);
   }, []);
 
-  // displayed horizontally on the UI, 4 items per row
-  const channelDescriptionList = [
-    [
-      {
-        title: 'Channel name',
-        description: 'The opening music alone evokes such strong memories.',
-      },
-      {
-        title: 'Description',
-        description:
-          'The sequel to XWING, join the dark side and fly for the Emporer.',
-      },
-      {
-        title: 'Last updated',
-        description: 'The game that made me drop out of college.',
-      },
-      {
-        title: 'Channel type',
-        description: 'The game that made me drop out of college.',
-      },
-    ],
-    [
-      {
-        title: 'Sender',
-        description: 'The game that made me drop out of college.',
-      },
-      {
-        title: 'Default recipients',
-        description: 'The game that made me drop out of college.',
-      },
-      {
-        title: 'Email header',
-        description: 'The game that made me drop out of college.',
-      },
-      {
-        title: 'Email footer',
-        description: 'The game that made me drop out of college.',
-      },
-    ],
-    [
-      {
-        title: 'Notification sources',
-        description: 'The game that made me drop out of college.',
-      },
-      null,
-      null,
-      null,
-    ],
+  const channelDescriptionList: Array<ListItemType> = [
+    {
+      title: 'Channel name',
+      description: 'The opening music alone evokes such strong memories.',
+    },
+    {
+      title: 'Description',
+      description:
+        'The sequel to XWING, join the dark side and fly for the Emporer.',
+    },
+    {
+      title: 'Last updated',
+      description: 'The game that made me drop out of college.',
+    },
+    {
+      title: 'Channel type',
+      description: 'The game that made me drop out of college.',
+    },
+    {
+      title: 'Sender',
+      description: 'The game that made me drop out of college.',
+    },
+    {
+      title: 'Default recipients',
+      description: 'The game that made me drop out of college.',
+    },
+    {
+      title: 'Email header',
+      description: 'The game that made me drop out of college.',
+    },
+    {
+      title: 'Email footer',
+      description: 'The game that made me drop out of college.',
+    },
+    {
+      title: 'Notification sources',
+      description: 'The game that made me drop out of college.',
+    },
   ];
+
+  // list is displayed horizontally on the UI, 4 items per row
+  // group items into an array of rows
+  const channelDescriptionListGroup = channelDescriptionList
+    .concat(
+      new Array(
+        Math.ceil(channelDescriptionList.length / 4) * 4 -
+          channelDescriptionList.length
+      ).fill(null)
+    )
+    .reduce(
+      (rows: Array<Array<ListItemType>>, item: ListItemType, i: number) => {
+        if (i % 4 === 0) rows.push([item]);
+        else rows[rows.length - 1].push(item);
+        return rows;
+      },
+      []
+    );
 
   return (
     <>
@@ -95,7 +123,7 @@ export function ChannelDetails(props) {
       >
         <EuiFlexItem grow={false}>
           <EuiTitle size="l">
-            <h1>{name}</h1>
+            <h1>test</h1>
           </EuiTitle>
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
@@ -129,7 +157,7 @@ export function ChannelDetails(props) {
             actions={[
               {
                 component: (
-                  <EuiButton size="s" href={`#${ROUTES.EDIT_CHANNEL}/${name}`}>
+                  <EuiButton size="s" href={`#${ROUTES.EDIT_CHANNEL}/${id}?from=details`}>
                     Edit
                   </EuiButton>
                 ),
@@ -138,7 +166,7 @@ export function ChannelDetails(props) {
           />
         }
       >
-        {channelDescriptionList.map((row, rowIndex) => (
+        {channelDescriptionListGroup.map((row, rowIndex) => (
           <div key={`channel-description-row-${rowIndex}`}>
             <EuiSpacer />
             <EuiFlexGroup>

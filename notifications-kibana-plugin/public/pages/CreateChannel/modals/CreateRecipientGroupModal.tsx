@@ -27,12 +27,11 @@ import {
 import React, { useState } from 'react';
 import { CreateRecipientGroupForm } from '../../Emails/forms/CreateRecipientGroupForm';
 
-interface CreateSenderModalProps {
-  props: any;
+interface CreateRecipientGroupModalProps {
   onClose: () => void;
 }
 
-export function CreateRecipientGroupModal(props: any) {
+export function CreateRecipientGroupModal(props: CreateRecipientGroupModalProps) {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [selectedEmailOptions, setSelectedEmailOptions] = useState<

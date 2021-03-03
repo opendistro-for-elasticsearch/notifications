@@ -94,8 +94,8 @@ export class Channels extends Component<ChannelsProps, ChannelsState> {
         sortable: true,
         truncateText: true,
         width: '150px',
-        render: (name: string) => (
-          <EuiLink href={`#${ROUTES.CHANNEL_DETAILS}/${name}`}>{name}</EuiLink>
+        render: (name: string, item: ChannelItemType) => (
+          <EuiLink href={`#${ROUTES.CHANNEL_DETAILS}/${item.id}`}>{name}</EuiLink>
         ),
       },
       {

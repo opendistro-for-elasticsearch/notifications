@@ -112,16 +112,16 @@ export default class Main extends Component<MainProps, object> {
                             )}
                           />
                           <Route
-                            path={`${ROUTES.EDIT_CHANNEL}/:name`}
-                            render={(props: RouteComponentProps) => (
+                            path={`${ROUTES.EDIT_CHANNEL}/:id`}
+                            render={(props: RouteComponentProps<{id: string}>) => (
                               <CreateChannel {...props} edit={true} />
                             )}
                           />
                           <Route
-                            path={`${ROUTES.CHANNEL_DETAILS}/:name`}
-                            render={(props: RouteComponentProps) => (
-                              <ChannelDetails {...props} />
-                            )}
+                            path={`${ROUTES.CHANNEL_DETAILS}/:id`}
+                            render={(
+                              props: RouteComponentProps<{ id: string }>
+                            ) => <ChannelDetails {...props} />}
                           />
                           <Route
                             path={ROUTES.CHANNELS}

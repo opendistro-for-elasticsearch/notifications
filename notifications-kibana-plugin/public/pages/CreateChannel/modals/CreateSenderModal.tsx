@@ -29,11 +29,10 @@ import { ENCRYPTION_METHOD } from '../../../../models/interfaces';
 import { CreateSenderForm } from '../../Emails/forms/CreateSenderForm';
 
 interface CreateSenderModalProps {
-  props: any;
   onClose: () => void;
 }
 
-export function CreateSenderModal(props: any) {
+export function CreateSenderModal(props: CreateSenderModalProps) {
   const [senderName, setSenderName] = useState('');
   const [email, setEmail] = useState('');
   const [host, setHost] = useState('');

@@ -13,22 +13,20 @@
  * permissions and limitations under the License.
  */
 
-import React from 'react';
 import {
   EuiButton,
+  EuiButtonEmpty,
+  EuiFlexGroup,
+  EuiFlexItem,
   EuiModal,
   EuiModalBody,
   EuiModalFooter,
   EuiModalHeader,
   EuiModalHeaderTitle,
   EuiOverlayMask,
-  EuiTitle,
-  EuiHorizontalRule,
   EuiText,
-  EuiFlexItem,
-  EuiFlexGroup,
-  EuiButtonEmpty,
 } from '@elastic/eui';
+import React from 'react';
 import { SenderItemType } from '../../../../models/interfaces';
 
 interface DeleteSenderModalProps {
@@ -36,21 +34,20 @@ interface DeleteSenderModalProps {
   onClose: () => void;
 }
 
-export const DeleteSenderModal = ({
-  senders,
-  onClose,
-}: DeleteSenderModalProps) => {
-  if (!senders.length) return null;
+export const DeleteSenderModal = (props: DeleteSenderModalProps) => {
+  if (!props.senders.length) return null;
 
-  const plural = senders.length >= 2;
-  const name = plural ? `${senders.length} senders` : senders[0].name;
+  const plural = props.senders.length >= 2;
+  const name = plural
+    ? `${props.senders.length} senders`
+    : props.senders[0].name;
   const message = `Delete ${name} permanently? Any channels using ${
     plural ? 'these' : 'this'
   } email sender${plural ? 's' : ''} will not be able to send notifications.`;
 
   return (
     <EuiOverlayMask>
-      <EuiModal onClose={onClose} maxWidth={500}>
+      <EuiModal onClose={props.onClose} maxWidth={500}>
         <EuiModalHeader>
           <EuiModalHeaderTitle>{`Delete ${name}?`}</EuiModalHeaderTitle>
         </EuiModalHeader>
@@ -60,10 +57,10 @@ export const DeleteSenderModal = ({
         <EuiModalFooter>
           <EuiFlexGroup justifyContent="flexEnd">
             <EuiFlexItem grow={false}>
-              <EuiButtonEmpty onClick={onClose}>Cancel</EuiButtonEmpty>
+              <EuiButtonEmpty onClick={props.onClose}>Cancel</EuiButtonEmpty>
             </EuiFlexItem>
             <EuiFlexItem grow={false}>
-              <EuiButton fill color="danger" onClick={onClose}>
+              <EuiButton fill color="danger" onClick={props.onClose}>
                 Delete
               </EuiButton>
             </EuiFlexItem>

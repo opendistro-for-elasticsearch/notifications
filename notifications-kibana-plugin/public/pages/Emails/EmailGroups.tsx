@@ -15,12 +15,15 @@
 
 import { EuiSpacer, EuiTitle } from '@elastic/eui';
 import React, { useContext, useEffect } from 'react';
+import { RouteComponentProps } from 'react-router-dom';
 import { CoreServicesContext } from '../../components/coreServices';
 import { BREADCRUMBS } from '../../utils/constants';
 import { RecipientGroupsTable } from './tables/RecipientGroupsTable';
 import { SendersTable } from './tables/SendersTable';
 
-export function EmailGroups(props) {
+interface EmailGroupsProps extends RouteComponentProps {}
+
+export function EmailGroups(props: EmailGroupsProps) {
   const context = useContext(CoreServicesContext)!;
   useEffect(() => {
     context.chrome.setBreadcrumbs([

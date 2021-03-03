@@ -24,12 +24,12 @@ import {
   EuiFlexItem,
   EuiFormRow,
   EuiSpacer,
-  EuiSuperSelect,
   EuiSuperSelectOption,
   EuiText,
   EuiTextArea,
   EuiTitle,
 } from '@elastic/eui';
+import queryString from 'query-string';
 import React, { useContext, useEffect, useState } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import { ContentPanel } from '../../components/ContentPanel';
@@ -42,12 +42,18 @@ import {
 } from '../../utils/constants';
 import { ChannelSettingsPanel } from './ChannelSettingsPanel';
 
-interface CreateChannelsProps extends RouteComponentProps {
+interface CreateChannelsProps extends RouteComponentProps<{ id?: string }> {
   edit?: boolean;
 }
 
 export function CreateChannel(props: CreateChannelsProps) {
   const context = useContext(CoreServicesContext)!;
+  const id = props.match.params.id;
+  const prevURL =
+    props.edit && queryString.parse(props.location.search).from === 'details'
+      ? `#${ROUTES.CHANNEL_DETAILS}/${id}`
+      : `#${ROUTES.CHANNELS}`;
+
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [slackWebhook, setSlackWebhook] = useState('');
@@ -200,7 +206,7 @@ export function CreateChannel(props: CreateChannelsProps) {
       <EuiSpacer />
       <EuiFlexGroup gutterSize="m" justifyContent="flexEnd">
         <EuiFlexItem grow={false}>
-          <EuiButtonEmpty size="s" href={`#${ROUTES.CHANNELS}`}>
+          <EuiButtonEmpty size="s" href={prevURL}>
             Cancel
           </EuiButtonEmpty>
         </EuiFlexItem>
@@ -208,7 +214,13 @@ export function CreateChannel(props: CreateChannelsProps) {
           <EuiButton size="s">Send test message</EuiButton>
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
-          <EuiButton size="s" fill>
+          <EuiButton
+            size="s"
+            fill
+            onClick={() => {
+              location.assign(prevURL);
+            }}
+          >
             {props.edit ? 'Save' : 'Create'}
           </EuiButton>
         </EuiFlexItem>
