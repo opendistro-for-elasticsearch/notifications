@@ -89,12 +89,13 @@ export default class Main extends Component<MainProps, object> {
                     <ModalRoot services={services} />
                     <EuiPage>
                       {/*Hide side navigation bar when creating or editing rollup job*/}
-                      {/* or when viewing channel details */}
                       {pathname !== ROUTES.CREATE_CHANNEL &&
-                        pathname !== ROUTES.EDIT_CHANNEL &&
+                        !pathname.startsWith(ROUTES.EDIT_CHANNEL) &&
                         !pathname.startsWith(ROUTES.CHANNEL_DETAILS) &&
                         pathname !== ROUTES.CREATE_SENDER &&
-                        pathname !== ROUTES.CREATE_RECIPIENT_GROUP && (
+                        !pathname.startsWith(ROUTES.EDIT_SENDER) &&
+                        pathname !== ROUTES.CREATE_RECIPIENT_GROUP &&
+                        !pathname.startsWith(ROUTES.EDIT_RECIPIENT_GROUP) && (
                           <EuiPageSideBar style={{ minWidth: 150 }}>
                             <EuiSideNav
                               style={{ width: 150 }}
@@ -111,9 +112,9 @@ export default class Main extends Component<MainProps, object> {
                             )}
                           />
                           <Route
-                            path={ROUTES.EDIT_CHANNEL}
+                            path={`${ROUTES.EDIT_CHANNEL}/:name`}
                             render={(props: RouteComponentProps) => (
-                              <div>edit channel page</div>
+                              <CreateChannel {...props} edit={true} />
                             )}
                           />
                           <Route
@@ -152,9 +153,21 @@ export default class Main extends Component<MainProps, object> {
                             )}
                           />
                           <Route
+                            path={`${ROUTES.EDIT_SENDER}/:id`}
+                            render={(props: RouteComponentProps) => (
+                              <CreateSender {...props} edit={true} />
+                            )}
+                          />
+                          <Route
                             path={ROUTES.CREATE_RECIPIENT_GROUP}
                             render={(props: RouteComponentProps) => (
                               <CreateRecipientGroup {...props} />
+                            )}
+                          />
+                          <Route
+                            path={`${ROUTES.EDIT_RECIPIENT_GROUP}/:name`}
+                            render={(props: RouteComponentProps) => (
+                              <CreateRecipientGroup {...props} edit={true} />
                             )}
                           />
                           {/* <Route

@@ -32,10 +32,12 @@ import React, { useContext, useEffect, useState } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import { ContentPanel } from '../../components/ContentPanel';
 import { CoreServicesContext } from '../../components/coreServices';
-import { BREADCRUMBS } from '../../utils/constants';
+import { BREADCRUMBS, ROUTES } from '../../utils/constants';
 import { CreateRecipientGroupForm } from './forms/CreateRecipientGroupForm';
 
-interface CreateRecipientGroupProps extends RouteComponentProps {}
+interface CreateRecipientGroupProps extends RouteComponentProps {
+  edit?: boolean;
+}
 
 export function CreateRecipientGroup(props: CreateRecipientGroupProps) {
   const context = useContext(CoreServicesContext)!;
@@ -54,8 +56,15 @@ export function CreateRecipientGroup(props: CreateRecipientGroupProps) {
     context.chrome.setBreadcrumbs([
       BREADCRUMBS.NOTIFICATIONS,
       BREADCRUMBS.EMAIL_GROUPS,
-      BREADCRUMBS.CREATE_RECIPIENT_GROUP,
+      props.edit
+        ? BREADCRUMBS.EDIT_RECIPIENT_GROUP
+        : BREADCRUMBS.CREATE_RECIPIENT_GROUP,
     ]);
+
+    if (props.edit) {
+      setName('test');
+      setDescription('test desc');
+    }
   }, []);
 
   return (
@@ -85,11 +94,13 @@ export function CreateRecipientGroup(props: CreateRecipientGroupProps) {
       <EuiSpacer />
       <EuiFlexGroup justifyContent="flexEnd" style={{ maxWidth: 1024 }}>
         <EuiFlexItem grow={false}>
-          <EuiButtonEmpty size="s">Cancel</EuiButtonEmpty>
+          <EuiButtonEmpty size="s" href={`#${ROUTES.EMAIL_GROUPS}`}>
+            Cancel
+          </EuiButtonEmpty>
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
           <EuiButton fill size="s">
-            Create
+            {props.edit ? 'Save' : 'Create'}
           </EuiButton>
         </EuiFlexItem>
       </EuiFlexGroup>

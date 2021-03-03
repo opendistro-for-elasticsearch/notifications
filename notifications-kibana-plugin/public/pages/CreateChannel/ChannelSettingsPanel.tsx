@@ -37,6 +37,20 @@ import { CreateSenderModal } from './modals/CreateSenderModal';
 import { CreateRecipientGroupModal } from './modals/CreateRecipientGroupModal';
 
 interface ChannelSettingsPanelProps {
+  headerFooterCheckboxIdToSelectedMap: { [x: string]: boolean };
+  setHeaderFooterCheckboxIdToSelectedMap: (map: {
+    [x: string]: boolean;
+  }) => void;
+  emailHeader: string;
+  setEmailHeader: (emailHeader: string) => void;
+  emailFooter: string;
+  setEmailFooter: (emailFooter: string) => void;
+  sender: string;
+  setSender: (sender: string) => void;
+  selectedRecipientGroupOptions: Array<EuiComboBoxOptionOption<string>>;
+  setSelectedRecipientGroupOptions: (
+    options: Array<EuiComboBoxOptionOption<string>>
+  ) => void;
   channelType: keyof typeof CHANNEL_TYPE;
   setChannelType: (type: keyof typeof CHANNEL_TYPE) => void;
   channelTypeOptions: Array<EuiSuperSelectOption<keyof typeof CHANNEL_TYPE>>;
@@ -45,9 +59,6 @@ interface ChannelSettingsPanelProps {
 }
 
 export function ChannelSettingsPanel(props: ChannelSettingsPanelProps) {
-  const [checkboxIdToSelectedMap, setCheckboxIdToSelectedMap] = useState<{
-    [x: string]: boolean;
-  }>({});
   const checkboxOptions: EuiCheckboxGroupOption[] = [
     {
       id: 'header',
@@ -59,27 +70,18 @@ export function ChannelSettingsPanel(props: ChannelSettingsPanelProps) {
     },
   ];
 
-  const [footer, setFooter] = useState('');
   const [selectedTabFooter, setSelectedTabFooter] = React.useState<
     'write' | 'preview'
   >('write');
-  const [header, setHeader] = useState('');
   const [selectedTabHeader, setSelectedTabHeader] = React.useState<
     'write' | 'preview'
   >('write');
-
-  const [sender, setSender] = useState('Admin');
   const senderOptions: Array<EuiSuperSelectOption<string>> = [
     {
       value: 'Admin',
       inputDisplay: 'Admin ',
     },
   ];
-
-  const [
-    selectedRecipientGroupOptions,
-    setSelectedRecipientGroupOptions,
-  ] = useState<Array<EuiComboBoxOptionOption<string>>>([]);
   const [recipientGroupOptions, setRecipientGroupOptions] = useState([
     {
       label: 'Titan',
@@ -101,8 +103,8 @@ export function ChannelSettingsPanel(props: ChannelSettingsPanelProps) {
     ) {
       setRecipientGroupOptions([...recipientGroupOptions, newOption]);
     }
-    setSelectedRecipientGroupOptions([
-      ...selectedRecipientGroupOptions,
+    props.setSelectedRecipientGroupOptions([
+      ...props.selectedRecipientGroupOptions,
       newOption,
     ]);
   };
@@ -133,8 +135,8 @@ export function ChannelSettingsPanel(props: ChannelSettingsPanelProps) {
               <EuiSuperSelect
                 fullWidth
                 options={senderOptions}
-                valueOfSelected={sender}
-                onChange={setSender}
+                valueOfSelected={props.sender}
+                onChange={props.setSender}
               />
             </EuiFormRow>
           </EuiFlexItem>
@@ -164,8 +166,8 @@ export function ChannelSettingsPanel(props: ChannelSettingsPanelProps) {
                 placeholder=""
                 fullWidth
                 options={recipientGroupOptions}
-                selectedOptions={selectedRecipientGroupOptions}
-                onChange={setSelectedRecipientGroupOptions}
+                selectedOptions={props.selectedRecipientGroupOptions}
+                onChange={props.setSelectedRecipientGroupOptions}
                 onCreateOption={onCreateEmailOption}
                 isClearable={true}
               />
@@ -193,12 +195,12 @@ export function ChannelSettingsPanel(props: ChannelSettingsPanelProps) {
         <EuiFormRow>
           <EuiCheckboxGroup
             options={checkboxOptions}
-            idToSelectedMap={checkboxIdToSelectedMap}
+            idToSelectedMap={props.headerFooterCheckboxIdToSelectedMap}
             onChange={(optionId: string) => {
-              setCheckboxIdToSelectedMap({
-                ...checkboxIdToSelectedMap,
+              props.setHeaderFooterCheckboxIdToSelectedMap({
+                ...props.headerFooterCheckboxIdToSelectedMap,
                 ...{
-                  [optionId]: !checkboxIdToSelectedMap[optionId],
+                  [optionId]: !props.headerFooterCheckboxIdToSelectedMap[optionId],
                 },
               });
             }}
@@ -206,11 +208,11 @@ export function ChannelSettingsPanel(props: ChannelSettingsPanelProps) {
           />
         </EuiFormRow>
 
-        {checkboxIdToSelectedMap.header && (
+        {props.headerFooterCheckboxIdToSelectedMap.header && (
           <EuiFormRow label="Header" fullWidth={true}>
             <ReactMde
-              value={header}
-              onChange={setHeader}
+              value={props.emailHeader}
+              onChange={props.setEmailHeader}
               selectedTab={selectedTabHeader}
               onTabChange={setSelectedTabHeader}
               toolbarCommands={[
@@ -224,11 +226,11 @@ export function ChannelSettingsPanel(props: ChannelSettingsPanelProps) {
           </EuiFormRow>
         )}
 
-        {checkboxIdToSelectedMap.footer && (
+        {props.headerFooterCheckboxIdToSelectedMap.footer && (
           <EuiFormRow label="Footer" fullWidth={true}>
             <ReactMde
-              value={footer}
-              onChange={setFooter}
+              value={props.emailFooter}
+              onChange={props.setEmailFooter}
               selectedTab={selectedTabFooter}
               onTabChange={setSelectedTabFooter}
               toolbarCommands={[

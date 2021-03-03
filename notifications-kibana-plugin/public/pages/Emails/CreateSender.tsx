@@ -26,10 +26,12 @@ import React, { useContext, useEffect, useState } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import { ContentPanel } from '../../components/ContentPanel';
 import { CoreServicesContext } from '../../components/coreServices';
-import { BREADCRUMBS } from '../../utils/constants';
+import { BREADCRUMBS, ROUTES } from '../../utils/constants';
 import { CreateSenderForm } from './forms/CreateSenderForm';
 
-interface CreateSenderProps extends RouteComponentProps {}
+interface CreateSenderProps extends RouteComponentProps {
+  edit?: boolean;
+}
 
 export function CreateSender(props: CreateSenderProps) {
   const context = useContext(CoreServicesContext)!;
@@ -43,14 +45,19 @@ export function CreateSender(props: CreateSenderProps) {
     context.chrome.setBreadcrumbs([
       BREADCRUMBS.NOTIFICATIONS,
       BREADCRUMBS.EMAIL_GROUPS,
-      BREADCRUMBS.CREATE_SENDER,
+      props.edit ? BREADCRUMBS.EDIT_SENDER : BREADCRUMBS.CREATE_SENDER,
     ]);
+
+    if (props.edit) {
+      setSenderName('test');
+      setEmail('test mail');
+    }
   }, []);
 
   return (
     <>
       <EuiTitle size="l">
-        <h1>Create sender</h1>
+        <h1>{`${props.edit ? 'Edit' : 'Create'} sender`}</h1>
       </EuiTitle>
 
       <EuiSpacer />
@@ -77,11 +84,13 @@ export function CreateSender(props: CreateSenderProps) {
       <EuiSpacer />
       <EuiFlexGroup justifyContent="flexEnd" style={{ maxWidth: 1024 }}>
         <EuiFlexItem grow={false}>
-          <EuiButtonEmpty size="s">Cancel</EuiButtonEmpty>
+          <EuiButtonEmpty size="s" href={`#${ROUTES.EMAIL_GROUPS}`}>
+            Cancel
+          </EuiButtonEmpty>
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
           <EuiButton fill size="s">
-            Create
+            {props.edit ? 'Save' : 'Create'}
           </EuiButton>
         </EuiFlexItem>
       </EuiFlexGroup>

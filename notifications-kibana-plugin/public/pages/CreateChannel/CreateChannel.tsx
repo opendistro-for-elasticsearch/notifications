@@ -18,6 +18,7 @@ import {
   EuiButtonEmpty,
   EuiCheckboxGroup,
   EuiCheckboxGroupOption,
+  EuiComboBoxOptionOption,
   EuiFieldText,
   EuiFlexGroup,
   EuiFlexItem,
@@ -37,27 +38,32 @@ import {
   BREADCRUMBS,
   CHANNEL_TYPE,
   NOTIFICATION_SOURCE,
+  ROUTES,
 } from '../../utils/constants';
 import { ChannelSettingsPanel } from './ChannelSettingsPanel';
 
-interface CreateChannelsProps extends RouteComponentProps {}
+interface CreateChannelsProps extends RouteComponentProps {
+  edit?: boolean;
+}
 
 export function CreateChannel(props: CreateChannelsProps) {
   const context = useContext(CoreServicesContext)!;
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [slackWebhook, setSlackWebhook] = useState('');
-  const [checkboxIdToSelectedMap, setCheckboxIdToSelectedMap] = useState<{
+  const [
+    headerFooterCheckboxIdToSelectedMap,
+    setHeaderFooterCheckboxIdToSelectedMap,
+  ] = useState<{
     [x: string]: boolean;
   }>({});
-
-  useEffect(() => {
-    context.chrome.setBreadcrumbs([
-      BREADCRUMBS.NOTIFICATIONS,
-      BREADCRUMBS.CHANNELS,
-      BREADCRUMBS.CREATE_CHANNEL,
-    ]);
-  }, []);
+  const [emailHeader, setEmailHeader] = useState('');
+  const [emailFooter, setEmailFooter] = useState('');
+  const [sender, setSender] = useState('Admin');
+  const [
+    selectedRecipientGroupOptions,
+    setSelectedRecipientGroupOptions,
+  ] = useState<Array<EuiComboBoxOptionOption<string>>>([]);
 
   const sourceOptions: EuiCheckboxGroupOption[] = Object.entries(
     NOTIFICATION_SOURCE
@@ -65,6 +71,12 @@ export function CreateChannel(props: CreateChannelsProps) {
     id: key,
     label: value,
   }));
+  const [
+    sourceCheckboxIdToSelectedMap,
+    setSourceCheckboxIdToSelectedMap,
+  ] = useState<{
+    [x: string]: boolean;
+  }>({});
 
   const channelTypeOptions: Array<EuiSuperSelectOption<
     keyof typeof CHANNEL_TYPE
@@ -72,12 +84,26 @@ export function CreateChannel(props: CreateChannelsProps) {
     value: key as keyof typeof CHANNEL_TYPE,
     inputDisplay: value,
   }));
-  const [channelType, setChannelType] = useState(channelTypeOptions[1].value);
+  const [channelType, setChannelType] = useState(channelTypeOptions[0].value);
+
+  useEffect(() => {
+    context.chrome.setBreadcrumbs([
+      BREADCRUMBS.NOTIFICATIONS,
+      BREADCRUMBS.CHANNELS,
+      props.edit ? BREADCRUMBS.EDIT_CHANNEL : BREADCRUMBS.CREATE_CHANNEL,
+    ]);
+
+    if (props.edit) {
+      setName('test');
+      setDescription('test desc');
+      setSlackWebhook('hxxp');
+    }
+  }, []);
 
   return (
     <>
       <EuiTitle size="l">
-        <h1>Create channel</h1>
+        <h1>{`${props.edit ? 'Edit' : 'Create'} channel`}</h1>
       </EuiTitle>
 
       <EuiSpacer />
@@ -121,6 +147,20 @@ export function CreateChannel(props: CreateChannelsProps) {
         titleSize="s"
       >
         <ChannelSettingsPanel
+          headerFooterCheckboxIdToSelectedMap={
+            headerFooterCheckboxIdToSelectedMap
+          }
+          setHeaderFooterCheckboxIdToSelectedMap={
+            setHeaderFooterCheckboxIdToSelectedMap
+          }
+          emailHeader={emailHeader}
+          setEmailHeader={setEmailHeader}
+          emailFooter={emailFooter}
+          setEmailFooter={setEmailFooter}
+          sender={sender}
+          setSender={setSender}
+          selectedRecipientGroupOptions={selectedRecipientGroupOptions}
+          setSelectedRecipientGroupOptions={setSelectedRecipientGroupOptions}
           channelType={channelType}
           setChannelType={setChannelType}
           channelTypeOptions={channelTypeOptions}
@@ -143,12 +183,12 @@ export function CreateChannel(props: CreateChannelsProps) {
             <EuiSpacer size="s" />
             <EuiCheckboxGroup
               options={sourceOptions}
-              idToSelectedMap={checkboxIdToSelectedMap}
+              idToSelectedMap={sourceCheckboxIdToSelectedMap}
               onChange={(optionId: string) => {
-                setCheckboxIdToSelectedMap({
-                  ...checkboxIdToSelectedMap,
+                setSourceCheckboxIdToSelectedMap({
+                  ...sourceCheckboxIdToSelectedMap,
                   ...{
-                    [optionId]: !checkboxIdToSelectedMap[optionId],
+                    [optionId]: !sourceCheckboxIdToSelectedMap[optionId],
                   },
                 });
               }}
@@ -160,14 +200,16 @@ export function CreateChannel(props: CreateChannelsProps) {
       <EuiSpacer />
       <EuiFlexGroup gutterSize="m" justifyContent="flexEnd">
         <EuiFlexItem grow={false}>
-          <EuiButtonEmpty size="s">Cancel</EuiButtonEmpty>
+          <EuiButtonEmpty size="s" href={`#${ROUTES.CHANNELS}`}>
+            Cancel
+          </EuiButtonEmpty>
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
           <EuiButton size="s">Send test message</EuiButton>
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
           <EuiButton size="s" fill>
-            Create
+            {props.edit ? 'Save' : 'Create'}
           </EuiButton>
         </EuiFlexItem>
       </EuiFlexGroup>

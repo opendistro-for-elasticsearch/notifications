@@ -13,7 +13,10 @@
  * permissions and limitations under the License.
  */
 
-import { RecipientGroupItemType, TableState } from '../../../../models/interfaces';
+import {
+  RecipientGroupItemType,
+  TableState,
+} from '../../../../models/interfaces';
 import { Component } from 'react';
 import { CoreServicesContext } from '../../../components/coreServices';
 import {
@@ -35,6 +38,8 @@ import {
   ContentPanel,
   ContentPanelActions,
 } from '../../../components/ContentPanel';
+import { ModalConsumer } from '../../../../public/components/Modal';
+import { DeleteSenderModal } from '../modals/DeleteSenderModal';
 
 interface RecipientGroupsTableProps {}
 
@@ -162,21 +167,45 @@ export class RecipientGroupsTable extends Component<
               actions={[
                 {
                   component: (
-                    <EuiButton size="s" href={`#${ROUTES.CREATE_CHANNEL}`}>
-                      Delete
-                    </EuiButton>
+                    <ModalConsumer>
+                      {({ onShow }) => (
+                        <EuiButton
+                          size="s"
+                          disabled={this.state.selectedItems.length === 0}
+                          onClick={() =>
+                            onShow(DeleteSenderModal, {
+                              senders: this.state.selectedItems,
+                            })
+                          }
+                        >
+                          Delete
+                        </EuiButton>
+                      )}
+                    </ModalConsumer>
                   ),
                 },
                 {
                   component: (
-                    <EuiButton size="s" href={`#${ROUTES.CREATE_CHANNEL}`}>
+                    <EuiButton
+                      size="s"
+                      disabled={this.state.selectedItems.length !== 1}
+                      onClick={() =>
+                        location.assign(
+                          `#${ROUTES.EDIT_RECIPIENT_GROUP}/${this.state.selectedItems[0]?.id}`
+                        )
+                      }
+                    >
                       Edit
                     </EuiButton>
                   ),
                 },
                 {
                   component: (
-                    <EuiButton size="s" fill href={`#${ROUTES.CREATE_RECIPIENT_GROUP}`}>
+                    <EuiButton
+                      size="s"
+                      fill
+                      href={`#${ROUTES.CREATE_RECIPIENT_GROUP}`}
+                    >
                       Create recipient group
                     </EuiButton>
                   ),
@@ -207,8 +236,8 @@ export class RecipientGroupsTable extends Component<
                 title={<h2>No recipient groups to display</h2>}
                 body="Use an email group to manage a list of email addresses you frequently send at a time. You can select recipient groups when configuring email channels."
                 actions={
-                  <EuiButton href={`#${ROUTES.CREATE_CHANNEL}`}>
-                      Create recipient group
+                  <EuiButton href={`#${ROUTES.CREATE_RECIPIENT_GROUP}`}>
+                    Create recipient group
                   </EuiButton>
                 }
               />

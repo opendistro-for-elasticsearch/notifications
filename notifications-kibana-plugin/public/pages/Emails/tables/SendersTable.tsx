@@ -35,6 +35,8 @@ import {
   ContentPanel,
   ContentPanelActions,
 } from '../../../components/ContentPanel';
+import { ModalConsumer } from '../../../../public/components/Modal';
+import { DeleteSenderModal } from '../modals/DeleteSenderModal';
 
 interface SendersTableProps {}
 
@@ -177,14 +179,34 @@ export class SendersTable extends Component<
               actions={[
                 {
                   component: (
-                    <EuiButton size="s" href={`#${ROUTES.CREATE_CHANNEL}`}>
-                      Delete
-                    </EuiButton>
+                    <ModalConsumer>
+                      {({ onShow }) => (
+                        <EuiButton
+                          size="s"
+                          disabled={this.state.selectedItems.length === 0}
+                          onClick={() =>
+                            onShow(DeleteSenderModal, {
+                              senders: this.state.selectedItems,
+                            })
+                          }
+                        >
+                          Delete
+                        </EuiButton>
+                      )}
+                    </ModalConsumer>
                   ),
                 },
                 {
                   component: (
-                    <EuiButton size="s" href={`#${ROUTES.CREATE_CHANNEL}`}>
+                    <EuiButton
+                      size="s"
+                      disabled={this.state.selectedItems.length !== 1}
+                      onClick={() =>
+                        location.assign(
+                          `#${ROUTES.EDIT_SENDER}/${this.state.selectedItems[0]?.id}`
+                        )
+                      }
+                    >
                       Edit
                     </EuiButton>
                   ),
@@ -223,7 +245,7 @@ export class SendersTable extends Component<
                 body="Setup outbound email server by creating a sender. You will select a sender when configuring email channels."
                 actions={
                   <EuiButton href={`#${ROUTES.CREATE_CHANNEL}`}>
-                      Create sender
+                    Create sender
                   </EuiButton>
                 }
               />

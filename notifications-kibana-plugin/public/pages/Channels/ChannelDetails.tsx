@@ -14,7 +14,7 @@ import {
   ContentPanelActions,
 } from '../../components/ContentPanel';
 import { CoreServicesContext } from '../../components/coreServices';
-import { BREADCRUMBS } from '../../utils/constants';
+import { BREADCRUMBS, ROUTES } from '../../utils/constants';
 
 interface ChannelDetailsProps extends RouteComponentProps {}
 
@@ -126,7 +126,15 @@ export function ChannelDetails(props) {
         panelStyles={{ maxWidth: 1300 }}
         actions={
           <ContentPanelActions
-            actions={[{ component: <EuiButton size="s">Edit</EuiButton> }]}
+            actions={[
+              {
+                component: (
+                  <EuiButton size="s" href={`#${ROUTES.EDIT_CHANNEL}/${name}`}>
+                    Edit
+                  </EuiButton>
+                ),
+              },
+            ]}
           />
         }
       >
