@@ -13,9 +13,9 @@
  * permissions and limitations under the License.
  */
 
-import { RecipientGroupItemType, TableState } from '../../../models/interfaces';
+import { RecipientGroupItemType, TableState } from '../../../../models/interfaces';
 import { Component } from 'react';
-import { CoreServicesContext } from '../../components/coreServices';
+import { CoreServicesContext } from '../../../components/coreServices';
 import {
   EuiBasicTable,
   EuiButton,
@@ -25,16 +25,16 @@ import {
   EuiTableFieldDataColumnType,
   EuiTableSortingType,
 } from '@elastic/eui';
-import { SORT_DIRECTION } from '../../../common';
-import { ROUTES } from '../../utils/constants';
+import { SORT_DIRECTION } from '../../../../common';
+import { ROUTES } from '../../../utils/constants';
 import React from 'react';
 import { Criteria } from '@elastic/eui/src/components/basic_table/basic_table';
 import { Pagination } from '@elastic/eui/src/components/basic_table/pagination_bar';
-import { DEFAULT_PAGE_SIZE_OPTIONS } from '../Notifications/utils/constants';
+import { DEFAULT_PAGE_SIZE_OPTIONS } from '../../Notifications/utils/constants';
 import {
   ContentPanel,
   ContentPanelActions,
-} from '../../components/ContentPanel';
+} from '../../../components/ContentPanel';
 
 interface RecipientGroupsTableProps {}
 
@@ -176,7 +176,7 @@ export class RecipientGroupsTable extends Component<
                 },
                 {
                   component: (
-                    <EuiButton size="s" fill href={`#${ROUTES.CREATE_CHANNEL}`}>
+                    <EuiButton size="s" fill href={`#${ROUTES.CREATE_RECIPIENT_GROUP}`}>
                       Create recipient group
                     </EuiButton>
                   ),

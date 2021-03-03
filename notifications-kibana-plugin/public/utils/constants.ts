@@ -17,9 +17,12 @@ export const ROUTES = Object.freeze({
   // notification
   NOTIFICATIONS: '/notifications',
   CHANNELS: '/channels',
+  CHANNEL_DETAILS: '/channel-details',
   CREATE_CHANNEL: '/create-channel',
   EDIT_CHANNEL: '/edit-channel',
   EMAIL_GROUPS: '/email-groups',
+  CREATE_SENDER: '/create-sender',
+  CREATE_RECIPIENT_GROUP: '/create-recipient-group',
 });
 
 export const BREADCRUMBS = Object.freeze({
@@ -28,6 +31,8 @@ export const BREADCRUMBS = Object.freeze({
   CHANNELS: { text: 'Channels', href: `#${ROUTES.CHANNELS}` },
   CREATE_CHANNEL: { text: 'Create channel', href: `#${ROUTES.CREATE_CHANNEL}` },
   EMAIL_GROUPS: { text: 'Email groups', href: `#${ROUTES.EMAIL_GROUPS}` },
+  CREATE_SENDER: { text: 'Create sender', href: `#${ROUTES.CREATE_SENDER}` },
+  CREATE_RECIPIENT_GROUP: { text: 'Create sender', href: `#${ROUTES.CREATE_SENDER}` },
 });
 
 export const NOTIFICATION_STATUS = Object.freeze({

@@ -17,15 +17,15 @@ import { EuiSpacer, EuiTitle } from '@elastic/eui';
 import React, { useContext, useEffect } from 'react';
 import { CoreServicesContext } from '../../components/coreServices';
 import { BREADCRUMBS } from '../../utils/constants';
-import { RecipientGroupsTable } from './RecipientGroupsTable';
-import { SendersTable } from './SendersTable';
+import { RecipientGroupsTable } from './tables/RecipientGroupsTable';
+import { SendersTable } from './tables/SendersTable';
 
 export function EmailGroups(props) {
   const context = useContext(CoreServicesContext)!;
   useEffect(() => {
     context.chrome.setBreadcrumbs([
       BREADCRUMBS.NOTIFICATIONS,
-      BREADCRUMBS.CREATE_CHANNEL,
+      BREADCRUMBS.EMAIL_GROUPS,
     ]);
   }, []);
 

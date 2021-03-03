@@ -95,7 +95,7 @@ export class Channels extends Component<ChannelsProps, ChannelsState> {
         truncateText: true,
         width: '150px',
         render: (name: string) => (
-          <EuiLink href={`#${ROUTES.CHANNELS}/${name}`}>{name}</EuiLink>
+          <EuiLink href={`#${ROUTES.CHANNEL_DETAILS}/${name}`}>{name}</EuiLink>
         ),
       },
       {

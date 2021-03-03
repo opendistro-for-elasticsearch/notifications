@@ -25,9 +25,11 @@ import { Redirect, Route, RouteComponentProps, Switch } from 'react-router-dom';
 import { CoreStart } from '../../../../../src/core/public';
 import Notifications from '../Notifications';
 import { Channels } from '../Channels/Channels';
-import { CreateChannel } from '../CreateChannels/CreateChannel';
+import { CreateChannel } from '../CreateChannel/CreateChannel';
 import { ChannelDetails } from '../Channels/ChannelDetails';
 import { EmailGroups } from '../Emails/EmailGroups';
+import { CreateSender } from '../Emails/CreateSender';
+import { CreateRecipientGroup } from '../Emails/CreateRecipientGroup';
 
 enum Navigation {
   Notifications = 'Notifications',
@@ -88,9 +90,11 @@ export default class Main extends Component<MainProps, object> {
                     <EuiPage>
                       {/*Hide side navigation bar when creating or editing rollup job*/}
                       {/* or when viewing channel details */}
-                      {pathname != ROUTES.CREATE_CHANNEL &&
-                        pathname != ROUTES.EDIT_CHANNEL &&
-                        !pathname.match(`^${ROUTES.CHANNELS}/.+`) && (
+                      {pathname !== ROUTES.CREATE_CHANNEL &&
+                        pathname !== ROUTES.EDIT_CHANNEL &&
+                        !pathname.startsWith(ROUTES.CHANNEL_DETAILS) &&
+                        pathname !== ROUTES.CREATE_SENDER &&
+                        pathname !== ROUTES.CREATE_RECIPIENT_GROUP && (
                           <EuiPageSideBar style={{ minWidth: 150 }}>
                             <EuiSideNav
                               style={{ width: 150 }}
@@ -113,7 +117,7 @@ export default class Main extends Component<MainProps, object> {
                             )}
                           />
                           <Route
-                            path={`${ROUTES.CHANNELS}/:name`}
+                            path={`${ROUTES.CHANNEL_DETAILS}/:name`}
                             render={(props: RouteComponentProps) => (
                               <ChannelDetails {...props} />
                             )}
@@ -139,6 +143,18 @@ export default class Main extends Component<MainProps, object> {
                             path={ROUTES.EMAIL_GROUPS}
                             render={(props: RouteComponentProps) => (
                               <EmailGroups {...props} />
+                            )}
+                          />
+                          <Route
+                            path={ROUTES.CREATE_SENDER}
+                            render={(props: RouteComponentProps) => (
+                              <CreateSender {...props} />
+                            )}
+                          />
+                          <Route
+                            path={ROUTES.CREATE_RECIPIENT_GROUP}
+                            render={(props: RouteComponentProps) => (
+                              <CreateRecipientGroup {...props} />
                             )}
                           />
                           {/* <Route

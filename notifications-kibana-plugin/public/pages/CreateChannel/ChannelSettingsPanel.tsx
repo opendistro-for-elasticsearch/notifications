@@ -36,7 +36,7 @@ import { ModalConsumer } from '../../components/Modal';
 import { CreateSenderModal } from './modals/CreateSenderModal';
 import { CreateRecipientGroupModal } from './modals/CreateRecipientGroupModal';
 
-interface SettingsPanelProps {
+interface ChannelSettingsPanelProps {
   channelType: keyof typeof CHANNEL_TYPE;
   setChannelType: (type: keyof typeof CHANNEL_TYPE) => void;
   channelTypeOptions: Array<EuiSuperSelectOption<keyof typeof CHANNEL_TYPE>>;
@@ -44,7 +44,7 @@ interface SettingsPanelProps {
   setSlackWebhook: (url: string) => void;
 }
 
-export function SettingsPanel(props: SettingsPanelProps) {
+export function ChannelSettingsPanel(props: ChannelSettingsPanelProps) {
   const [checkboxIdToSelectedMap, setCheckboxIdToSelectedMap] = useState<{
     [x: string]: boolean;
   }>({});

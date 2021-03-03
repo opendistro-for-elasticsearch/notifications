@@ -88,7 +88,11 @@ export function ChannelDetails(props) {
 
   return (
     <>
-      <EuiFlexGroup alignItems="center" gutterSize="m">
+      <EuiFlexGroup
+        alignItems="center"
+        gutterSize="m"
+        style={{ maxWidth: 1316 }}
+      >
         <EuiFlexItem grow={false}>
           <EuiTitle size="l">
             <h1>{name}</h1>
@@ -119,6 +123,7 @@ export function ChannelDetails(props) {
         bodyStyles={{ padding: 'initial' }}
         title="Channel configuration"
         titleSize="s"
+        panelStyles={{ maxWidth: 1300 }}
         actions={
           <ContentPanelActions
             actions={[{ component: <EuiButton size="s">Edit</EuiButton> }]}

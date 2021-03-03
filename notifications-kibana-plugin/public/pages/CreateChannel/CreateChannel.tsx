@@ -38,7 +38,7 @@ import {
   CHANNEL_TYPE,
   NOTIFICATION_SOURCE,
 } from '../../utils/constants';
-import { SettingsPanel } from './SettingsPanel';
+import { ChannelSettingsPanel } from './ChannelSettingsPanel';
 
 interface CreateChannelsProps extends RouteComponentProps {}
 
@@ -120,7 +120,7 @@ export function CreateChannel(props: CreateChannelsProps) {
         title="Settings"
         titleSize="s"
       >
-        <SettingsPanel
+        <ChannelSettingsPanel
           channelType={channelType}
           setChannelType={setChannelType}
           channelTypeOptions={channelTypeOptions}
