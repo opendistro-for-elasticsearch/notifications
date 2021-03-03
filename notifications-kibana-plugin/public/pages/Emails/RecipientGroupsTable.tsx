@@ -19,13 +19,14 @@ import { CoreServicesContext } from '../../components/coreServices';
 import {
   EuiBasicTable,
   EuiButton,
+  EuiEmptyPrompt,
   EuiFieldSearch,
   EuiHorizontalRule,
   EuiTableFieldDataColumnType,
   EuiTableSortingType,
 } from '@elastic/eui';
 import { SORT_DIRECTION } from '../../../common';
-import { BREADCRUMBS, ROUTES } from '../../utils/constants';
+import { ROUTES } from '../../utils/constants';
 import React from 'react';
 import { Criteria } from '@elastic/eui/src/components/basic_table/basic_table';
 import { Pagination } from '@elastic/eui/src/components/basic_table/pagination_bar';
@@ -176,7 +177,7 @@ export class RecipientGroupsTable extends Component<
                 {
                   component: (
                     <EuiButton size="s" fill href={`#${ROUTES.CREATE_CHANNEL}`}>
-                      Create sender
+                      Create recipient group
                     </EuiButton>
                   ),
                 },
@@ -202,8 +203,15 @@ export class RecipientGroupsTable extends Component<
             isSelectable={true}
             selection={selection}
             noItemsMessage={
-              // TODO: add empty prompt component, pending UXDR
-              <div>no item</div>
+              <EuiEmptyPrompt
+                title={<h2>No recipient groups to display</h2>}
+                body="Use an email group to manage a list of email addresses you frequently send at a time. You can select recipient groups when configuring email channels."
+                actions={
+                  <EuiButton href={`#${ROUTES.CREATE_CHANNEL}`}>
+                      Create recipient group
+                  </EuiButton>
+                }
+              />
             }
             onChange={this.onTableChange}
             pagination={pagination}

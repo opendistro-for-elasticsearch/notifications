@@ -25,6 +25,7 @@ import {
   EuiContextMenuItem,
   EuiButton,
   EuiSpacer,
+  EuiEmptyPrompt,
 } from '@elastic/eui';
 import { SORT_DIRECTION } from '../../../common';
 import { Pagination } from '@elastic/eui/src/components/basic_table/pagination_bar';
@@ -253,8 +254,15 @@ export class Channels extends Component<ChannelsProps, ChannelsState> {
             isSelectable={true}
             selection={selection}
             noItemsMessage={
-              // TODO: add empty prompt component, pending UXDR
-              <div>no item</div>
+              <EuiEmptyPrompt
+                title={<h2>No channels to display</h2>}
+                body="To send or receive notifications, you will need to create a notification channel."
+                actions={
+                  <EuiButton href={`#${ROUTES.CREATE_CHANNEL}`}>
+                    Create channel
+                  </EuiButton>
+                }
+              />
             }
             onChange={this.onTableChange}
             pagination={pagination}

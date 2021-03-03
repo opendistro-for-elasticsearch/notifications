@@ -19,13 +19,14 @@ import { CoreServicesContext } from '../../components/coreServices';
 import {
   EuiBasicTable,
   EuiButton,
+  EuiEmptyPrompt,
   EuiFieldSearch,
   EuiHorizontalRule,
   EuiTableFieldDataColumnType,
   EuiTableSortingType,
 } from '@elastic/eui';
 import { SORT_DIRECTION } from '../../../common';
-import { BREADCRUMBS, ROUTES } from '../../utils/constants';
+import { ROUTES } from '../../utils/constants';
 import React from 'react';
 import { Criteria } from '@elastic/eui/src/components/basic_table/basic_table';
 import { Pagination } from '@elastic/eui/src/components/basic_table/pagination_bar';
@@ -217,8 +218,15 @@ export class SendersTable extends Component<
             isSelectable={true}
             selection={selection}
             noItemsMessage={
-              // TODO: add empty prompt component, pending UXDR
-              <div>no item</div>
+              <EuiEmptyPrompt
+                title={<h2>No senders to display</h2>}
+                body="Setup outbound email server by creating a sender. You will select a sender when configuring email channels."
+                actions={
+                  <EuiButton href={`#${ROUTES.CREATE_CHANNEL}`}>
+                      Create sender
+                  </EuiButton>
+                }
+              />
             }
             onChange={this.onTableChange}
             pagination={pagination}
