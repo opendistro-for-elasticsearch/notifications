@@ -46,6 +46,13 @@ interface CreateChannelsProps extends RouteComponentProps<{ id?: string }> {
   edit?: boolean;
 }
 
+export type CreateChannelInputErrorsType = {
+  name: boolean;
+  slackWebhook: boolean;
+  sender: boolean;
+  recipients: boolean;
+};
+
 export function CreateChannel(props: CreateChannelsProps) {
   const context = useContext(CoreServicesContext)!;
   const id = props.match.params.id;
@@ -98,6 +105,7 @@ export function CreateChannel(props: CreateChannelsProps) {
       BREADCRUMBS.CHANNELS,
       props.edit ? BREADCRUMBS.EDIT_CHANNEL : BREADCRUMBS.CREATE_CHANNEL,
     ]);
+    window.scrollTo(0, 0);
 
     if (props.edit) {
       setName('test');
@@ -105,6 +113,29 @@ export function CreateChannel(props: CreateChannelsProps) {
       setSlackWebhook('hxxp');
     }
   }, []);
+
+  const [inputErrors, setInputErrors] = useState<CreateChannelInputErrorsType>({
+    name: false,
+    slackWebhook: false,
+    sender: false,
+    recipients: false,
+  });
+
+  // returns whether input passed validation
+  const validateInput = (): boolean => {
+    const errors = {
+      name: name.length === 0,
+      slackWebhook: channelType === 'SLACK' && slackWebhook.length === 0,
+      sender: channelType === 'EMAIL' && sender.length === 0,
+      recipients:
+        channelType === 'EMAIL' && selectedRecipientGroupOptions.length === 0,
+    };
+    setInputErrors(errors);
+    return !Object.values(errors).reduce(
+      (errorFlag, curr) => errorFlag || curr,
+      false
+    );
+  };
 
   return (
     <>
@@ -118,7 +149,11 @@ export function CreateChannel(props: CreateChannelsProps) {
         title="Name and description"
         titleSize="s"
       >
-        <EuiFormRow label="Name">
+        <EuiFormRow
+          label="Name"
+          error="Name is required."
+          isInvalid={inputErrors.name}
+        >
           <EuiFieldText
             placeholder="Enter channel name"
             value={name}
@@ -172,6 +207,7 @@ export function CreateChannel(props: CreateChannelsProps) {
           channelTypeOptions={channelTypeOptions}
           slackWebhook={slackWebhook}
           setSlackWebhook={setSlackWebhook}
+          inputErrors={inputErrors}
         />
       </ContentPanel>
 
@@ -218,6 +254,7 @@ export function CreateChannel(props: CreateChannelsProps) {
             size="s"
             fill
             onClick={() => {
+              if (!validateInput()) return;
               location.assign(prevURL);
             }}
           >

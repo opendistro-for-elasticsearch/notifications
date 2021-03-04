@@ -35,6 +35,7 @@ import 'react-mde/lib/styles/css/react-mde-all.css';
 import { ModalConsumer } from '../../components/Modal';
 import { CreateSenderModal } from './modals/CreateSenderModal';
 import { CreateRecipientGroupModal } from './modals/CreateRecipientGroupModal';
+import { CreateChannelInputErrorsType } from './CreateChannel';
 
 interface ChannelSettingsPanelProps {
   headerFooterCheckboxIdToSelectedMap: { [x: string]: boolean };
@@ -56,6 +57,7 @@ interface ChannelSettingsPanelProps {
   channelTypeOptions: Array<EuiSuperSelectOption<keyof typeof CHANNEL_TYPE>>;
   slackWebhook: string;
   setSlackWebhook: (url: string) => void;
+  inputErrors: CreateChannelInputErrorsType;
 }
 
 export function ChannelSettingsPanel(props: ChannelSettingsPanelProps) {
@@ -111,7 +113,12 @@ export function ChannelSettingsPanel(props: ChannelSettingsPanelProps) {
 
   const renderSlackSettings = () => {
     return (
-      <EuiFormRow label="Slack webhook URL" style={{ maxWidth: '700px' }}>
+      <EuiFormRow
+        label="Slack webhook URL"
+        style={{ maxWidth: '700px' }}
+        error="Slack webhook URL is required."
+        isInvalid={props.inputErrors.slackWebhook}
+      >
         <EuiFieldText
           fullWidth
           placeholder="https://hook.slack.com/services/T0000000000/B0000000/XXXXXXXXXXXXXXX"
@@ -131,6 +138,8 @@ export function ChannelSettingsPanel(props: ChannelSettingsPanelProps) {
             <EuiFormRow
               label="Sender"
               helpText={`A destination only allows one sender. Use "Create sender" to create a sender with its email address, host, port, encryption method.`}
+              error="Sender is required."
+              isInvalid={props.inputErrors.sender}
             >
               <EuiSuperSelect
                 fullWidth
@@ -161,6 +170,8 @@ export function ChannelSettingsPanel(props: ChannelSettingsPanelProps) {
             <EuiFormRow
               label="Default recipients"
               helpText={`Add recipient(s) using an email address or pre-created email group. Use "Create email group" to create an email group.`}
+              error="Recipient is required."
+              isInvalid={props.inputErrors.recipients}
             >
               <EuiComboBox
                 placeholder=""
@@ -200,7 +211,9 @@ export function ChannelSettingsPanel(props: ChannelSettingsPanelProps) {
               props.setHeaderFooterCheckboxIdToSelectedMap({
                 ...props.headerFooterCheckboxIdToSelectedMap,
                 ...{
-                  [optionId]: !props.headerFooterCheckboxIdToSelectedMap[optionId],
+                  [optionId]: !props.headerFooterCheckboxIdToSelectedMap[
+                    optionId
+                  ],
                 },
               });
             }}

@@ -30,6 +30,7 @@ export function EmailGroups(props: EmailGroupsProps) {
       BREADCRUMBS.NOTIFICATIONS,
       BREADCRUMBS.EMAIL_GROUPS,
     ]);
+    window.scrollTo(0, 0);
   }, []);
 
   return (

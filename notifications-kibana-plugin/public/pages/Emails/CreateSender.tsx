@@ -47,6 +47,7 @@ export function CreateSender(props: CreateSenderProps) {
       BREADCRUMBS.EMAIL_GROUPS,
       props.edit ? BREADCRUMBS.EDIT_SENDER : BREADCRUMBS.CREATE_SENDER,
     ]);
+    window.scrollTo(0, 0);
 
     if (props.edit) {
       setSenderName('test');

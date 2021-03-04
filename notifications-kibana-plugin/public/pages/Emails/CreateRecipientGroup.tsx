@@ -54,6 +54,7 @@ export function CreateRecipientGroup(props: CreateRecipientGroupProps) {
         ? BREADCRUMBS.EDIT_RECIPIENT_GROUP
         : BREADCRUMBS.CREATE_RECIPIENT_GROUP,
     ]);
+    window.scrollTo(0, 0);
 
     if (props.edit) {
       setName('test');

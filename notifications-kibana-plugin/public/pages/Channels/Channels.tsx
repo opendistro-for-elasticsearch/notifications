@@ -65,7 +65,7 @@ export class Channels extends Component<ChannelsProps, ChannelsState> {
       search: '',
       sortField: 'name',
       sortDirection: SORT_DIRECTION.ASC,
-      items: Array.from({ length: 5 }, (v, i) => ({
+      items: Array.from({ length: 20 }, (v, i) => ({
         id: `${i}`,
         name: 'abc' + i,
         status: 'Active',
@@ -139,6 +139,7 @@ export class Channels extends Component<ChannelsProps, ChannelsState> {
       BREADCRUMBS.NOTIFICATIONS,
       BREADCRUMBS.CHANNELS,
     ]);
+    window.scrollTo(0, 0);
     // await this.getNotifications();
   }
 
