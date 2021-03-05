@@ -56,6 +56,7 @@ import {
 import NotificationControls from '../component/NotificationControls/NotificationControls';
 import { ModalConsumer } from '../../../components/Modal';
 import ErrorDetailModal from '../component/ErrorDetailModal/ErrorDetailModel';
+import { NotificationsHistogram } from '../component/NotificationsHistogram';
 
 interface NotificationsProps extends RouteComponentProps {
   notificationService: NotificationService;
@@ -354,6 +355,9 @@ export default class Notifications extends Component<
             </EuiButton>
           </EuiFlexItem>
         </EuiFlexGroup>
+
+        <EuiSpacer />
+        <NotificationsHistogram />
 
         <EuiSpacer />
 
