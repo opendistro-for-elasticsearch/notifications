@@ -84,7 +84,7 @@ export function CreateChannel(props: CreateChannelsProps) {
     value: key as keyof typeof CHANNEL_TYPE,
     inputDisplay: value,
   }));
-  const [channelType, setChannelType] = useState(channelTypeOptions[3].value);
+  const [channelType, setChannelType] = useState(channelTypeOptions[0].value);
 
   const [slackWebhook, setSlackWebhook] = useState('');
 

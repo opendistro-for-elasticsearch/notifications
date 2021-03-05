@@ -24,9 +24,9 @@ import {
   EuiOverlayMask,
 } from '@elastic/eui';
 import React, { useState } from 'react';
-import { ENCRYPTION_METHOD } from '../../../../models/interfaces';
-import { ModalRootProps } from '../../../components/Modal/ModalRoot';
-import { CreateSenderForm } from '../../Emails/forms/CreateSenderForm';
+import { ENCRYPTION_METHOD } from '../../../../../models/interfaces';
+import { ModalRootProps } from '../../../../components/Modal/ModalRoot';
+import { CreateSenderForm } from '../../../Emails/components/forms/CreateSenderForm';
 
 interface CreateSenderModalProps extends ModalRootProps {
   onClose: () => void;

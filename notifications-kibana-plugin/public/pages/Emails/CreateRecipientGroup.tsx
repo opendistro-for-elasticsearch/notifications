@@ -27,7 +27,7 @@ import { RouteComponentProps } from 'react-router-dom';
 import { ContentPanel } from '../../components/ContentPanel';
 import { CoreServicesContext } from '../../components/coreServices';
 import { BREADCRUMBS, ROUTES } from '../../utils/constants';
-import { CreateRecipientGroupForm } from './forms/CreateRecipientGroupForm';
+import { CreateRecipientGroupForm } from './components/forms/CreateRecipientGroupForm';
 
 interface CreateRecipientGroupProps extends RouteComponentProps {
   edit?: boolean;

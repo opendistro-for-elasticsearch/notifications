@@ -27,8 +27,8 @@ import {
   EuiText,
 } from '@elastic/eui';
 import React from 'react';
-import { SenderItemType } from '../../../../models/interfaces';
-import { ModalRootProps } from '../../../components/Modal/ModalRoot';
+import { SenderItemType } from '../../../../../models/interfaces';
+import { ModalRootProps } from '../../../../components/Modal/ModalRoot';
 
 interface DeleteSenderModalProps extends ModalRootProps {
   senders: SenderItemType[];

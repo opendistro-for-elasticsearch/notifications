@@ -27,7 +27,7 @@ import { RouteComponentProps } from 'react-router-dom';
 import { ContentPanel } from '../../components/ContentPanel';
 import { CoreServicesContext } from '../../components/coreServices';
 import { BREADCRUMBS, ROUTES } from '../../utils/constants';
-import { CreateSenderForm } from './forms/CreateSenderForm';
+import { CreateSenderForm } from './components/forms/CreateSenderForm';
 
 interface CreateSenderProps extends RouteComponentProps {
   edit?: boolean;

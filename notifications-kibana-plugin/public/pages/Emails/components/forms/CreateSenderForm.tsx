@@ -24,7 +24,7 @@ import {
   EuiSuperSelectOption,
 } from '@elastic/eui';
 import React from 'react';
-import { ENCRYPTION_METHOD } from '../../../../models/interfaces';
+import { ENCRYPTION_METHOD } from '../../../../../models/interfaces';
 
 interface CreateSenderModalProps {
   senderName: string;

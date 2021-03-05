@@ -14,8 +14,8 @@ import {
 import React, { useContext, useState } from 'react';
 import ReactMde from 'react-mde';
 import { CreateChannelContext } from '../CreateChannel';
-import { CreateRecipientGroupModal } from '../modals/CreateRecipientGroupModal';
-import { CreateSenderModal } from '../modals/CreateSenderModal';
+import { CreateRecipientGroupModal } from './modals/CreateRecipientGroupModal';
+import { CreateSenderModal } from './modals/CreateSenderModal';
 import { ModalConsumer } from '../../../components/Modal';
 import { converter } from '../utils';
 import {

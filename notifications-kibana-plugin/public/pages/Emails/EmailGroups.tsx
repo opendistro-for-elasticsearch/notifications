@@ -18,8 +18,8 @@ import React, { useContext, useEffect } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import { CoreServicesContext } from '../../components/coreServices';
 import { BREADCRUMBS } from '../../utils/constants';
-import { RecipientGroupsTable } from './tables/RecipientGroupsTable';
-import { SendersTable } from './tables/SendersTable';
+import { RecipientGroupsTable } from './components/tables/RecipientGroupsTable';
+import { SendersTable } from './components/tables/SendersTable';
 
 interface EmailGroupsProps extends RouteComponentProps {}
 

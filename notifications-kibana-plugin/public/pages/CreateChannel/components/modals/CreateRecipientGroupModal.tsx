@@ -25,8 +25,8 @@ import {
   EuiOverlayMask,
 } from '@elastic/eui';
 import React, { useState } from 'react';
-import { ModalRootProps } from '../../../components/Modal/ModalRoot';
-import { CreateRecipientGroupForm } from '../../Emails/forms/CreateRecipientGroupForm';
+import { ModalRootProps } from '../../../../components/Modal/ModalRoot';
+import { CreateRecipientGroupForm } from '../../../Emails/components/forms/CreateRecipientGroupForm';
 
 interface CreateRecipientGroupModalProps extends ModalRootProps {
   onClose: () => void;
