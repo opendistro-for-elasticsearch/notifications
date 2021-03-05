@@ -25,13 +25,16 @@ import {
   EuiOverlayMask,
 } from '@elastic/eui';
 import React, { useState } from 'react';
+import { ModalRootProps } from '../../../components/Modal/ModalRoot';
 import { CreateRecipientGroupForm } from '../../Emails/forms/CreateRecipientGroupForm';
 
-interface CreateRecipientGroupModalProps {
+interface CreateRecipientGroupModalProps extends ModalRootProps {
   onClose: () => void;
 }
 
-export function CreateRecipientGroupModal(props: CreateRecipientGroupModalProps) {
+export function CreateRecipientGroupModal(
+  props: CreateRecipientGroupModalProps
+) {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [selectedEmailOptions, setSelectedEmailOptions] = useState<

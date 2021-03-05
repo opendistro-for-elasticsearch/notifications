@@ -1,17 +1,13 @@
-import { CUSTOM_WEBHOOK_ENDPOINT_TYPE } from '../../../utils/constants';
 import {
-  EuiButton,
   EuiFieldNumber,
   EuiFieldText,
-  EuiFlexGroup,
-  EuiFlexItem,
   EuiFormRow,
   EuiRadioGroup,
   EuiRadioGroupOption,
   EuiSpacer,
-  EuiTitle,
 } from '@elastic/eui';
 import React from 'react';
+import { CUSTOM_WEBHOOK_ENDPOINT_TYPE } from '../../../utils/constants';
 import { HeaderType } from '../CreateChannel';
 import { WebhookHeaders } from './WebhookHeaders';
 

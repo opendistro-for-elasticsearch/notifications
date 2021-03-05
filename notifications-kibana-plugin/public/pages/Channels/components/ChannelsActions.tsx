@@ -18,12 +18,14 @@ import { EuiButton, EuiContextMenuItem, EuiPopover } from '@elastic/eui';
 import React, { useState } from 'react';
 import { ChannelItemType } from '../../../../models/interfaces';
 import { ModalConsumer } from '../../../components/Modal';
-import ErrorDetailModal from '../../Notifications/component/ErrorDetailModal/ErrorDetailModel';
+import { DeleteChannelModal } from './modals/DeleteChannelModal';
+import { MuteChannelModal } from './modals/MuteChannelModal';
 
 interface ChannelActionsParams {
   label: string;
   disabled: boolean;
   modal?: React.ReactNode;
+  modalParams?: object;
   href?: string;
 }
 
@@ -43,17 +45,21 @@ export function ChannelsActions(props: ChannelActionsProps) {
     {
       label: 'Delete',
       disabled: props.selectedItems.length === 0,
-      modal: ErrorDetailModal,
+      modal: DeleteChannelModal,
     },
     {
       label: 'Mute',
-      disabled: props.selectedItems.length !== 1,
-      modal: ErrorDetailModal,
+      disabled:
+        props.selectedItems.length !== 1 || props.selectedItems[0].enabled,
+      modal: MuteChannelModal,
+      modalParams: { mute: true },
     },
     {
       label: 'Unmute',
-      disabled: props.selectedItems.length !== 1,
-      modal: ErrorDetailModal,
+      disabled:
+        props.selectedItems.length !== 1 || !props.selectedItems[0].enabled,
+      modal: MuteChannelModal,
+      modalParams: { mute: false },
     },
   ];
 
@@ -82,7 +88,12 @@ export function ChannelsActions(props: ChannelActionsProps) {
               disabled={params.disabled}
               onClick={() => {
                 setIsPopoverOpen(false);
-                if (params.modal) onShow(params.modal, { detail: [] });
+                if (params.modal) {
+                  onShow(params.modal, {
+                    channels: props.selectedItems,
+                    ...(params.modalParams || {}),
+                  });
+                }
                 if (params.href) location.assign(params.href);
               }}
             >

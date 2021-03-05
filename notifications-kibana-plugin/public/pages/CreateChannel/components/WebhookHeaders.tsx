@@ -47,7 +47,7 @@ export function WebhookHeaders(props: WebhookHeadersProps) {
                     placeholder=""
                     value={header.key}
                     onChange={(e) => setHeader(e.target.value, null, i)}
-                    disabled={props.type === 'header' && i === 0}
+                    disabled={props.type === 'header' && i === 0} // first header needs to be Content-Type
                   />
                 </EuiFormRow>
               </EuiFlexItem>

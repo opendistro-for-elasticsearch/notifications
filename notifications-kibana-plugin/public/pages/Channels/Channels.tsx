@@ -13,34 +13,31 @@
  * permissions and limitations under the License.
  */
 
-import { ChannelItemType, TableState } from '../../../models/interfaces';
 import {
-  Direction,
   EuiBasicTable,
+  EuiButton,
+  EuiEmptyPrompt,
   EuiHealth,
   EuiHorizontalRule,
   EuiLink,
   EuiTableFieldDataColumnType,
   EuiTableSortingType,
-  EuiContextMenuItem,
-  EuiButton,
-  EuiSpacer,
-  EuiEmptyPrompt,
 } from '@elastic/eui';
-import { SORT_DIRECTION } from '../../../common';
+import { Criteria } from '@elastic/eui/src/components/basic_table/basic_table';
 import { Pagination } from '@elastic/eui/src/components/basic_table/pagination_bar';
 import React, { Component } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
+import { SORT_DIRECTION } from '../../../common';
+import { ChannelItemType, TableState } from '../../../models/interfaces';
 import {
   ContentPanel,
   ContentPanelActions,
 } from '../../components/ContentPanel';
 import { CoreServicesContext } from '../../components/coreServices';
-import { DEFAULT_PAGE_SIZE_OPTIONS } from '../Notifications/utils/constants';
 import { BREADCRUMBS, ROUTES } from '../../utils/constants';
+import { DEFAULT_PAGE_SIZE_OPTIONS } from '../Notifications/utils/constants';
 import { ChannelsControls } from './components/ChannelControls';
 import { ChannelsActions } from './components/ChannelsActions';
-import { Criteria } from '@elastic/eui/src/components/basic_table/basic_table';
 
 interface ChannelsProps extends RouteComponentProps {}
 
@@ -68,7 +65,7 @@ export class Channels extends Component<ChannelsProps, ChannelsState> {
       items: Array.from({ length: 20 }, (v, i) => ({
         id: `${i}`,
         name: 'abc' + i,
-        status: 'Active',
+        enabled: [true, false][Math.round(Math.random())],
         type: 'email',
         allowedFeatures: ['Alerting', 'ISM'],
         lastUpdatedTime: 0,
@@ -95,17 +92,19 @@ export class Channels extends Component<ChannelsProps, ChannelsState> {
         truncateText: true,
         width: '150px',
         render: (name: string, item: ChannelItemType) => (
-          <EuiLink href={`#${ROUTES.CHANNEL_DETAILS}/${item.id}`}>{name}</EuiLink>
+          <EuiLink href={`#${ROUTES.CHANNEL_DETAILS}/${item.id}`}>
+            {name}
+          </EuiLink>
         ),
       },
       {
-        field: 'status',
+        field: 'enabled',
         name: 'Notification status',
         sortable: true,
         width: '150px',
-        render: (status: string) => {
-          const color = status == 'Active' ? 'success' : 'subdued';
-          const label = status == 'Active' ? 'Active' : 'subdued';
+        render: (enabled: boolean) => {
+          const color = enabled ? 'success' : 'subdued';
+          const label = enabled ? 'Active' : 'Muted';
           return <EuiHealth color={color}>{label}</EuiHealth>;
         },
       },
@@ -217,9 +216,7 @@ export class Channels extends Component<ChannelsProps, ChannelsState> {
             <ContentPanelActions
               actions={[
                 {
-                  component: (
-                    <ChannelsActions selectedItems={this.state.selectedItems} />
-                  ),
+                  component: <ChannelsActions selectedItems={selectedItems} />,
                 },
                 {
                   component: (

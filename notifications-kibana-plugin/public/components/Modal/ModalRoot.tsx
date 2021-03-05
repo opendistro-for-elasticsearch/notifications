@@ -17,7 +17,7 @@ import React, { ComponentType } from 'react';
 import { BrowserServices } from '../../models/interfaces';
 import { ModalConsumer } from './Modal';
 
-interface ModalRootProps {
+export interface ModalRootProps {
   services: BrowserServices;
 }
 

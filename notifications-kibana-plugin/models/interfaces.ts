@@ -41,7 +41,7 @@ export interface ChannelOverview {
 export interface ChannelItemType {
   id: string;
   name: string;
-  status: string;
+  enabled: boolean; // active or muted
   type: string;
   allowedFeatures: string[];
   lastUpdatedTime: number;

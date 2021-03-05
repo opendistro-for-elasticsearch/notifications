@@ -24,27 +24,25 @@ import {
   EuiModalHeader,
   EuiModalHeaderTitle,
   EuiOverlayMask,
-  EuiText,
+  EuiText
 } from '@elastic/eui';
 import React from 'react';
-import { SenderItemType } from '../../../../models/interfaces';
-import { ModalRootProps } from '../../../components/Modal/ModalRoot';
+import { ChannelItemType } from '../../../../../models/interfaces';
+import { ModalRootProps } from '../../../../components/Modal/ModalRoot';
 
-interface DeleteSenderModalProps extends ModalRootProps {
-  senders: SenderItemType[];
+interface DeleteChannelModalProps extends ModalRootProps {
+  channels: ChannelItemType[];
   onClose: () => void;
 }
 
-export const DeleteSenderModal = (props: DeleteSenderModalProps) => {
-  if (!props.senders.length) return null;
+export const DeleteChannelModal = (props: DeleteChannelModalProps) => {
+  if (!props.channels.length) return null;
 
-  const plural = props.senders.length >= 2;
+  const plural = props.channels.length >= 2;
   const name = plural
-    ? `${props.senders.length} senders`
-    : props.senders[0].name;
-  const message = `Delete ${name} permanently? Any channels using ${
-    plural ? 'these' : 'this'
-  } email sender${plural ? 's' : ''} will not be able to send notifications.`;
+    ? `${props.channels.length} channels`
+    : props.channels[0].name;
+  const message = `Delete ${name} permanently? This action cannot be undone.`;
 
   return (
     <EuiOverlayMask>

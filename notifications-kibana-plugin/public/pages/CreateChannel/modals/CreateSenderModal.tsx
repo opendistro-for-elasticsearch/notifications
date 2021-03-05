@@ -22,13 +22,13 @@ import {
   EuiModalHeader,
   EuiModalHeaderTitle,
   EuiOverlayMask,
-  EuiSuperSelectOption,
 } from '@elastic/eui';
 import React, { useState } from 'react';
 import { ENCRYPTION_METHOD } from '../../../../models/interfaces';
+import { ModalRootProps } from '../../../components/Modal/ModalRoot';
 import { CreateSenderForm } from '../../Emails/forms/CreateSenderForm';
 
-interface CreateSenderModalProps {
+interface CreateSenderModalProps extends ModalRootProps {
   onClose: () => void;
 }
 

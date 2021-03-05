@@ -27,30 +27,28 @@ import {
   EuiText,
 } from '@elastic/eui';
 import React from 'react';
-import { SenderItemType } from '../../../../models/interfaces';
-import { ModalRootProps } from '../../../components/Modal/ModalRoot';
+import { ChannelItemType } from '../../../../../models/interfaces';
+import { ModalRootProps } from '../../../../components/Modal/ModalRoot';
 
-interface DeleteSenderModalProps extends ModalRootProps {
-  senders: SenderItemType[];
+interface MuteChannelModalProps extends ModalRootProps {
+  channels: ChannelItemType[];
   onClose: () => void;
+  mute: boolean;
 }
 
-export const DeleteSenderModal = (props: DeleteSenderModalProps) => {
-  if (!props.senders.length) return null;
+export const MuteChannelModal = (props: MuteChannelModalProps) => {
+  if (props.channels.length !== 1) return null;
 
-  const plural = props.senders.length >= 2;
-  const name = plural
-    ? `${props.senders.length} senders`
-    : props.senders[0].name;
-  const message = `Delete ${name} permanently? Any channels using ${
-    plural ? 'these' : 'this'
-  } email sender${plural ? 's' : ''} will not be able to send notifications.`;
+  const mute = props.mute ? 'Mute' : 'Unmute';
+  const message = props.mute
+    ? 'This channel will stop sending notifications to its recipients. However, this channel is still available from selsction.'
+    : 'unmute';
 
   return (
     <EuiOverlayMask>
       <EuiModal onClose={props.onClose} maxWidth={500}>
         <EuiModalHeader>
-          <EuiModalHeaderTitle>{`Delete ${name}?`}</EuiModalHeaderTitle>
+          <EuiModalHeaderTitle>{`${mute} ${props.channels[0].name}?`}</EuiModalHeaderTitle>
         </EuiModalHeader>
         <EuiModalBody>
           <EuiText>{message}</EuiText>
@@ -61,8 +59,8 @@ export const DeleteSenderModal = (props: DeleteSenderModalProps) => {
               <EuiButtonEmpty onClick={props.onClose}>Cancel</EuiButtonEmpty>
             </EuiFlexItem>
             <EuiFlexItem grow={false}>
-              <EuiButton fill color="danger" onClick={props.onClose}>
-                Delete
+              <EuiButton fill onClick={props.onClose}>
+                {mute}
               </EuiButton>
             </EuiFlexItem>
           </EuiFlexGroup>

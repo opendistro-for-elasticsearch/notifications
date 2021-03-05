@@ -13,6 +13,7 @@
  * permissions and limitations under the License.
  */
 
+import { ChannelItemType } from '.notifications/notifications-kibana-plugin/models/interfaces';
 import {
   EuiButton,
   EuiDescriptionList,
@@ -22,14 +23,17 @@ import {
   EuiSpacer,
   EuiTitle,
 } from '@elastic/eui';
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import {
   ContentPanel,
   ContentPanelActions,
 } from '../../components/ContentPanel';
 import { CoreServicesContext } from '../../components/coreServices';
+import { ModalConsumer } from '../../components/Modal';
 import { BREADCRUMBS, ROUTES } from '../../utils/constants';
+import { DeleteChannelModal } from './components/modals/DeleteChannelModal';
+import { MuteChannelModal } from './components/modals/MuteChannelModal';
 
 interface ListItemType {
   title: NonNullable<React.ReactNode>;
@@ -41,9 +45,7 @@ interface ChannelDetailsProps extends RouteComponentProps<{ id: string }> {}
 export function ChannelDetails(props: ChannelDetailsProps) {
   const context = useContext(CoreServicesContext)!;
   const id = props.match.params.id;
-
-  // TOTO send request
-  const muted = false;
+  const [channel, setChannel] = useState<ChannelItemType>();
 
   useEffect(() => {
     context.chrome.setBreadcrumbs([
@@ -54,45 +56,58 @@ export function ChannelDetails(props: ChannelDetailsProps) {
         href: `${BREADCRUMBS.CHANNELS.href}/${id}`,
       },
     ]);
+    setChannel({
+      id,
+      name: 'test',
+      enabled: true,
+      type: 'email',
+      allowedFeatures: ['Alerting', 'ISM'],
+      lastUpdatedTime: 0,
+      destination: {
+        slack: {
+          url:
+            'https://hooks.slack.com/services/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',
+        },
+      },
+    });
   }, []);
 
   const channelDescriptionList: Array<ListItemType> = [
     {
       title: 'Channel name',
-      description: 'The opening music alone evokes such strong memories.',
+      description: channel?.name || '-',
     },
     {
       title: 'Description',
-      description:
-        'The sequel to XWING, join the dark side and fly for the Emporer.',
+      description: channel?.description || '-',
     },
     {
       title: 'Last updated',
-      description: 'The game that made me drop out of college.',
+      description: channel?.lastUpdatedTime || '-',
     },
     {
       title: 'Channel type',
-      description: 'The game that made me drop out of college.',
+      description: channel?.type || '-',
     },
     {
       title: 'Sender',
-      description: 'The game that made me drop out of college.',
+      description: '-',
     },
     {
       title: 'Default recipients',
-      description: 'The game that made me drop out of college.',
+      description: '-',
     },
     {
       title: 'Email header',
-      description: 'The game that made me drop out of college.',
+      description: '-',
     },
     {
       title: 'Email footer',
-      description: 'The game that made me drop out of college.',
+      description: '-',
     },
     {
       title: 'Notification sources',
-      description: 'The game that made me drop out of college.',
+      description: channel?.allowedFeatures.join(', ') || '-',
     },
   ];
 
@@ -127,23 +142,46 @@ export function ChannelDetails(props: ChannelDetailsProps) {
           </EuiTitle>
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
-          {muted ? (
-            <EuiHealth color="subdued">Muted</EuiHealth>
-          ) : (
+          {channel?.enabled === undefined ? null : channel.enabled ? (
             <EuiHealth color="success">Active</EuiHealth>
+          ) : (
+            <EuiHealth color="subdued">Muted</EuiHealth>
           )}
         </EuiFlexItem>
         <EuiFlexItem />
-        <EuiFlexItem grow={false}>
-          <EuiButton size="s" color="danger">
-            Delete
-          </EuiButton>
-        </EuiFlexItem>
-        <EuiFlexItem grow={false}>
-          <EuiButton size="s" iconType={muted ? 'bell' : 'bellSlash'}>
-            {muted ? 'Unmute channel' : 'Mute channel'}
-          </EuiButton>
-        </EuiFlexItem>
+        <ModalConsumer>
+          {({ onShow }) => (
+            <>
+              <EuiFlexItem grow={false}>
+                <EuiButton
+                  size="s"
+                  color="danger"
+                  onClick={() =>
+                    onShow(DeleteChannelModal, {
+                      channels: [channel],
+                    })
+                  }
+                >
+                  Delete
+                </EuiButton>
+              </EuiFlexItem>
+              <EuiFlexItem grow={false}>
+                <EuiButton
+                  size="s"
+                  iconType={channel?.enabled ? 'bellSlash' : 'bell'}
+                  onClick={() =>
+                    onShow(MuteChannelModal, {
+                      channels: [channel],
+                      mute: channel?.enabled,
+                    })
+                  }
+                >
+                  {channel?.enabled ? 'Mute channel' : 'Unmute channel'}
+                </EuiButton>
+              </EuiFlexItem>
+            </>
+          )}
+        </ModalConsumer>
       </EuiFlexGroup>
 
       <EuiSpacer />
@@ -157,7 +195,10 @@ export function ChannelDetails(props: ChannelDetailsProps) {
             actions={[
               {
                 component: (
-                  <EuiButton size="s" href={`#${ROUTES.EDIT_CHANNEL}/${id}?from=details`}>
+                  <EuiButton
+                    size="s"
+                    href={`#${ROUTES.EDIT_CHANNEL}/${id}?from=details`}
+                  >
                     Edit
                   </EuiButton>
                 ),
