@@ -22,6 +22,7 @@ import {
   validateEmailSender,
   validateRecipients,
 } from '../utils/validationHelper';
+import 'react-mde/lib/styles/css/react-mde-all.css';
 
 interface EmailSettingsProps {
   headerFooterCheckboxIdToSelectedMap: { [x: string]: boolean };
