@@ -36,7 +36,10 @@ export const BREADCRUMBS = Object.freeze({
   EMAIL_GROUPS: { text: 'Email groups', href: `#${ROUTES.EMAIL_GROUPS}` },
   CREATE_SENDER: { text: 'Create sender', href: `#${ROUTES.CREATE_SENDER}` },
   EDIT_SENDER: { text: 'Edit sender' },
-  CREATE_RECIPIENT_GROUP: { text: 'Create recipient group', href: `#${ROUTES.CREATE_RECIPIENT_GROUP}` },
+  CREATE_RECIPIENT_GROUP: {
+    text: 'Create recipient group',
+    href: `#${ROUTES.CREATE_RECIPIENT_GROUP}`,
+  },
   EDIT_RECIPIENT_GROUP: { text: 'Edit recipient group' },
 });
 
@@ -55,4 +58,10 @@ export const CHANNEL_TYPE = Object.freeze({
   SLACK: 'Slack',
   EMAIL: 'Email',
   CHIME: 'Chime',
+  CUSTOM_WEBHOOK: 'Custom webhook',
+});
+
+export const CUSTOM_WEBHOOK_ENDPOINT_TYPE = Object.freeze({
+  WEBHOOK_URL: 'Webhook URL',
+  CUSTOM_URL: 'Custom attributes URL with HTTPS',
 });

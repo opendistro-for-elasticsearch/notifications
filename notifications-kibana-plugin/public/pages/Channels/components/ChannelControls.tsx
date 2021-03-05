@@ -19,8 +19,22 @@ import {
   EuiFlexGroup,
   EuiFlexItem,
   EuiPagination,
+  EuiSearchBar,
+  EuiSearchBarProps,
   EuiSelect,
 } from '@elastic/eui';
+import { FieldValueSelectionFilterConfigType } from '@elastic/eui/src/components/search_bar/filters/field_value_selection_filter';
+
+interface ChannelControlsProps {
+  search: string;
+  state: string; // active or muted
+  type: string;
+  source: string;
+  onSearchChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onStateChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onTypeChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onSourceChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}
 
 export const ChannelsControls = ({
   search,
@@ -31,7 +45,60 @@ export const ChannelsControls = ({
   onStateChange,
   onTypeChange,
   onSourceChange,
-}) => {
+}: ChannelControlsProps) => {
+  const renderSearch = () => {
+    const filters: FieldValueSelectionFilterConfigType[] = [
+      {
+        type: 'field_value_selection',
+        name: 'State',
+        field: 'enabled',
+        multiSelect: false,
+        options: [
+          { name: 'Active', value: true },
+          { name: 'Muted', value: false },
+        ],
+      },
+      {
+        type: 'field_value_selection',
+        name: 'Type',
+        field: 'type',
+        multiSelect: 'or',
+        options: [
+          { name: 'Slack', value: 'slack' },
+          { name: 'Chime', value: 'chime' },
+          { name: 'Email', value: 'email' },
+        ],
+      },
+      {
+        type: 'field_value_selection',
+        name: 'Source',
+        field: 'source',
+        multiSelect: 'or',
+        options: [
+          { name: 'Alerting', value: 'alerting' },
+          { name: 'Reporting', value: 'reporting' },
+          { name: 'ISM', value: 'ISM' },
+        ],
+      },
+    ];
+
+    return (
+      <EuiSearchBar
+        box={{
+          placeholder: 'Search',
+          incremental: false,
+        }}
+        filters={filters}
+        onChange={(args) => {
+          if (args.query) {
+            console.log(EuiSearchBar.Query.toESQuery(args.query))
+            console.log(EuiSearchBar.Query.toESQueryString(args.query))
+          };
+        }}
+      />
+    );
+  };
+
   const stateOptions = [
     { value: 'ALL', text: 'Severity' },
     { value: '1', text: '1' },
@@ -54,7 +121,9 @@ export const ChannelsControls = ({
   ];
 
   return (
-    <EuiFlexGroup style={{ padding: '0px 5px' }}>
+    <>
+      {renderSearch()}
+      {/* <EuiFlexGroup style={{ padding: '0px 5px' }}>
       <EuiFlexItem>
         <EuiFieldSearch
           fullWidth={true}
@@ -71,11 +140,7 @@ export const ChannelsControls = ({
         />
       </EuiFlexItem>
       <EuiFlexItem grow={false}>
-        <EuiSelect
-          options={typeOptions}
-          value={type}
-          onChange={onTypeChange}
-        />
+        <EuiSelect options={typeOptions} value={type} onChange={onTypeChange} />
       </EuiFlexItem>
       <EuiFlexItem grow={false}>
         <EuiSelect
@@ -84,6 +149,7 @@ export const ChannelsControls = ({
           onChange={onSourceChange}
         />
       </EuiFlexItem>
-    </EuiFlexGroup>
+    </EuiFlexGroup> */}
+    </>
   );
 };

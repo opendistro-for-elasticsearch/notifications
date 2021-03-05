@@ -16,31 +16,37 @@
 import {
   EuiButton,
   EuiButtonEmpty,
-  EuiCheckboxGroup,
-  EuiCheckboxGroupOption,
   EuiComboBoxOptionOption,
-  EuiFieldText,
   EuiFlexGroup,
   EuiFlexItem,
   EuiFormRow,
   EuiSpacer,
+  EuiSuperSelect,
   EuiSuperSelectOption,
-  EuiText,
-  EuiTextArea,
   EuiTitle,
 } from '@elastic/eui';
 import queryString from 'query-string';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import { ContentPanel } from '../../components/ContentPanel';
 import { CoreServicesContext } from '../../components/coreServices';
 import {
   BREADCRUMBS,
   CHANNEL_TYPE,
-  NOTIFICATION_SOURCE,
+  CUSTOM_WEBHOOK_ENDPOINT_TYPE,
   ROUTES,
 } from '../../utils/constants';
-import { ChannelSettingsPanel } from './ChannelSettingsPanel';
+import { ChannelAvailbilityPanel } from './components/ChannelAvailbilityPanel';
+import { ChannelNamePanel } from './components/ChannelNamePanel';
+import { CustomWebhookSettings } from './components/CustomWebhookSettings';
+import { EmailSettings } from './components/EmailSettings';
+import { SlackSettings } from './components/SlackSettings';
+import {
+  validateChannelName,
+  validateEmailSender,
+  validateRecipients,
+  validateSlackWebhook,
+} from './utils/validationHelper';
 
 interface CreateChannelsProps extends RouteComponentProps<{ id?: string }> {
   edit?: boolean;
@@ -53,8 +59,16 @@ export type CreateChannelInputErrorsType = {
   recipients: boolean;
 };
 
+export const CreateChannelContext = createContext<{
+  edit?: boolean;
+  inputErrors: CreateChannelInputErrorsType;
+  setInputErrors: (errors: CreateChannelInputErrorsType) => void;
+} | null>(null);
+
+export type HeaderType = { key: string; value: string };
+
 export function CreateChannel(props: CreateChannelsProps) {
-  const context = useContext(CoreServicesContext)!;
+  const coreContext = useContext(CoreServicesContext)!;
   const id = props.match.params.id;
   const prevURL =
     props.edit && queryString.parse(props.location.search).from === 'details'
@@ -63,7 +77,17 @@ export function CreateChannel(props: CreateChannelsProps) {
 
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
+
+  const channelTypeOptions: Array<EuiSuperSelectOption<
+    keyof typeof CHANNEL_TYPE
+  >> = Object.entries(CHANNEL_TYPE).map(([key, value]) => ({
+    value: key as keyof typeof CHANNEL_TYPE,
+    inputDisplay: value,
+  }));
+  const [channelType, setChannelType] = useState(channelTypeOptions[3].value);
+
   const [slackWebhook, setSlackWebhook] = useState('');
+
   const [
     headerFooterCheckboxIdToSelectedMap,
     setHeaderFooterCheckboxIdToSelectedMap,
@@ -72,18 +96,26 @@ export function CreateChannel(props: CreateChannelsProps) {
   }>({});
   const [emailHeader, setEmailHeader] = useState('');
   const [emailFooter, setEmailFooter] = useState('');
-  const [sender, setSender] = useState('Admin');
+  const [sender, setSender] = useState('');
   const [
     selectedRecipientGroupOptions,
     setSelectedRecipientGroupOptions,
   ] = useState<Array<EuiComboBoxOptionOption<string>>>([]);
 
-  const sourceOptions: EuiCheckboxGroupOption[] = Object.entries(
-    NOTIFICATION_SOURCE
-  ).map(([key, value]) => ({
-    id: key,
-    label: value,
-  }));
+  const [webhookTypeIdSelected, setWebhookTypeIdSelected] = useState<
+    keyof typeof CUSTOM_WEBHOOK_ENDPOINT_TYPE
+  >('WEBHOOK_URL');
+  const [webhookURL, setWebhookURL] = useState('');
+  const [customURLHost, setCustomURLHost] = useState('');
+  const [customURLPort, setCustomURLPort] = useState('');
+  const [customURLPath, setCustomURLPath] = useState('');
+  const [webhookParams, setWebhookParams] = useState<HeaderType[]>([
+    { key: '', value: '' },
+  ]);
+  const [webhookHeaders, setWebhookHeaders] = useState<HeaderType[]>([
+    { key: 'Content-Type', value: 'application/json' },
+  ]);
+
   const [
     sourceCheckboxIdToSelectedMap,
     setSourceCheckboxIdToSelectedMap,
@@ -91,16 +123,15 @@ export function CreateChannel(props: CreateChannelsProps) {
     [x: string]: boolean;
   }>({});
 
-  const channelTypeOptions: Array<EuiSuperSelectOption<
-    keyof typeof CHANNEL_TYPE
-  >> = Object.entries(CHANNEL_TYPE).map(([key, value]) => ({
-    value: key as keyof typeof CHANNEL_TYPE,
-    inputDisplay: value,
-  }));
-  const [channelType, setChannelType] = useState(channelTypeOptions[0].value);
+  const [inputErrors, setInputErrors] = useState<CreateChannelInputErrorsType>({
+    name: false,
+    slackWebhook: false,
+    sender: false,
+    recipients: false,
+  });
 
   useEffect(() => {
-    context.chrome.setBreadcrumbs([
+    coreContext.chrome.setBreadcrumbs([
       BREADCRUMBS.NOTIFICATIONS,
       BREADCRUMBS.CHANNELS,
       props.edit ? BREADCRUMBS.EDIT_CHANNEL : BREADCRUMBS.CREATE_CHANNEL,
@@ -114,21 +145,16 @@ export function CreateChannel(props: CreateChannelsProps) {
     }
   }, []);
 
-  const [inputErrors, setInputErrors] = useState<CreateChannelInputErrorsType>({
-    name: false,
-    slackWebhook: false,
-    sender: false,
-    recipients: false,
-  });
-
-  // returns whether input passed validation
+  // returns whether inputs passed validation
   const validateInput = (): boolean => {
     const errors = {
-      name: name.length === 0,
-      slackWebhook: channelType === 'SLACK' && slackWebhook.length === 0,
-      sender: channelType === 'EMAIL' && sender.length === 0,
+      name: validateChannelName(name),
+      slackWebhook:
+        channelType === 'SLACK' && validateSlackWebhook(slackWebhook),
+      sender: channelType === 'EMAIL' && validateEmailSender(sender),
       recipients:
-        channelType === 'EMAIL' && selectedRecipientGroupOptions.length === 0,
+        channelType === 'EMAIL' &&
+        validateRecipients(selectedRecipientGroupOptions),
     };
     setInputErrors(errors);
     return !Object.values(errors).reduce(
@@ -139,129 +165,109 @@ export function CreateChannel(props: CreateChannelsProps) {
 
   return (
     <>
-      <EuiTitle size="l">
-        <h1>{`${props.edit ? 'Edit' : 'Create'} channel`}</h1>
-      </EuiTitle>
-
-      <EuiSpacer />
-      <ContentPanel
-        bodyStyles={{ padding: 'initial' }}
-        title="Name and description"
-        titleSize="s"
+      <CreateChannelContext.Provider
+        value={{ edit: props.edit, inputErrors, setInputErrors }}
       >
-        <EuiFormRow
-          label="Name"
-          error="Name is required."
-          isInvalid={inputErrors.name}
-        >
-          <EuiFieldText
-            placeholder="Enter channel name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-        </EuiFormRow>
-        <EuiFormRow
-          label={
-            <span>
-              Description - <i style={{ fontWeight: 'normal' }}>optional</i>
-            </span>
-          }
-        >
-          <>
-            <EuiText size="xs" color="subdued">
-              Describe the purpose of the channel.
-            </EuiText>
-            <EuiTextArea
-              placeholder="Describe the channel"
-              style={{ height: '2.8rem' }}
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-            />
-          </>
-        </EuiFormRow>
-      </ContentPanel>
+        <EuiTitle size="l">
+          <h1>{`${props.edit ? 'Edit' : 'Create'} channel`}</h1>
+        </EuiTitle>
 
-      <EuiSpacer />
-      <ContentPanel
-        bodyStyles={{ padding: 'initial' }}
-        title="Settings"
-        titleSize="s"
-      >
-        <ChannelSettingsPanel
-          headerFooterCheckboxIdToSelectedMap={
-            headerFooterCheckboxIdToSelectedMap
-          }
-          setHeaderFooterCheckboxIdToSelectedMap={
-            setHeaderFooterCheckboxIdToSelectedMap
-          }
-          emailHeader={emailHeader}
-          setEmailHeader={setEmailHeader}
-          emailFooter={emailFooter}
-          setEmailFooter={setEmailFooter}
-          sender={sender}
-          setSender={setSender}
-          selectedRecipientGroupOptions={selectedRecipientGroupOptions}
-          setSelectedRecipientGroupOptions={setSelectedRecipientGroupOptions}
-          channelType={channelType}
-          setChannelType={setChannelType}
-          channelTypeOptions={channelTypeOptions}
-          slackWebhook={slackWebhook}
-          setSlackWebhook={setSlackWebhook}
-          inputErrors={inputErrors}
+        <EuiSpacer />
+        <ChannelNamePanel
+          name={name}
+          setName={setName}
+          description={description}
+          setDescription={setDescription}
         />
-      </ContentPanel>
 
-      <EuiSpacer />
-      <ContentPanel
-        bodyStyles={{ padding: 'initial' }}
-        title="Availability"
-        titleSize="s"
-      >
-        <EuiFormRow label="Notification source">
-          <>
-            <EuiText size="xs" color="subdued">
-              Select sources where this channel will be available.
-            </EuiText>
-            <EuiSpacer size="s" />
-            <EuiCheckboxGroup
-              options={sourceOptions}
-              idToSelectedMap={sourceCheckboxIdToSelectedMap}
-              onChange={(optionId: string) => {
-                setSourceCheckboxIdToSelectedMap({
-                  ...sourceCheckboxIdToSelectedMap,
-                  ...{
-                    [optionId]: !sourceCheckboxIdToSelectedMap[optionId],
-                  },
-                });
-              }}
+        <EuiSpacer />
+        <ContentPanel
+          bodyStyles={{ padding: 'initial' }}
+          title="Settings"
+          titleSize="s"
+        >
+          <EuiFormRow label="Channel type">
+            <EuiSuperSelect
+              options={channelTypeOptions}
+              valueOfSelected={channelType}
+              onChange={setChannelType}
+              disabled={props.edit}
             />
-          </>
-        </EuiFormRow>
-      </ContentPanel>
+          </EuiFormRow>
+          {channelType === 'SLACK' ? (
+            <SlackSettings
+              slackWebhook={slackWebhook}
+              setSlackWebhook={setSlackWebhook}
+            />
+          ) : channelType === 'EMAIL' ? (
+            <EmailSettings
+              headerFooterCheckboxIdToSelectedMap={
+                headerFooterCheckboxIdToSelectedMap
+              }
+              setHeaderFooterCheckboxIdToSelectedMap={
+                setHeaderFooterCheckboxIdToSelectedMap
+              }
+              emailHeader={emailHeader}
+              setEmailHeader={setEmailHeader}
+              emailFooter={emailFooter}
+              setEmailFooter={setEmailFooter}
+              sender={sender}
+              setSender={setSender}
+              selectedRecipientGroupOptions={selectedRecipientGroupOptions}
+              setSelectedRecipientGroupOptions={
+                setSelectedRecipientGroupOptions
+              }
+            />
+          ) : channelType === 'CUSTOM_WEBHOOK' ? (
+            <CustomWebhookSettings
+              webhookTypeIdSelected={webhookTypeIdSelected}
+              setWebhookTypeIdSelected={setWebhookTypeIdSelected}
+              webhookURL={webhookURL}
+              setWebhookURL={setWebhookURL}
+              customURLHost={customURLHost}
+              setCustomURLHost={setCustomURLHost}
+              customURLPort={customURLPort}
+              setCustomURLPort={setCustomURLPort}
+              customURLPath={customURLPath}
+              setCustomURLPath={setCustomURLPath}
+              webhookParams={webhookParams}
+              setWebhookParams={setWebhookParams}
+              webhookHeaders={webhookHeaders}
+              setWebhookHeaders={setWebhookHeaders}
+            />
+          ) : null}
+        </ContentPanel>
 
-      <EuiSpacer />
-      <EuiFlexGroup gutterSize="m" justifyContent="flexEnd">
-        <EuiFlexItem grow={false}>
-          <EuiButtonEmpty size="s" href={prevURL}>
-            Cancel
-          </EuiButtonEmpty>
-        </EuiFlexItem>
-        <EuiFlexItem grow={false}>
-          <EuiButton size="s">Send test message</EuiButton>
-        </EuiFlexItem>
-        <EuiFlexItem grow={false}>
-          <EuiButton
-            size="s"
-            fill
-            onClick={() => {
-              if (!validateInput()) return;
-              location.assign(prevURL);
-            }}
-          >
-            {props.edit ? 'Save' : 'Create'}
-          </EuiButton>
-        </EuiFlexItem>
-      </EuiFlexGroup>
+        <EuiSpacer />
+        <ChannelAvailbilityPanel
+          sourceCheckboxIdToSelectedMap={sourceCheckboxIdToSelectedMap}
+          setSourceCheckboxIdToSelectedMap={setSourceCheckboxIdToSelectedMap}
+        />
+
+        <EuiSpacer />
+        <EuiFlexGroup gutterSize="m" justifyContent="flexEnd">
+          <EuiFlexItem grow={false}>
+            <EuiButtonEmpty size="s" href={prevURL}>
+              Cancel
+            </EuiButtonEmpty>
+          </EuiFlexItem>
+          <EuiFlexItem grow={false}>
+            <EuiButton size="s">Send test message</EuiButton>
+          </EuiFlexItem>
+          <EuiFlexItem grow={false}>
+            <EuiButton
+              size="s"
+              fill
+              onClick={() => {
+                if (!validateInput()) return;
+                location.assign(prevURL);
+              }}
+            >
+              {props.edit ? 'Save' : 'Create'}
+            </EuiButton>
+          </EuiFlexItem>
+        </EuiFlexGroup>
+      </CreateChannelContext.Provider>
     </>
   );
 }
