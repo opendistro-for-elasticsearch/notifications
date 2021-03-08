@@ -13,7 +13,7 @@
  * permissions and limitations under the License.
  */
 
-import { ChannelItemType } from '.notifications/notifications-kibana-plugin/models/interfaces';
+import { ChannelItemType } from '../../../models/interfaces';
 import {
   EuiButton,
   EuiDescriptionList,

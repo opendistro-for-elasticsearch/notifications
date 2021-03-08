@@ -13,31 +13,35 @@
  * permissions and limitations under the License.
  */
 
-import { HISTOGRAM_TYPE } from '.notifications/notifications-kibana-plugin/models/interfaces';
 import {
   Axis,
   BarSeries,
   Chart,
   DataGenerator,
+  Datum,
   Settings,
 } from '@elastic/charts';
-import { euiPaletteColorBlind } from '@elastic/eui';
-import React, { useState } from 'react';
+import { euiPaletteColorBlind, EuiSpacer } from '@elastic/eui';
+import React, { useEffect, useState } from 'react';
 import {
   ContentPanel,
   ContentPanelActions,
 } from '../../../components/ContentPanel';
+import { HISTOGRAM_TYPE } from '../../../utils/constants';
 import { HistogramControls } from './NotificationControls/HistogramControls';
 
 interface NotificationsHistogramProps {}
 
 export function NotificationsHistogram(props: NotificationsHistogramProps) {
-  const [histogramType, setHistogramType] = useState<HISTOGRAM_TYPE>(
-    'CHANNEL_TYPE'
-  );
+  const [histogramType, setHistogramType] = useState<
+    keyof typeof HISTOGRAM_TYPE
+  >('CHANNEL_TYPE');
+  const [data, setData] = useState<Datum[]>([]);
 
-  const dg = new DataGenerator();
-  const data2 = dg.generateGroupedSeries(25, 2, 'Channel-');
+  useEffect(() => {
+    const dg = new DataGenerator();
+    setData(dg.generateGroupedSeries(25, 2, 'Channel-'));
+  }, []);
 
   return (
     <>
@@ -57,10 +61,13 @@ export function NotificationsHistogram(props: NotificationsHistogramProps) {
           />
         }
         bodyStyles={{ padding: 'initial' }}
-        title="Notifications by channel types"
+        title={`Notifications by ${HISTOGRAM_TYPE[
+          histogramType
+        ].toLowerCase()}`}
         titleSize="m"
       >
-        <Chart size={{ height: 200 }}>
+        <EuiSpacer />
+        <Chart size={{ height: 250 }}>
           <Settings
             theme={{
               colors: {
@@ -72,7 +79,7 @@ export function NotificationsHistogram(props: NotificationsHistogramProps) {
           <BarSeries
             id="status"
             name="Status"
-            data={data2}
+            data={data}
             xAccessor={'x'}
             yAccessors={['y']}
             splitSeriesAccessors={['g']}

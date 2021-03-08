@@ -13,38 +13,22 @@
  * permissions and limitations under the License.
  */
 
-import { HISTOGRAM_TYPE } from '../../../../../models/interfaces';
+import { HISTOGRAM_TYPE } from '../../../../utils/constants';
 import { EuiSuperSelect, EuiSuperSelectOption } from '@elastic/eui';
 import React from 'react';
 
 interface HistogramControlsProps {
-  histogramType: HISTOGRAM_TYPE;
-  setHistogramType: (histogramType: HISTOGRAM_TYPE) => void;
+  histogramType: keyof typeof HISTOGRAM_TYPE;
+  setHistogramType: (histogramType: keyof typeof HISTOGRAM_TYPE) => void;
 }
 
 export function HistogramControls(props: HistogramControlsProps) {
-  const histogramTypeOptions: Array<EuiSuperSelectOption<HISTOGRAM_TYPE>> = [
-    {
-      value: 'CHANNEL_TYPE',
-      inputDisplay: 'Channel types',
-    },
-    {
-      value: 'SOURCE',
-      inputDisplay: 'Notification source',
-    },
-    {
-      value: 'STATUS',
-      inputDisplay: 'Notification status',
-    },
-    {
-      value: 'SEVERTY',
-      inputDisplay: 'Severity',
-    },
-    {
-      value: 'TOP_10_CHANNELS',
-      inputDisplay: 'Top 10 channels',
-    },
-  ];
+  const histogramTypeOptions: Array<EuiSuperSelectOption<
+    keyof typeof HISTOGRAM_TYPE
+  >> = Object.entries(HISTOGRAM_TYPE).map(([value, inputDisplay]) => ({
+    value: value as keyof typeof HISTOGRAM_TYPE,
+    inputDisplay,
+  }));
 
   return (
     <>

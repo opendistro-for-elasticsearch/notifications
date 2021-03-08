@@ -13,7 +13,7 @@
  * permissions and limitations under the License.
  */
 
-import { ENCRYPTION_METHOD } from '.notifications/notifications-kibana-plugin/models/interfaces';
+import { ENCRYPTION_METHOD } from '../../../models/interfaces';
 import {
   EuiButton,
   EuiButtonEmpty,

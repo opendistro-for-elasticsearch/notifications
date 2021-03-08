@@ -80,10 +80,3 @@ export interface TableState<T> {
 }
 
 export type ENCRYPTION_METHOD = 'SSL' | 'TSL';
-
-export type HISTOGRAM_TYPE =
-  | 'CHANNEL_TYPE'
-  | 'SOURCE'
-  | 'STATUS'
-  | 'SEVERTY'
-  | 'TOP_10_CHANNELS';

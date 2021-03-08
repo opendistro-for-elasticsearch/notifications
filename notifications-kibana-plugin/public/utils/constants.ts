@@ -65,3 +65,11 @@ export const CUSTOM_WEBHOOK_ENDPOINT_TYPE = Object.freeze({
   WEBHOOK_URL: 'Webhook URL',
   CUSTOM_URL: 'Custom attributes URL with HTTPS',
 });
+
+export const HISTOGRAM_TYPE = Object.freeze({
+  CHANNEL_TYPE: 'Channel types',
+  SOURCE: 'Notification source',
+  STATUS: 'Notification status',
+  SEVERTY: 'Severty',
+  TOP_10_CHANNELS: 'Top 10 channels',
+});
