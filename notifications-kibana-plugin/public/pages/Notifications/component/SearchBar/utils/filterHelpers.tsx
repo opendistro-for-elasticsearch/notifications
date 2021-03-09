@@ -136,3 +136,22 @@ export const isSingleSelection = (filterOrOperator: FilterType | string) => {
       : filterOrOperator.operator
   );
 };
+
+export const filterToQueryString = (filters: FilterType[]) => {
+  // TODO: need to map display names to field names (Channel type => CHANNEL_TYPE ?)
+  return filters
+    .filter((filter) => !filter.disabled)
+    .map((filter) => {
+      if (filter.value === null) return '';
+
+      const sign = filter.inverted ? '-' : '+';
+      const field = filter.field;
+      const value =
+        typeof filter.value === 'string'
+          ? filter.value
+          : filter.value.map((option) => option.label).join(' OR ');
+
+      return `${sign}(${field}:${value})`;
+    })
+    .join(' ');
+};

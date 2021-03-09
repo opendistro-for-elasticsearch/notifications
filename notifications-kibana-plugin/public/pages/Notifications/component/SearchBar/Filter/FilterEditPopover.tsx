@@ -59,7 +59,9 @@ export function FilterEditPopover(props: FilterEditPopoverProps) {
         ]
       : []
   );
-  const [filterValue, setFilterValue] = useState(props.filter?.value || []);
+  const [filterValue, setFilterValue] = useState<FilterType['value']>(
+    props.filter?.value || []
+  );
 
   const filterFieldOptions = useMemo(getFilterFieldOptions, []);
 

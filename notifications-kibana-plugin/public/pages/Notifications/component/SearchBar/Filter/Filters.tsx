@@ -23,10 +23,12 @@ import {
   EuiPopover,
   EuiTextColor,
 } from '@elastic/eui';
+import { EuiComboBoxOptionOption } from '@elastic/eui/src/components/combo_box/types';
 import React, { useMemo, useState } from 'react';
 import {
   FilterFieldType,
   FilterOperatorType,
+  filterToQueryString,
   isSingleSelection,
 } from '../utils/filterHelpers';
 import { AddFilterButton } from './AddFilterButton';
@@ -36,7 +38,7 @@ import { GlobalFilterButton } from './GlobalFilterButton';
 export interface FilterType {
   field: FilterFieldType;
   operator: FilterOperatorType;
-  value: any;
+  value: string | Array<EuiComboBoxOptionOption<string>> | null;
   inverted: boolean;
   disabled: boolean;
 }
@@ -137,12 +139,8 @@ export function Filters(props: FiltersProps) {
         value = filter.value;
       } else if (Array.isArray(filter.value)) {
         // combo box array
-        if (singleSelection) value = filter.value[0]?.label;
-        else {
-          value =
-            'is one of ' +
-            filter.value.map((option) => option.label).join(', ');
-        }
+        value = filter.value.map((option) => option.label).join(', ');
+        if (!singleSelection) value = 'is one of ' + value;
       }
 
       const filterLabel = filter.inverted ? (
@@ -164,9 +162,7 @@ export function Filters(props: FiltersProps) {
           color={filter.disabled ? '#e7e9f0' : 'hollow'}
           iconType="cross"
           iconSide="right"
-          iconOnClick={() => {
-            setFilter(null, index);
-          }}
+          iconOnClick={() => setFilter(null, index)}
           iconOnClickAriaLabel="Remove filter"
         >
           {filterLabel}
