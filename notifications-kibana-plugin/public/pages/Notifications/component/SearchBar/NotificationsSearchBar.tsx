@@ -18,25 +18,26 @@ import {
   EuiFieldSearch,
   EuiFlexGroup,
   EuiFlexItem,
+  EuiSpacer,
   EuiSuperDatePicker,
   ShortDate,
 } from '@elastic/eui';
 import React from 'react';
+import { Filters, FilterType } from './Filter/Filters';
 
-export interface NotificationsSearchBarProps {
+interface NotificationsSearchBarProps {
   startTime: ShortDate;
   setStartTime: (startTime: ShortDate) => void;
   endTime: ShortDate;
   setEndTime: (endTime: ShortDate) => void;
   search: string;
   setSearch: (search: string) => void;
-}
-
-interface NotificationsSearchBarOwnProps extends NotificationsSearchBarProps {
+  filters: FilterType[];
+  setFilters: (filters: FilterType[]) => void;
   refresh: () => void;
 }
 
-export function NotificationsSearchBar(props: NotificationsSearchBarOwnProps) {
+export function NotificationsSearchBar(props: NotificationsSearchBarProps) {
   return (
     <>
       <EuiFlexGroup gutterSize="s" alignItems="center">
@@ -67,6 +68,8 @@ export function NotificationsSearchBar(props: NotificationsSearchBarOwnProps) {
           </EuiButton>
         </EuiFlexItem>
       </EuiFlexGroup>
+      <EuiSpacer size="s" />
+      <Filters filters={props.filters} setFilters={props.setFilters} />
     </>
   );
 }

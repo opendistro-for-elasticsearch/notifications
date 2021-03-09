@@ -38,6 +38,7 @@ import { NotificationService } from '../../../services';
 import { BREADCRUMBS } from '../../../utils/constants';
 import { getErrorMessage } from '../../../utils/helpers';
 import { NotificationsHistogram } from '../component/NotificationsHistogram';
+import { FilterType } from '../component/SearchBar/Filter/Filters';
 import { NotificationsSearchBar } from '../component/SearchBar/NotificationsSearchBar';
 import { NotificationsTable } from '../table/NotificationsTable';
 import {
@@ -53,6 +54,7 @@ interface NotificationsProps extends RouteComponentProps {
 interface NotificationsState extends TableState<NotificationItem> {
   startTime: ShortDate;
   endTime: ShortDate;
+  filters: FilterType[];
 }
 
 export default class Notifications extends Component<
@@ -64,9 +66,16 @@ export default class Notifications extends Component<
   constructor(props: NotificationsProps) {
     super(props);
 
-    const { from, size, search, sortField, sortDirection } = getURLQueryParams(
-      this.props.location
-    );
+    const {
+      from,
+      size,
+      search,
+      sortField,
+      sortDirection,
+      startTime,
+      endTime,
+      filters,
+    } = getURLQueryParams(this.props.location);
 
     this.state = {
       total: 0,
@@ -78,8 +87,9 @@ export default class Notifications extends Component<
       items: [],
       selectedItems: [],
       loading: true,
-      startTime: 'now-7d',
-      endTime: 'now',
+      startTime,
+      endTime,
+      filters,
     };
 
     this.getNotifications = _.debounce(this.getNotifications, 500, {
@@ -113,6 +123,9 @@ export default class Notifications extends Component<
       search: state.search,
       sortField: state.sortField,
       sortDirection: state.sortDirection,
+      startTime: state.startTime,
+      endTime: state.endTime,
+      filters: JSON.stringify(state.filters),
     };
   }
 
@@ -163,6 +176,9 @@ export default class Notifications extends Component<
   };
   setEndTime = (endTime: ShortDate) => {
     this.setState({ from: 0, endTime });
+  };
+  setFilters = (filters: FilterType[]) => {
+    this.setState({ from: 0, filters });
   };
 
   // onClickModalEdit = (item: NotificationItem, onClose: () => void): void => {
@@ -233,6 +249,8 @@ export default class Notifications extends Component<
           setEndTime={this.setEndTime}
           search={search}
           setSearch={this.onSearchChange}
+          filters={this.state.filters}
+          setFilters={this.setFilters}
           refresh={this.getNotifications}
         />
 

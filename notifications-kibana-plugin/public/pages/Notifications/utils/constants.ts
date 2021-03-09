@@ -25,7 +25,7 @@ export const DEFAULT_QUERY_PARAMS = {
   size: 5,
   sortDirection: SORT_DIRECTION.ASC,
   sortField: 'name',
-  status: 'ALL',
-  source: 'ALL',
-  severity: 'ALL',
+  startTime: 'now-7d',
+  endTime: 'now',
+  filters: [],
 };

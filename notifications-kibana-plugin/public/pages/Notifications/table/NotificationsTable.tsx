@@ -17,12 +17,19 @@ import { NotificationItem } from '../../../../models/interfaces';
 import { ContentPanel } from '../../../components/ContentPanel';
 import {
   EuiBasicTable,
+  EuiButtonIcon,
+  EuiDescriptionList,
+  EuiFlexGroup,
+  EuiFlexItem,
   EuiHealth,
   EuiLink,
   EuiTableFieldDataColumnType,
+  EuiTableRow,
+  EuiTableRowCell,
   EuiTableSortingType,
+  RIGHT_ALIGNMENT,
 } from '@elastic/eui';
-import React from 'react';
+import React, { useState } from 'react';
 import { Criteria } from '@elastic/eui/src/components/basic_table/basic_table';
 import { Pagination } from '@elastic/eui/src/components/basic_table/pagination_bar';
 import { renderTime } from '../../../utils/helpers';
@@ -41,7 +48,22 @@ interface NotificationsTableProps {
 }
 
 export function NotificationsTable(props: NotificationsTableProps) {
-  console.log(props.items);
+  const [itemIdToExpandedRowMap, setItemIdToExpandedRowMap] = useState<{
+    [id: string]: React.ReactNode;
+  }>({});
+
+  const toggleDetails = (item: NotificationItem) => {
+    const itemIdToExpandedRowMapValues = { ...itemIdToExpandedRowMap };
+    if (itemIdToExpandedRowMapValues[item.title]) {
+      delete itemIdToExpandedRowMapValues[item.title];
+    } else {
+      itemIdToExpandedRowMapValues[item.title] = (
+      <div>h</div>
+      );
+    }
+    setItemIdToExpandedRowMap(itemIdToExpandedRowMapValues);
+  };
+
   const columns: EuiTableFieldDataColumnType<NotificationItem>[] = [
     {
       field: 'title',
@@ -128,6 +150,23 @@ export function NotificationsTable(props: NotificationsTableProps) {
       textOnly: true,
       width: '150px',
     },
+    {
+      field: 'title',
+      name: '',
+      width: '40px',
+      isExpander: true,
+      render: (title, item) => (
+        <EuiButtonIcon
+          onClick={() => toggleDetails(item)}
+          aria-label={
+            itemIdToExpandedRowMap[item.title] ? 'Collapse' : 'Expand'
+          }
+          iconType={
+            itemIdToExpandedRowMap[item.title] ? 'arrowUp' : 'arrowDown'
+          }
+        />
+      ),
+    },
   ];
 
   return (
@@ -149,6 +188,8 @@ export function NotificationsTable(props: NotificationsTableProps) {
           onChange={props.onTableChange}
           pagination={props.pagination}
           sorting={props.sorting}
+          itemIdToExpandedRowMap={itemIdToExpandedRowMap}
+          isExpandable={true}
         />
       </ContentPanel>
     </>
