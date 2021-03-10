@@ -83,7 +83,7 @@ export function EmailSettings(props: EmailSettingsProps) {
   ];
   const [recipientGroupOptions, setRecipientGroupOptions] = useState([
     {
-      label: 'Titan',
+      label: 'no-reply@company.com',
     },
   ]);
 

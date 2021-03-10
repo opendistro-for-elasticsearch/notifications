@@ -61,7 +61,7 @@ export class SendersTable extends Component<
       sortDirection: SORT_DIRECTION.ASC,
       items: Array.from({ length: 5 }, (v, i) => ({
         id: `${i}`,
-        name: 'abc' + i,
+        name: 'Sender ' + (i + 1),
         from: 'no-reply@company.com',
         host: 'smtp.company.com',
         port: '25',

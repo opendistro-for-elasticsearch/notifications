@@ -34,6 +34,7 @@ import { ModalConsumer } from '../../components/Modal';
 import { BREADCRUMBS, ROUTES } from '../../utils/constants';
 import { DeleteChannelModal } from './components/modals/DeleteChannelModal';
 import { MuteChannelModal } from './components/modals/MuteChannelModal';
+import { renderTime } from '../../utils/helpers';
 
 interface ListItemType {
   title: NonNullable<React.ReactNode>;
@@ -52,17 +53,18 @@ export function ChannelDetails(props: ChannelDetailsProps) {
       BREADCRUMBS.NOTIFICATIONS,
       BREADCRUMBS.CHANNELS,
       {
-        text: 'test',
-        href: `${BREADCRUMBS.CHANNELS.href}/${id}`,
+        text: channel?.name || 'Ops_channel',
+        href: `${BREADCRUMBS.CHANNEL_DETAILS.href}/${id}`,
       },
     ]);
     setChannel({
       id,
-      name: 'test',
+      name: 'Ops_channel',
       enabled: true,
-      type: 'email',
-      allowedFeatures: ['Alerting', 'ISM'],
-      lastUpdatedTime: 0,
+      type: 'Email',
+      allowedFeatures: ['Alerting', 'Reporting'],
+      lastUpdatedTime: new Date().getTime(),
+      description: 'This group will send to all operational team members.',
       destination: {
         slack: {
           url:
@@ -83,7 +85,7 @@ export function ChannelDetails(props: ChannelDetailsProps) {
     },
     {
       title: 'Last updated',
-      description: channel?.lastUpdatedTime || '-',
+      description: renderTime(channel?.lastUpdatedTime || -1),
     },
     {
       title: 'Channel type',
@@ -91,19 +93,19 @@ export function ChannelDetails(props: ChannelDetailsProps) {
     },
     {
       title: 'Sender',
-      description: '-',
+      description: 'robot@gmail.com',
     },
     {
       title: 'Default recipients',
-      description: '-',
+      description: 'Team2, cyberadmin@company.com',
     },
     {
       title: 'Email header',
-      description: '-',
+      description: 'Disabled',
     },
     {
       title: 'Email footer',
-      description: '-',
+      description: 'Disabled',
     },
     {
       title: 'Notification sources',
@@ -138,7 +140,7 @@ export function ChannelDetails(props: ChannelDetailsProps) {
       >
         <EuiFlexItem grow={false}>
           <EuiTitle size="l">
-            <h1>test</h1>
+            <h1>{channel?.name || '-'}</h1>
           </EuiTitle>
         </EuiFlexItem>
         <EuiFlexItem grow={false}>

@@ -57,9 +57,9 @@ export class Channels extends Component<ChannelsProps, ChannelsState> {
       search: '',
       sortField: 'name',
       sortDirection: SORT_DIRECTION.ASC,
-      items: Array.from({ length: 20 }, (v, i) => ({
+      items: Array.from({ length: 5 }, (v, i) => ({
         id: `${i}`,
-        name: 'abc' + i,
+        name: 'Channel ' + (i + 1),
         enabled: [true, false][Math.round(Math.random())],
         type: 'email',
         allowedFeatures: ['Alerting', 'ISM'],

@@ -42,7 +42,7 @@ export function CreateRecipientGroup(props: CreateRecipientGroupProps) {
   >([]);
   const [emailOptions, setEmailOptions] = useState([
     {
-      label: 'Titan',
+      label: 'no-reply@company.com',
     },
   ]);
 

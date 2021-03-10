@@ -55,11 +55,11 @@ export const getURLQueryParams = (location: {
     // @ts-ignore
     from: isNaN(parseInt(from, 10))
       ? DEFAULT_QUERY_PARAMS.from
-      : parseInt(from, 10),
+      : parseInt(from as string, 10),
     // @ts-ignore
     size: isNaN(parseInt(size, 10))
       ? DEFAULT_QUERY_PARAMS.size
-      : parseInt(size, 10),
+      : parseInt(size as string, 10),
     search: typeof search !== 'string' ? DEFAULT_QUERY_PARAMS.search : search,
     sortField:
       typeof sortField !== 'string'
