@@ -41,7 +41,7 @@ export const MuteChannelModal = (props: MuteChannelModalProps) => {
 
   const mute = props.mute ? 'Mute' : 'Unmute';
   const message = props.mute
-    ? 'This channel will stop sending notifications to its recipients. However, this channel is still available from selsction.'
+    ? 'This channel will stop sending notifications to its recipients. However, this channel is still available from selection.'
     : 'unmute';
 
   return (
