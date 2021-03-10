@@ -41,12 +41,7 @@ import { ChannelsActions } from './components/ChannelsActions';
 
 interface ChannelsProps extends RouteComponentProps {}
 
-interface ChannelsState extends TableState<ChannelItemType> {
-  state: string;
-  type: string;
-  source: string;
-  isActionsPopoverOpen: boolean;
-}
+interface ChannelsState extends TableState<ChannelItemType> {}
 
 export class Channels extends Component<ChannelsProps, ChannelsState> {
   static contextType = CoreServicesContext;
@@ -78,10 +73,6 @@ export class Channels extends Component<ChannelsProps, ChannelsState> {
       })),
       selectedItems: [],
       loading: true,
-      state: 'ALL',
-      type: 'ALL',
-      source: 'ALL',
-      isActionsPopoverOpen: false,
     };
 
     this.columns = [
@@ -155,18 +146,8 @@ export class Channels extends Component<ChannelsProps, ChannelsState> {
     this.setState({ selectedItems });
   };
 
-  onSearchChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    this.setState({ from: 0, search: e.target.value });
-  };
-
-  onStateChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    this.setState({ from: 0, state: e.target.value });
-  };
-  onTypeChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    this.setState({ from: 0, type: e.target.value });
-  };
-  onSourceChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    this.setState({ from: 0, source: e.target.value });
+  onSearchChange = (search: string): void => {
+    this.setState({ from: 0, search });
   };
 
   onPageChange = (page: number): void => {
@@ -234,14 +215,7 @@ export class Channels extends Component<ChannelsProps, ChannelsState> {
         >
           <ChannelsControls
             search={search}
-            state={this.state.state}
-            type={this.state.type}
-            source={this.state.source}
             onSearchChange={this.onSearchChange}
-            onStateChange={this.onStateChange}
-            onTypeChange={this.onTypeChange}
-            onSourceChange={this.onSourceChange}
-            // onRefresh={this.getNotifications}
           />
           <EuiHorizontalRule margin="s" />
 
