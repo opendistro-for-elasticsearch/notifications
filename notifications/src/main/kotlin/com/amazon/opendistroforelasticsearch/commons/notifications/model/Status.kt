@@ -36,7 +36,7 @@ data class Status(
     val configId: String,
     val configName: String,
     val configType: NotificationConfig.ConfigType,
-    val emailRecipientStatus: List<EmailRecipientStatus>,
+    val emailRecipientStatus: MutableList<EmailRecipientStatus> = mutableListOf(),
     val statusDetail: StatusDetail? = null
 ): Writeable, ToXContent {
 
@@ -44,6 +44,7 @@ data class Status(
         require(!Strings.isNullOrEmpty(configId)) { "config id is null or empty" }
         require(!Strings.isNullOrEmpty(configName)) { "config name null or empty" }
         when (configType) {
+            //TODO: Add email once available
             NotificationConfig.ConfigType.Chime -> requireNotNull(statusDetail)
             NotificationConfig.ConfigType.Webhook -> requireNotNull(statusDetail)
             NotificationConfig.ConfigType.Slack -> requireNotNull(statusDetail)
@@ -72,7 +73,7 @@ data class Status(
             var configName: String? = null
             var configId: String? = null
             var configType: NotificationConfig.ConfigType? = null
-            var emailRecipientStatus: List<EmailRecipientStatus> = emptyList()
+            var emailRecipientStatus: MutableList<EmailRecipientStatus> = mutableListOf()
             var statusDetail: StatusDetail? = null
 
             XContentParserUtils.ensureExpectedToken(
@@ -87,7 +88,7 @@ data class Status(
                     CONFIG_NAME_TAG-> configName = parser.text()
                     CONFIG_ID_TAG -> configId = parser.text()
                     CONFIG_TYPE_TAG -> configType = valueOf(parser.text(), NotificationConfig.ConfigType.None)
-                    EMAIL_RECIPIENT_STATUS_TAG -> emailRecipientStatus = parser.objectList(EmailRecipientStatus.parse(parser))
+                    EMAIL_RECIPIENT_STATUS_TAG -> emailRecipientStatus = parser.objectList(EmailRecipientStatus.Companion::parse)
                     STATUS_DETAIL_TAG -> statusDetail = StatusDetail.parse(parser)
 
                     else -> {

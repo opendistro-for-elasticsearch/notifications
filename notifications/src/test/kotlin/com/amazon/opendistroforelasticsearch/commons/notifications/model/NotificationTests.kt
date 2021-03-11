@@ -21,12 +21,11 @@ import com.amazon.opendistroforelasticsearch.notifications.recreateObject
 import org.elasticsearch.test.ESTestCase
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
-import java.util.*
 
 internal class NotificationTests : ESTestCase() {
 
     @Test
-    fun `Config serialize and deserialize with slack object should be equal`() {
+    fun `Notification serialize and deserialize should be equal`() {
         val sampleNotification = Notification(
             "title",
             "referenceId",
@@ -39,265 +38,83 @@ internal class NotificationTests : ESTestCase() {
     }
 
     @Test
-    fun `Config serialize and deserialize using json slack object should be equal`() {
-        val sampleSlack = Slack("https://domain.com/sample_url#1234567890")
-        val sampleConfig = NotificationConfig(
-            "name",
-            NotificationConfig.ConfigType.Slack,
-            EnumSet.of(NotificationConfig.Feature.Reports),
-            slack = sampleSlack
+    fun `Notification serialize and deserialize using json should be equal`() {
+        val sampleNotification = Notification(
+            "title",
+            "referenceId",
+            Notification.SourceType.Alerting,
+            severity = Notification.SeverityType.Info,
+            configIdList = listOf("1", "2")
         )
-        val jsonString = getJsonString(sampleConfig)
-        val recreatedObject = createObjectFromJsonString(jsonString) { NotificationConfig.parse(it) }
-        ESTestCase.assertEquals(sampleConfig, recreatedObject)
+
+        val jsonString = getJsonString(sampleNotification)
+        val recreatedObject = createObjectFromJsonString(jsonString) { Notification.parse(it) }
+        assertEquals(sampleNotification, recreatedObject)
     }
 
     @Test
-    fun `Config serialize and deserialize with chime object should be equal`() {
-        val sampleChime = Chime("https://domain.com/sample_url#1234567890")
-        val sampleConfig = NotificationConfig(
-            "name",
-            NotificationConfig.ConfigType.Chime,
-            EnumSet.of(NotificationConfig.Feature.Alerting),
-            chime = sampleChime
+    fun `Notification should safely ignore extra field in json object`() {
+        val sampleNotification = Notification(
+            "title",
+            "referenceId",
+            Notification.SourceType.Alerting,
+            tags = listOf("tag1", "tag2"),
+            severity = Notification.SeverityType.Info,
+            configIdList = listOf("1", "2")
         )
-        val recreatedObject = recreateObject(sampleConfig) { NotificationConfig(it) }
-        assertEquals(sampleConfig, recreatedObject)
+        val jsonString = """
+        { 
+            "title":"title",
+            "referenceId":"referenceId",
+            "source":"Alerting",
+            "overallStatus":"None",
+            "severity":"Info",
+            "tags":["tag1", "tag2"],
+            "configIdList":["1","2"],
+            "statusList":[],
+            "extraField": "extra value"
+        }
+        """.trimIndent()
+        val recreatedObject = createObjectFromJsonString(jsonString) { Notification.parse(it) }
+        assertEquals(sampleNotification, recreatedObject)
     }
 
     @Test
-    fun `Config serialize and deserialize with json chime object should be equal`() {
-        val sampleChime = Chime("https://domain.com/sample_url#1234567890")
-        val sampleConfig = NotificationConfig(
-            "name",
-            NotificationConfig.ConfigType.Chime,
-            EnumSet.of(NotificationConfig.Feature.Alerting),
-            chime = sampleChime
-        )
-        val jsonString = getJsonString(sampleConfig)
-        val recreatedObject = createObjectFromJsonString(jsonString) { NotificationConfig.parse(it) }
-        assertEquals(sampleConfig, recreatedObject)
-    }
-
-    @Test
-    fun `Config serialize and deserialize with webhook object should be equal`() {
-        val sampleWebhook = Webhook("https://domain.com/sample_url#1234567890")
-        val sampleConfig = NotificationConfig(
-            "name",
-            NotificationConfig.ConfigType.Webhook,
-            EnumSet.of(NotificationConfig.Feature.IndexManagement),
-            webhook = sampleWebhook
-        )
-        val recreatedObject = recreateObject(sampleConfig) { NotificationConfig(it) }
-        assertEquals(sampleConfig, recreatedObject)
-    }
-
-    @Test
-    fun `Config serialize and deserialize with json webhook object should be equal`() {
-        val sampleWebhook = Webhook("https://domain.com/sample_url#1234567890")
-        val sampleConfig = NotificationConfig(
-            "name",
-            NotificationConfig.ConfigType.Webhook,
-            EnumSet.of(NotificationConfig.Feature.IndexManagement),
-            webhook = sampleWebhook
-        )
-        val jsonString = getJsonString(sampleConfig)
-        val recreatedObject = createObjectFromJsonString(jsonString) { NotificationConfig.parse(it) }
-        assertEquals(sampleConfig, recreatedObject)
-    }
-
-    @Test
-    fun `Config serialize and deserialize with multiple objects should be equal`() {
-        val sampleSlack = Slack("https://domain.com/sample_slack_url#1234567890")
-        val sampleChime = Chime("https://domain.com/sample_chime_url#1234567890")
-        val sampleWebhook = Webhook("https://domain.com/sample_webhook_url#1234567890")
-        val sampleConfig = NotificationConfig(
-            "name",
-            NotificationConfig.ConfigType.Webhook,
-            EnumSet.of(NotificationConfig.Feature.IndexManagement),
-            isEnabled = true,
-            slack = sampleSlack,
-            chime = sampleChime,
-            webhook = sampleWebhook
-        )
-        val recreatedObject = recreateObject(sampleConfig) { NotificationConfig(it) }
-        assertEquals(sampleConfig, recreatedObject)
-    }
-
-    @Test
-    fun `Config serialize and deserialize with multiple json objects should be equal`() {
-        val sampleSlack = Slack("https://domain.com/sample_slack_url#1234567890")
-        val sampleChime = Chime("https://domain.com/sample_chime_url#1234567890")
-        val sampleWebhook = Webhook("https://domain.com/sample_webhook_url#1234567890")
-        val sampleConfig = NotificationConfig(
-            "name",
-            NotificationConfig.ConfigType.Webhook,
-            EnumSet.of(NotificationConfig.Feature.IndexManagement),
-            isEnabled = true,
-            slack = sampleSlack,
-            chime = sampleChime,
-            webhook = sampleWebhook
-        )
-        val jsonString = getJsonString(sampleConfig)
-        val recreatedObject = createObjectFromJsonString(jsonString) { NotificationConfig.parse(it) }
-        assertEquals(sampleConfig, recreatedObject)
-    }
-
-    @Test
-    fun `Config serialize and deserialize with disabled multiple objects should be equal`() {
-        val sampleSlack = Slack("https://domain.com/sample_slack_url#1234567890")
-        val sampleChime = Chime("https://domain.com/sample_chime_url#1234567890")
-        val sampleWebhook = Webhook("https://domain.com/sample_webhook_url#1234567890")
-        val sampleConfig = NotificationConfig(
-            "name",
-            NotificationConfig.ConfigType.Webhook,
-            EnumSet.of(NotificationConfig.Feature.IndexManagement),
-            isEnabled = false,
-            slack = sampleSlack,
-            chime = sampleChime,
-            webhook = sampleWebhook
-        )
-        val recreatedObject = recreateObject(sampleConfig) { NotificationConfig(it) }
-        assertEquals(sampleConfig, recreatedObject)
-    }
-
-    @Test
-    fun `Config serialize and deserialize with disabled multiple json objects should be equal`() {
-        val sampleSlack = Slack("https://domain.com/sample_slack_url#1234567890")
-        val sampleChime = Chime("https://domain.com/sample_chime_url#1234567890")
-        val sampleWebhook = Webhook("https://domain.com/sample_webhook_url#1234567890")
-        val sampleConfig = NotificationConfig(
-            "name",
-            NotificationConfig.ConfigType.Webhook,
-            EnumSet.of(NotificationConfig.Feature.IndexManagement),
-            isEnabled = false,
-            slack = sampleSlack,
-            chime = sampleChime,
-            webhook = sampleWebhook
-        )
-        val jsonString = getJsonString(sampleConfig)
-        val recreatedObject = createObjectFromJsonString(jsonString) { NotificationConfig.parse(it) }
-        assertEquals(sampleConfig, recreatedObject)
-    }
-
-    @Test
-    fun `Config should safely ignore extra field in json object`() {
-        val sampleSlack = Slack("https://domain.com/sample_slack_url#1234567890")
-        val sampleChime = Chime("https://domain.com/sample_chime_url#1234567890")
-        val sampleWebhook = Webhook("https://domain.com/sample_webhook_url#1234567890")
-        val sampleConfig = NotificationConfig(
-            "name",
-            NotificationConfig.ConfigType.Webhook,
-            EnumSet.of(NotificationConfig.Feature.IndexManagement),
-            isEnabled = true,
-            slack = sampleSlack,
-            chime = sampleChime,
-            webhook = sampleWebhook
+    fun `Notification should safely ignore unknown source type in json object`() {
+        val sampleNotification = Notification(
+            "title",
+            "referenceId",
+            Notification.SourceType.None,
+            tags = listOf("tag1", "tag2"),
+            severity = Notification.SeverityType.Info,
+            configIdList = listOf("1", "2")
         )
         val jsonString = """
         {
-            "name":"name",
-            "configType":"Webhook",
-            "features":["IndexManagement"],
-            "isEnabled":true,
-            "slack":{"url":"https://domain.com/sample_slack_url#1234567890"},
-            "chime":{"url":"https://domain.com/sample_chime_url#1234567890"},
-            "webhook":{"url":"https://domain.com/sample_webhook_url#1234567890"},
-            "extra_field":"extra value"
+            "title":"title",
+            "referenceId":"referenceId",
+            "source": "NewSource",
+            "overallStatus":"None",
+            "severity":"Info",
+            "tags":["tag1", "tag2"],
+            "configIdList":["1","2"],
+            "statusList":[]
         }
         """.trimIndent()
-        val recreatedObject = createObjectFromJsonString(jsonString) { NotificationConfig.parse(it) }
-        assertEquals(sampleConfig, recreatedObject)
+        val recreatedObject = createObjectFromJsonString(jsonString) { Notification.parse(it) }
+        assertEquals(sampleNotification, recreatedObject)
     }
 
     @Test
-    fun `Config should safely ignore unknown config type in json object`() {
-        val sampleSlack = Slack("https://domain.com/sample_slack_url#1234567890")
-        val sampleChime = Chime("https://domain.com/sample_chime_url#1234567890")
-        val sampleWebhook = Webhook("https://domain.com/sample_webhook_url#1234567890")
-        val sampleConfig = NotificationConfig(
-            "name",
-            NotificationConfig.ConfigType.None,
-            EnumSet.of(NotificationConfig.Feature.IndexManagement),
-            isEnabled = true,
-            slack = sampleSlack,
-            chime = sampleChime,
-            webhook = sampleWebhook
-        )
-        val jsonString = """
-        {
-            "name":"name",
-            "configType":"NewConfig",
-            "features":["IndexManagement"],
-            "isEnabled":true,
-            "slack":{"url":"https://domain.com/sample_slack_url#1234567890"},
-            "chime":{"url":"https://domain.com/sample_chime_url#1234567890"},
-            "webhook":{"url":"https://domain.com/sample_webhook_url#1234567890"},
-            "newConfig":{"newField":"new value"}
-        }
-        """.trimIndent()
-        val recreatedObject = createObjectFromJsonString(jsonString) { NotificationConfig.parse(it) }
-        assertEquals(sampleConfig, recreatedObject)
-    }
-
-    @Test
-    fun `Config should safely ignore unknown feature type in json object`() {
-        val sampleSlack = Slack("https://domain.com/sample_slack_url#1234567890")
-        val sampleChime = Chime("https://domain.com/sample_chime_url#1234567890")
-        val sampleWebhook = Webhook("https://domain.com/sample_webhook_url#1234567890")
-        val sampleConfig = NotificationConfig(
-            "name",
-            NotificationConfig.ConfigType.Webhook,
-            EnumSet.of(NotificationConfig.Feature.IndexManagement, NotificationConfig.Feature.None),
-            isEnabled = true,
-            slack = sampleSlack,
-            chime = sampleChime,
-            webhook = sampleWebhook
-        )
-        val jsonString = """
-        {
-            "name":"name",
-            "configType":"Webhook",
-            "features":["IndexManagement", "NewFeature"],
-            "isEnabled":true,
-            "slack":{"url":"https://domain.com/sample_slack_url#1234567890"},
-            "chime":{"url":"https://domain.com/sample_chime_url#1234567890"},
-            "webhook":{"url":"https://domain.com/sample_webhook_url#1234567890"}
-        }
-        """.trimIndent()
-        val recreatedObject = createObjectFromJsonString(jsonString) { NotificationConfig.parse(it) }
-        assertEquals(sampleConfig, recreatedObject)
-    }
-
-    @Test
-    fun `Config throw exception if slack object is absent`() {
+    fun `Notification throw exception if name is empty`() {
         Assertions.assertThrows(IllegalArgumentException::class.java) {
-            NotificationConfig(
-                "name",
-                NotificationConfig.ConfigType.Slack,
-                EnumSet.of(NotificationConfig.Feature.IndexManagement)
-            )
-        }
-    }
-
-    @Test
-    fun `Config throw exception if chime object is absent`() {
-        Assertions.assertThrows(IllegalArgumentException::class.java) {
-            NotificationConfig(
-                "name",
-                NotificationConfig.ConfigType.Chime,
-                EnumSet.of(NotificationConfig.Feature.IndexManagement)
-            )
-        }
-    }
-
-    @Test
-    fun `Config throw exception if webhook object is absent`() {
-        Assertions.assertThrows(IllegalArgumentException::class.java) {
-            NotificationConfig(
-                "name",
-                NotificationConfig.ConfigType.Webhook,
-                EnumSet.of(NotificationConfig.Feature.IndexManagement)
+            Notification(
+                "",
+                "referenceId",
+                Notification.SourceType.Alerting,
+                tags = listOf("tag1", "tag2"),
+                severity = Notification.SeverityType.Info,
+                configIdList = listOf("1", "2")
             )
         }
     }

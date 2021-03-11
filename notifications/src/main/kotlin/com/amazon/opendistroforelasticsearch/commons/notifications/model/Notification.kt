@@ -99,7 +99,7 @@ data class Notification(
                     SEVERITY_TAG -> severity = valueOf(parser.text(), SeverityType.None)
                     TAGS_TAG -> tags = parser.stringList()
                     CONFIG_ID_LIST_TAG -> configIdList = parser.stringList()
-                    STATUS_LIST_TAG -> statusList = parser.objectList(Status.parse(parser))
+                    STATUS_LIST_TAG -> statusList = parser.objectList(Status.Companion::parse)
                     else -> {
                         log.info("Unexpected field: $fieldName, while parsing notification")
                     }
@@ -135,7 +135,7 @@ data class Notification(
         source = input.readEnum(SourceType::class.java),
         overallStatus = input.readEnum(StatusType::class.java),
         severity = input.readEnum(SeverityType::class.java),
-        tags = input.readOptionalStringList(),
+        tags = input.readStringList(),
         configIdList = input.readStringList(),
         statusList = input.readList(Status.reader)
     )
