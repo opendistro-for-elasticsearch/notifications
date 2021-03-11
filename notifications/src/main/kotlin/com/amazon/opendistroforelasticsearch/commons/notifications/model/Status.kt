@@ -18,7 +18,7 @@ package com.amazon.opendistroforelasticsearch.commons.notifications.model
 
 import com.amazon.opendistroforelasticsearch.notifications.util.fieldIfNotNull
 import com.amazon.opendistroforelasticsearch.notifications.util.logger
-import com.amazon.opendistroforelasticsearch.notifications.util.validateUrl
+import com.amazon.opendistroforelasticsearch.notifications.util.objectList
 import com.amazon.opendistroforelasticsearch.notifications.util.valueOf
 import org.elasticsearch.common.Strings
 import org.elasticsearch.common.io.stream.StreamInput
@@ -29,19 +29,21 @@ import org.elasticsearch.common.xcontent.XContentBuilder
 import org.elasticsearch.common.xcontent.XContentParser
 import org.elasticsearch.common.xcontent.XContentParserUtils
 
+/**
+ * Data class representing Notification Status.
+ */
 data class Status(
     val configId: String,
     val configName: String,
     val configType: NotificationConfig.ConfigType,
-    val emailRecipientStatus: List<EmailRecipientStatus>?,
-    val statusDetail: StatusDetail?
+    val emailRecipientStatus: List<EmailRecipientStatus>,
+    val statusDetail: StatusDetail? = null
 ): Writeable, ToXContent {
 
     init {
         require(!Strings.isNullOrEmpty(configId)) { "config id is null or empty" }
         require(!Strings.isNullOrEmpty(configName)) { "config name null or empty" }
         when (configType) {
-//            NotificationConfig.ConfigType.Email -> requireNotNull(emailRecipientStatus)
             NotificationConfig.ConfigType.Chime -> requireNotNull(statusDetail)
             NotificationConfig.ConfigType.Webhook -> requireNotNull(statusDetail)
             NotificationConfig.ConfigType.Slack -> requireNotNull(statusDetail)
@@ -70,7 +72,7 @@ data class Status(
             var configName: String? = null
             var configId: String? = null
             var configType: NotificationConfig.ConfigType? = null
-            var emailRecipientStatus: MutableList<EmailRecipientStatus> = mutableListOf()
+            var emailRecipientStatus: List<EmailRecipientStatus> = emptyList()
             var statusDetail: StatusDetail? = null
 
             XContentParserUtils.ensureExpectedToken(
@@ -85,16 +87,7 @@ data class Status(
                     CONFIG_NAME_TAG-> configName = parser.text()
                     CONFIG_ID_TAG -> configId = parser.text()
                     CONFIG_TYPE_TAG -> configType = valueOf(parser.text(), NotificationConfig.ConfigType.None)
-                    EMAIL_RECIPIENT_STATUS_TAG -> {
-                        XContentParserUtils.ensureExpectedToken(
-                            XContentParser.Token.START_OBJECT,
-                            parser.currentToken(),
-                            parser::getTokenLocation
-                        )
-                        while (parser.nextToken() != XContentParser.Token.END_ARRAY) {
-                            emailRecipientStatus.add(EmailRecipientStatus.parse(parser));
-                        }
-                    }
+                    EMAIL_RECIPIENT_STATUS_TAG -> emailRecipientStatus = parser.objectList(EmailRecipientStatus.parse(parser))
                     STATUS_DETAIL_TAG -> statusDetail = StatusDetail.parse(parser)
 
                     else -> {
@@ -116,6 +109,10 @@ data class Status(
         }
     }
 
+    /**
+     * Constructor used in transport action communication.
+     * @param input StreamInput stream to deserialize data from.
+     */
     constructor(input: StreamInput) : this(
         configId = input.readString(),
         configName= input.readString(),
@@ -124,11 +121,14 @@ data class Status(
         statusDetail = input.readOptionalWriteable(StatusDetail.reader),
         )
 
+    /**
+     * {@inheritDoc}
+     */
     override fun writeTo(output: StreamOutput) {
         output.writeString(configId)
         output.writeString(configName)
         output.writeEnum(configType)
-//        output.writeOptionalWriteable(emailRecipientStatus.) //TODO?
+        output.writeCollection(emailRecipientStatus)
         output.writeOptionalWriteable(statusDetail)
 
     }
@@ -145,154 +145,6 @@ data class Status(
             .fieldIfNotNull(EMAIL_RECIPIENT_STATUS_TAG, emailRecipientStatus)
             .fieldIfNotNull(STATUS_DETAIL_TAG, statusDetail)
             .endObject()
-    }
-
-    data class StatusDetail(
-        val statusCode: String,
-        val statusText: String,
-    ) : Writeable, ToXContent {
-
-        init {
-            require(!Strings.isNullOrEmpty(statusCode)) { "StatusCode is null or empty" }
-            require(!Strings.isNullOrEmpty(statusText)) { "statusText is null or empty" }
-
-        }
-        companion object {
-            private val log by logger(StatusDetail::class.java)
-            private const val STATUS_CODE_TAG = "statusCode"
-            private const val STATUS_TEXT_TAG = "statusText"
-
-            /**
-             * reader to create instance of class from writable.
-             */
-            val reader = Writeable.Reader { StatusDetail(it) }
-
-            /**
-             * Creator used in REST communication.
-             * @param parser XContentParser to deserialize data from.
-             */
-            fun parse(parser: XContentParser): StatusDetail {
-                var statusCode: String? = null
-                var statusText: String? = null
-
-                XContentParserUtils.ensureExpectedToken(
-                    XContentParser.Token.START_OBJECT,
-                    parser.currentToken(),
-                    parser::getTokenLocation
-                )
-                while (parser.nextToken() != XContentParser.Token.END_OBJECT) {
-                    val fieldName = parser.currentName()
-                    parser.nextToken()
-                    when (fieldName) {
-                        STATUS_CODE_TAG -> statusCode = parser.text()
-                        STATUS_TEXT_TAG -> statusText = parser.text()
-                        else -> {
-                            log.info("Unexpected field: $fieldName, while parsing StatusDetail")
-                        }
-                    }
-                }
-                statusCode ?: throw IllegalArgumentException("$STATUS_CODE_TAG field absent")
-                statusText?: throw IllegalArgumentException("$STATUS_TEXT_TAG field absent")
-                return StatusDetail(
-                    statusCode,
-                    statusText
-                )
-            }
-        }
-
-        constructor(input: StreamInput) : this(
-            statusCode = input.readString(),
-            statusText = input.readString()
-        )
-
-        override fun writeTo(output: StreamOutput) {
-            output.writeString(statusCode)
-            output.writeString(statusText)
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        override fun toXContent(builder: XContentBuilder?, params: ToXContent.Params?): XContentBuilder {
-            builder!!
-            return builder.startObject()
-                .field(STATUS_CODE_TAG, statusCode)
-                .field(STATUS_TEXT_TAG, statusText)
-                .endObject()
-        }
-    }
-
-    data class EmailRecipientStatus(
-        val recipient: String,
-        val statusDetail: StatusDetail
-    ): Writeable, ToXContent {
-
-        init {
-            require(!Strings.isNullOrEmpty(recipient)) { "recipient is null or empty" }
-        }
-
-        companion object {
-            private val log by logger(EmailRecipientStatus::class.java)
-            private const val RECIPIENT_TAG = "recipient"
-            private const val STATUS_DETAIL_TAG = "statusDetail"
-
-            /**
-             * reader to create instance of class from writable.
-             */
-            val reader = Writeable.Reader { EmailRecipientStatus(it) }
-
-            /**
-             * Creator used in REST communication.
-             * @param parser XContentParser to deserialize data from.
-             */
-            fun parse(parser: XContentParser): EmailRecipientStatus {
-                var recipient: String? = null
-                var statusDetail: StatusDetail? = null
-
-                XContentParserUtils.ensureExpectedToken(
-                    XContentParser.Token.START_OBJECT,
-                    parser.currentToken(),
-                    parser::getTokenLocation
-                )
-                while (parser.nextToken() != XContentParser.Token.END_OBJECT) {
-                    val fieldName = parser.currentName()
-                    parser.nextToken()
-                    when (fieldName) {
-                        RECIPIENT_TAG -> recipient = parser.text()
-                        STATUS_DETAIL_TAG -> statusDetail = StatusDetail.parse(parser)
-                        else -> {
-                            log.info("Unexpected field: $fieldName, while parsing Slack destination")
-                        }
-                    }
-                }
-                recipient ?: throw IllegalArgumentException("$RECIPIENT_TAG field absent")
-                statusDetail ?: throw IllegalArgumentException("$STATUS_DETAIL_TAG field absent")
-
-                return EmailRecipientStatus(recipient, statusDetail)
-            }
-
-        }
-
-        constructor(input: StreamInput) : this(
-            recipient = input.readString(),
-            statusDetail = StatusDetail.reader.read(input)
-        )
-
-        override fun writeTo(output: StreamOutput) {
-            output.writeString(recipient)
-            statusDetail.writeTo(output)
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        override fun toXContent(builder: XContentBuilder?, params: ToXContent.Params?): XContentBuilder {
-            builder!!
-            return builder.startObject()
-                .field(RECIPIENT_TAG, recipient)
-                .field(STATUS_DETAIL_TAG, statusDetail)
-                .endObject()
-        }
     }
 }
 

@@ -19,6 +19,7 @@ package com.amazon.opendistroforelasticsearch.commons.notifications.model
 
 import com.amazon.opendistroforelasticsearch.notifications.util.fieldIfNotNull
 import com.amazon.opendistroforelasticsearch.notifications.util.logger
+import com.amazon.opendistroforelasticsearch.notifications.util.objectList
 import com.amazon.opendistroforelasticsearch.notifications.util.stringList
 import org.elasticsearch.common.io.stream.StreamInput
 import org.elasticsearch.common.io.stream.StreamOutput
@@ -37,19 +38,15 @@ data class Notification(
     val title: String,
     val referenceId: String,
     val source: SourceType,
-    val overallStatus: StatusType,
+    val overallStatus: StatusType = StatusType.None,
     val severity: SeverityType,
-    val tags: List<String>?,
+    val tags: List<String> = emptyList(),
     val configIdList: List<String>,
-    val statusList: List<Status>,
-    // TODO: add message content?
+    val statusList: MutableList<Status> = mutableListOf(),
 ) : Writeable, ToXContent {
 
     init {
         require(!Strings.isNullOrEmpty(title)) { "name is null or empty" }
-        if (overallStatus != StatusType.None) {
-            requireNotNull(statusList)
-        }
     }
 
     enum class SourceType { None, Alerting, IndexManagement, Reports }
@@ -82,7 +79,7 @@ data class Notification(
             var source: SourceType? = null
             var overallStatus: StatusType = StatusType.None
             var severity: SeverityType = SeverityType.Info
-            var tags: List<String>? = null
+            var tags: List<String> = emptyList()
             var configIdList: List<String>? = null
             var statusList: MutableList<Status> = mutableListOf()
 
@@ -102,16 +99,7 @@ data class Notification(
                     SEVERITY_TAG -> severity = valueOf(parser.text(), SeverityType.None)
                     TAGS_TAG -> tags = parser.stringList()
                     CONFIG_ID_LIST_TAG -> configIdList = parser.stringList()
-                    STATUS_LIST_TAG -> {
-                        XContentParserUtils.ensureExpectedToken(
-                            XContentParser.Token.START_OBJECT,
-                            parser.currentToken(),
-                            parser::getTokenLocation
-                        )
-                        while (parser.nextToken() != XContentParser.Token.END_ARRAY) {
-                            statusList.add(Status.parse(parser));
-                        }
-                    }
+                    STATUS_LIST_TAG -> statusList = parser.objectList(Status.parse(parser))
                     else -> {
                         log.info("Unexpected field: $fieldName, while parsing notification")
                     }
@@ -152,6 +140,9 @@ data class Notification(
         statusList = input.readList(Status.reader)
     )
 
+    /**
+     * {@inheritDoc}
+     */
     override fun writeTo(output: StreamOutput) {
         output.writeString(title)
         output.writeString(referenceId)
@@ -163,6 +154,9 @@ data class Notification(
         output.writeList(statusList)
     }
 
+    /**
+     * {@inheritDoc}
+     */
     override fun toXContent(builder: XContentBuilder?, params: ToXContent.Params?): XContentBuilder {
         builder!!
         return builder.startObject()
