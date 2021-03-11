@@ -30,7 +30,7 @@ internal class EmailRecipientStatusTests : ESTestCase() {
             StatusDetail("404", "invalid recipient")
         )
         val recreatedObject = recreateObject(sampleEmailRecipientStatus) { EmailRecipientStatus(it) }
-        ESTestCase.assertEquals(sampleEmailRecipientStatus, recreatedObject)
+        assertEquals(sampleEmailRecipientStatus, recreatedObject)
     }
 
     @Test
@@ -41,6 +41,6 @@ internal class EmailRecipientStatusTests : ESTestCase() {
         )
         val jsonString = getJsonString(sampleEmailRecipientStatus)
         val recreatedObject = createObjectFromJsonString(jsonString) { EmailRecipientStatus.parse(it) }
-        ESTestCase.assertEquals(sampleEmailRecipientStatus, recreatedObject)
+        assertEquals(sampleEmailRecipientStatus, recreatedObject)
     }
 }

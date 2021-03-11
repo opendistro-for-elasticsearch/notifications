@@ -30,7 +30,7 @@ internal class StatusDetailTests : ESTestCase() {
             "invalid recipient"
         )
         val recreatedObject = recreateObject(sampleStatusDetail) { StatusDetail(it) }
-        ESTestCase.assertEquals(sampleStatusDetail, recreatedObject)
+        assertEquals(sampleStatusDetail, recreatedObject)
     }
 
     @Test
@@ -41,6 +41,6 @@ internal class StatusDetailTests : ESTestCase() {
         )
         val jsonString = getJsonString(sampleStatusDetail)
         val recreatedObject = createObjectFromJsonString(jsonString) { StatusDetail.parse(it) }
-        ESTestCase.assertEquals(sampleStatusDetail, recreatedObject)
+        assertEquals(sampleStatusDetail, recreatedObject)
     }
 }
