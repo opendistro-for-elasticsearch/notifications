@@ -144,7 +144,7 @@ export default class Notifications extends Component<
       this.setState({ items: notifications, total: totalNotifications });
     } catch (err) {
       this.context.notifications.toasts.addDanger(
-        getErrorMessage(err, 'There was a problem loading the managed indices')
+        getErrorMessage(err, 'There was a problem loading notifications.')
       );
     }
     this.setState({ loading: false });
