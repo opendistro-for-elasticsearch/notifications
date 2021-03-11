@@ -60,6 +60,8 @@ export const CHANNEL_TYPE = Object.freeze({
   EMAIL: 'Email',
   CHIME: 'Chime',
   CUSTOM_WEBHOOK: 'Custom webhook',
+  SES: 'SES',
+  SNS: 'SNS',
 });
 
 export const CUSTOM_WEBHOOK_ENDPOINT_TYPE = Object.freeze({
@@ -71,6 +73,6 @@ export const HISTOGRAM_TYPE = Object.freeze({
   CHANNEL_TYPE: 'Channel types',
   SOURCE: 'Notification source',
   STATUS: 'Notification status',
-  SEVERTY: 'Severty',
+  SEVERITY: 'Severity',
   TOP_10_CHANNELS: 'Top 10 channels',
 });

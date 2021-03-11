@@ -22,7 +22,7 @@ interface ChannelControlsProps {
   onSearchChange: (search: string) => void;
 }
 
-export const ChannelsControls = (props: ChannelControlsProps) => {
+export const ChannelControls = (props: ChannelControlsProps) => {
   const filters: FieldValueSelectionFilterConfigType[] = [
     {
       type: 'field_value_selection',

@@ -33,7 +33,7 @@ interface ChannelActionsProps {
   selectedItems: ChannelItemType[];
 }
 
-export function ChannelsActions(props: ChannelActionsProps) {
+export function ChannelActions(props: ChannelActionsProps) {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
   const actions: ChannelActionsParams[] = [

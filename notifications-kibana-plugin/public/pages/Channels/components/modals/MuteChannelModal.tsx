@@ -39,19 +39,22 @@ interface MuteChannelModalProps extends ModalRootProps {
 export const MuteChannelModal = (props: MuteChannelModalProps) => {
   if (props.channels.length !== 1) return null;
 
-  const mute = props.mute ? 'Mute' : 'Unmute';
-  const message = props.mute
-    ? 'This channel will stop sending notifications to its recipients. However, this channel is still available from selection.'
-    : 'unmute';
+  // do not show modal on unmute
+  if (!props.mute) {
+    return null;
+  }
 
   return (
     <EuiOverlayMask>
       <EuiModal onClose={props.onClose} maxWidth={500}>
         <EuiModalHeader>
-          <EuiModalHeaderTitle>{`${mute} ${props.channels[0].name}?`}</EuiModalHeaderTitle>
+          <EuiModalHeaderTitle>{`Mute ${props.channels[0].name}?`}</EuiModalHeaderTitle>
         </EuiModalHeader>
         <EuiModalBody>
-          <EuiText>{message}</EuiText>
+          <EuiText>
+            This channel will stop sending notifications to its recipients.
+            However, this channel is still available from selection.
+          </EuiText>
         </EuiModalBody>
         <EuiModalFooter>
           <EuiFlexGroup justifyContent="flexEnd">
@@ -60,7 +63,7 @@ export const MuteChannelModal = (props: MuteChannelModalProps) => {
             </EuiFlexItem>
             <EuiFlexItem grow={false}>
               <EuiButton fill onClick={props.onClose}>
-                {mute}
+                Mute
               </EuiButton>
             </EuiFlexItem>
           </EuiFlexGroup>

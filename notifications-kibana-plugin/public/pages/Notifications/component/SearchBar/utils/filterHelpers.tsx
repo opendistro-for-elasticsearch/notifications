@@ -16,6 +16,7 @@
 import {
   CHANNEL_TYPE,
   NOTIFICATION_SOURCE,
+  NOTIFICATION_STATUS,
 } from '../../../../../utils/constants';
 import {
   EuiComboBox,
@@ -53,7 +54,7 @@ export const getFilterFieldOptions = () => {
 };
 
 export const getFilterOperatorOptions = (field: FilterFieldType) => {
-  if (field === 'Channel') {
+  if (field === 'Channel' || field === 'Status') {
     return [{ label: 'is' }, { label: 'is not' }];
   }
   return [
@@ -101,7 +102,7 @@ export const getValueComponent = (
   if (field === 'Channel type') options = Object.values(CHANNEL_TYPE);
   else if (field === 'Severity') options = ['1', '2', '3', '4', '5'];
   else if (field === 'Source') options = Object.values(NOTIFICATION_SOURCE);
-  else options = ['Sent', 'Error'];
+  else options = Object.values(NOTIFICATION_STATUS);
 
   options = options.map((option) => ({ label: option }));
 

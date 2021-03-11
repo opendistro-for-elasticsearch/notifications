@@ -24,12 +24,12 @@ import {
 } from '@elastic/eui';
 import { NOTIFICATION_SOURCE } from '../../../utils/constants';
 
-interface ChannelAvailbilityPanelProps {
+interface ChannelAvailabilityPanelProps {
   sourceCheckboxIdToSelectedMap: { [x: string]: boolean };
   setSourceCheckboxIdToSelectedMap: (map: { [x: string]: boolean }) => void;
 }
 
-export function ChannelAvailbilityPanel(props: ChannelAvailbilityPanelProps) {
+export function ChannelAvailabilityPanel(props: ChannelAvailabilityPanelProps) {
   const sourceOptions: EuiCheckboxGroupOption[] = Object.entries(
     NOTIFICATION_SOURCE
   ).map(([key, value]) => ({

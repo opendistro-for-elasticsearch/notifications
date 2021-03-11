@@ -36,7 +36,7 @@ import {
   CUSTOM_WEBHOOK_ENDPOINT_TYPE,
   ROUTES,
 } from '../../utils/constants';
-import { ChannelAvailbilityPanel } from './components/ChannelAvailbilityPanel';
+import { ChannelAvailabilityPanel } from './components/ChannelAvailabilityPanel';
 import { ChannelNamePanel } from './components/ChannelNamePanel';
 import { CustomWebhookSettings } from './components/CustomWebhookSettings';
 import { EmailSettings } from './components/EmailSettings';
@@ -239,7 +239,7 @@ export function CreateChannel(props: CreateChannelsProps) {
         </ContentPanel>
 
         <EuiSpacer />
-        <ChannelAvailbilityPanel
+        <ChannelAvailabilityPanel
           sourceCheckboxIdToSelectedMap={sourceCheckboxIdToSelectedMap}
           setSourceCheckboxIdToSelectedMap={setSourceCheckboxIdToSelectedMap}
         />

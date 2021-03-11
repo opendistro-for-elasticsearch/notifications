@@ -22,7 +22,7 @@ export interface ModalRootProps {
 }
 
 // All modals will have access to the BrowserServices if they need it
-const ModalRoot: React.SFC<ModalRootProps> = ({ services }) => (
+const ModalRoot: React.FunctionComponent<ModalRootProps> = ({ services }) => (
   <ModalConsumer>
     {({
       component: Komponent,

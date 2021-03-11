@@ -19,14 +19,14 @@ import { ContentPanel } from '../../../components/ContentPanel';
 import { CreateChannelContext } from '../CreateChannel';
 import { validateChannelName } from '../utils/validationHelper';
 
-interface ChannelNamePanel {
+interface ChannelNamePanelProps {
   name: string;
   setName: (name: string) => void;
   description: string;
   setDescription: (description: string) => void;
 }
 
-export function ChannelNamePanel(props: ChannelNamePanel) {
+export function ChannelNamePanel(props: ChannelNamePanelProps) {
   const context = useContext(CreateChannelContext)!;
   return (
     <>

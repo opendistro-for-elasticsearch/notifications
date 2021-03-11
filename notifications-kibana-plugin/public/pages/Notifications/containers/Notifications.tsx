@@ -102,6 +102,7 @@ export default class Notifications extends Component<
       BREADCRUMBS.NOTIFICATIONS,
       BREADCRUMBS.DASHBOARD,
     ]);
+    window.scrollTo(0, 0);
     await this.getNotifications();
   }
 
