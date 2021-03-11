@@ -26,7 +26,7 @@ internal class StatusTests : ESTestCase() {
 
     @Test
     fun `Notification Status serialize and deserialize should be equal`() {
-        val sampleStatus= Status(
+        val sampleStatus = Status(
             "configId",
             "name",
             NotificationConfig.ConfigType.Slack,
@@ -38,7 +38,7 @@ internal class StatusTests : ESTestCase() {
 
     @Test
     fun `Notification Status serialize and deserialize using json should be equal`() {
-        val sampleStatus= Status(
+        val sampleStatus = Status(
             "configId",
             "name",
             NotificationConfig.ConfigType.Slack,
@@ -52,7 +52,7 @@ internal class StatusTests : ESTestCase() {
 
     @Test
     fun `Notification Status should safely ignore extra field in json object`() {
-        val sampleStatus= Status(
+        val sampleStatus = Status(
             "configId",
             "name",
             NotificationConfig.ConfigType.Slack,
@@ -82,7 +82,7 @@ internal class StatusTests : ESTestCase() {
             Status(
                 "configId",
                 "name",
-                NotificationConfig.ConfigType.Slack,
+                NotificationConfig.ConfigType.Slack
             )
         }
     }

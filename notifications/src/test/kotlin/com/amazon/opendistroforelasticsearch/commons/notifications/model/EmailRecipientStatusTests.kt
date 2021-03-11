@@ -22,12 +22,12 @@ import com.amazon.opendistroforelasticsearch.notifications.recreateObject
 import org.elasticsearch.test.ESTestCase
 import org.junit.jupiter.api.Test
 
-class EmailRecipientStatusTests {
+internal class EmailRecipientStatusTests : ESTestCase() {
     @Test
     fun `EmailRecipientStatus serialize and deserialize should be equal`() {
-        val sampleEmailRecipientStatus= EmailRecipientStatus(
+        val sampleEmailRecipientStatus = EmailRecipientStatus(
             "sample@email.com",
-            StatusDetail("404","invalid recipient")
+            StatusDetail("404", "invalid recipient")
         )
         val recreatedObject = recreateObject(sampleEmailRecipientStatus) { EmailRecipientStatus(it) }
         ESTestCase.assertEquals(sampleEmailRecipientStatus, recreatedObject)
@@ -35,9 +35,9 @@ class EmailRecipientStatusTests {
 
     @Test
     fun `EmailRecipientStatus serialize and deserialize using json should be equal`() {
-        val sampleEmailRecipientStatus= EmailRecipientStatus(
+        val sampleEmailRecipientStatus = EmailRecipientStatus(
             "sample@email.com",
-            StatusDetail("404","invalid recipient")
+            StatusDetail("404", "invalid recipient")
         )
         val jsonString = getJsonString(sampleEmailRecipientStatus)
         val recreatedObject = createObjectFromJsonString(jsonString) { EmailRecipientStatus.parse(it) }

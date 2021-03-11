@@ -32,7 +32,7 @@ import org.elasticsearch.common.xcontent.XContentParserUtils
 data class EmailRecipientStatus(
     val recipient: String,
     val statusDetail: StatusDetail
-): Writeable, ToXContent {
+) : Writeable, ToXContent {
 
     init {
         require(!Strings.isNullOrEmpty(recipient)) { "recipient is null or empty" }

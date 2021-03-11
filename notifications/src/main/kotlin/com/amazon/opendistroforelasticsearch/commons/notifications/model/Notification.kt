@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
@@ -14,7 +13,6 @@
  * permissions and limitations under the License.
  *
  */
-
 package com.amazon.opendistroforelasticsearch.commons.notifications.model
 
 import com.amazon.opendistroforelasticsearch.notifications.util.fieldIfNotNull
@@ -42,7 +40,7 @@ data class Notification(
     val severity: SeverityType,
     val tags: List<String> = emptyList(),
     val configIdList: List<String>,
-    val statusList: MutableList<Status> = mutableListOf(),
+    val statusList: MutableList<Status> = mutableListOf()
 ) : Writeable, ToXContent {
 
     init {
@@ -122,8 +120,6 @@ data class Notification(
             )
         }
     }
-    
-    
 
     /**
      * Constructor used in transport action communication.

@@ -22,12 +22,12 @@ import com.amazon.opendistroforelasticsearch.notifications.recreateObject
 import org.elasticsearch.test.ESTestCase
 import org.junit.jupiter.api.Test
 
-class StatusDetailTests {
+internal class StatusDetailTests : ESTestCase() {
     @Test
     fun `StatusDetail serialize and deserialize should be equal`() {
-        val sampleStatusDetail= StatusDetail(
+        val sampleStatusDetail = StatusDetail(
             "404",
-            "invalid recipient",
+            "invalid recipient"
         )
         val recreatedObject = recreateObject(sampleStatusDetail) { StatusDetail(it) }
         ESTestCase.assertEquals(sampleStatusDetail, recreatedObject)
@@ -35,9 +35,9 @@ class StatusDetailTests {
 
     @Test
     fun `StatusDetail serialize and deserialize using json should be equal`() {
-        val sampleStatusDetail= StatusDetail(
+        val sampleStatusDetail = StatusDetail(
             "404",
-            "invalid recipient",
+            "invalid recipient"
         )
         val jsonString = getJsonString(sampleStatusDetail)
         val recreatedObject = createObjectFromJsonString(jsonString) { StatusDetail.parse(it) }

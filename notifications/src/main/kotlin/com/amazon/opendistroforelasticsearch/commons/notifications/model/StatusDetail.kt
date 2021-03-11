@@ -13,7 +13,6 @@
  * permissions and limitations under the License.
  *
  */
-
 package com.amazon.opendistroforelasticsearch.commons.notifications.model
 
 import com.amazon.opendistroforelasticsearch.notifications.util.logger
@@ -31,13 +30,12 @@ import org.elasticsearch.common.xcontent.XContentParserUtils
  */
 data class StatusDetail(
     val statusCode: String,
-    val statusText: String,
+    val statusText: String
 ) : Writeable, ToXContent {
 
     init {
         require(!Strings.isNullOrEmpty(statusCode)) { "StatusCode is null or empty" }
         require(!Strings.isNullOrEmpty(statusText)) { "statusText is null or empty" }
-
     }
     companion object {
         private val log by logger(StatusDetail::class.java)
@@ -74,7 +72,7 @@ data class StatusDetail(
                 }
             }
             statusCode ?: throw IllegalArgumentException("$STATUS_CODE_TAG field absent")
-            statusText?: throw IllegalArgumentException("$STATUS_TEXT_TAG field absent")
+            statusText ?: throw IllegalArgumentException("$STATUS_TEXT_TAG field absent")
             return StatusDetail(
                 statusCode,
                 statusText

@@ -38,13 +38,13 @@ data class Status(
     val configType: NotificationConfig.ConfigType,
     val emailRecipientStatus: MutableList<EmailRecipientStatus> = mutableListOf(),
     val statusDetail: StatusDetail? = null
-): Writeable, ToXContent {
+) : Writeable, ToXContent {
 
     init {
         require(!Strings.isNullOrEmpty(configId)) { "config id is null or empty" }
         require(!Strings.isNullOrEmpty(configName)) { "config name null or empty" }
         when (configType) {
-            //TODO: Add email once available
+            // TODO: Add email once available
             NotificationConfig.ConfigType.Chime -> requireNotNull(statusDetail)
             NotificationConfig.ConfigType.Webhook -> requireNotNull(statusDetail)
             NotificationConfig.ConfigType.Slack -> requireNotNull(statusDetail)
@@ -85,7 +85,7 @@ data class Status(
                 val fieldName = parser.currentName()
                 parser.nextToken()
                 when (fieldName) {
-                    CONFIG_NAME_TAG-> configName = parser.text()
+                    CONFIG_NAME_TAG -> configName = parser.text()
                     CONFIG_ID_TAG -> configId = parser.text()
                     CONFIG_TYPE_TAG -> configType = valueOf(parser.text(), NotificationConfig.ConfigType.None)
                     EMAIL_RECIPIENT_STATUS_TAG -> emailRecipientStatus = parser.objectList(EmailRecipientStatus.Companion::parse)
@@ -116,10 +116,10 @@ data class Status(
      */
     constructor(input: StreamInput) : this(
         configId = input.readString(),
-        configName= input.readString(),
+        configName = input.readString(),
         configType = input.readEnum(NotificationConfig.ConfigType::class.java),
         emailRecipientStatus = input.readList(EmailRecipientStatus.reader),
-        statusDetail = input.readOptionalWriteable(StatusDetail.reader),
+        statusDetail = input.readOptionalWriteable(StatusDetail.reader)
         )
 
     /**
@@ -131,7 +131,6 @@ data class Status(
         output.writeEnum(configType)
         output.writeCollection(emailRecipientStatus)
         output.writeOptionalWriteable(statusDetail)
-
     }
 
     /**
@@ -148,4 +147,3 @@ data class Status(
             .endObject()
     }
 }
-
