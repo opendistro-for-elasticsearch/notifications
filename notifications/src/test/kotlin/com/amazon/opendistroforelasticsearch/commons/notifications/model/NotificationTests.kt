@@ -31,7 +31,6 @@ internal class NotificationTests : ESTestCase() {
             "referenceId",
             Notification.SourceType.Alerting,
             severity = Notification.SeverityType.Info,
-            configIdList = listOf("1", "2")
         )
         val recreatedObject = recreateObject(sampleNotification) { Notification(it) }
         assertEquals(sampleNotification, recreatedObject)
@@ -44,7 +43,6 @@ internal class NotificationTests : ESTestCase() {
             "referenceId",
             Notification.SourceType.Alerting,
             severity = Notification.SeverityType.Info,
-            configIdList = listOf("1", "2")
         )
 
         val jsonString = getJsonString(sampleNotification)
@@ -60,17 +58,14 @@ internal class NotificationTests : ESTestCase() {
             Notification.SourceType.Alerting,
             tags = listOf("tag1", "tag2"),
             severity = Notification.SeverityType.Info,
-            configIdList = listOf("1", "2")
         )
         val jsonString = """
         { 
             "title":"title",
             "referenceId":"referenceId",
             "source":"Alerting",
-            "overallStatus":"None",
             "severity":"Info",
             "tags":["tag1", "tag2"],
-            "configIdList":["1","2"],
             "statusList":[],
             "extraField": "extra value"
         }
@@ -87,17 +82,14 @@ internal class NotificationTests : ESTestCase() {
             Notification.SourceType.None,
             tags = listOf("tag1", "tag2"),
             severity = Notification.SeverityType.Info,
-            configIdList = listOf("1", "2")
         )
         val jsonString = """
         {
             "title":"title",
             "referenceId":"referenceId",
             "source": "NewSource",
-            "overallStatus":"None",
             "severity":"Info",
             "tags":["tag1", "tag2"],
-            "configIdList":["1","2"],
             "statusList":[]
         }
         """.trimIndent()
@@ -114,7 +106,6 @@ internal class NotificationTests : ESTestCase() {
                 Notification.SourceType.Alerting,
                 tags = listOf("tag1", "tag2"),
                 severity = Notification.SeverityType.Info,
-                configIdList = listOf("1", "2")
             )
         }
     }

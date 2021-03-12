@@ -63,11 +63,11 @@ internal fun XContentBuilder.objectIfNotNull(name: String, xContentObject: ToXCo
     return this
 }
 
-internal fun <T : Any> XContentParser.objectList(parse: KFunction1<XContentParser, T>): MutableList<T> {
+internal fun <T : ToXContent> XContentParser.objectList(block: (XContentParser) -> T): List<T> {
     val retList: MutableList<T> = mutableListOf()
     XContentParserUtils.ensureExpectedToken(XContentParser.Token.START_ARRAY, currentToken(), this::getTokenLocation)
     while (nextToken() != XContentParser.Token.END_ARRAY) {
-        retList.add(parse(this))
+        retList.add(block(this))
     }
     return retList
 }

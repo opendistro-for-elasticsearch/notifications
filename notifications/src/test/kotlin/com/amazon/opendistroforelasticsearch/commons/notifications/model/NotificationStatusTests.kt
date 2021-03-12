@@ -80,11 +80,6 @@ internal class NotificationStatusTests : ESTestCase() {
 
     @Test
     fun `Notification Status should throw exception when config type is email with empty emailRecipientList`() {
-        val sampleStatus = NotificationStatus(
-            "configId",
-            "name",
-            NotificationConfig.ConfigType.Email
-        )
         val jsonString = """
         {
            "configId":"configId",

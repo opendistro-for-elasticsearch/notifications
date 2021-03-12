@@ -37,8 +37,6 @@ data class Notification(
     val referenceId: String,
     val source: SourceType,
     val severity: SeverityType,
-    val configIdList: List<String>,
-    val overallStatus: StatusType = StatusType.None,
     val tags: List<String> = listOf(),
     val statusList: List<NotificationStatus> = listOf()
 ) : Writeable, ToXContent {
@@ -48,7 +46,6 @@ data class Notification(
     }
 
     enum class SourceType { None, Alerting, IndexManagement, Reports }
-    enum class StatusType { None, Sent, Error }
     enum class SeverityType { None, High, Info, Critical }
 
     companion object {
@@ -56,10 +53,8 @@ data class Notification(
         private const val TITLE_TAG = "title"
         private const val REFERENCE_ID_TAG = "referenceId"
         private const val SOURCE_TAG = "source"
-        private const val OVERALL_STATUS_TAG = "overallStatus"
         private const val SEVERITY_TAG = "severity"
         private const val TAGS_TAG = "tags"
-        private const val CONFIG_ID_LIST_TAG = "configIdList"
         private const val STATUS_LIST_TAG = "statusList"
 
         /**
@@ -76,10 +71,8 @@ data class Notification(
             var title: String? = null
             var referenceId: String? = null
             var source: SourceType? = null
-            var overallStatus: StatusType = StatusType.None
             var severity: SeverityType = SeverityType.Info
             var tags: List<String> = emptyList()
-            var configIdList: List<String>? = null
             var statusList: List<NotificationStatus> = listOf()
 
             XContentParserUtils.ensureExpectedToken(
@@ -94,11 +87,9 @@ data class Notification(
                     TITLE_TAG -> title = parser.text()
                     REFERENCE_ID_TAG -> referenceId = parser.text()
                     SOURCE_TAG -> source = valueOf(parser.text(), SourceType.None)
-                    OVERALL_STATUS_TAG -> overallStatus = valueOf(parser.text(), StatusType.None)
                     SEVERITY_TAG -> severity = valueOf(parser.text(), SeverityType.None)
                     TAGS_TAG -> tags = parser.stringList()
-                    CONFIG_ID_LIST_TAG -> configIdList = parser.stringList()
-                    STATUS_LIST_TAG -> statusList = parser.objectList(NotificationStatus.Companion::parse)
+                    STATUS_LIST_TAG -> statusList = parser.objectList { NotificationStatus.parse(it) }
                     else -> {
                         parser.skipChildren()
                         log.info("Unexpected field: $fieldName, while parsing notification")
@@ -108,15 +99,12 @@ data class Notification(
             title ?: throw IllegalArgumentException("$TITLE_TAG field absent")
             referenceId ?: throw IllegalArgumentException("$REFERENCE_ID_TAG field absent")
             source ?: throw IllegalArgumentException("$SOURCE_TAG field absent")
-            configIdList ?: throw IllegalArgumentException("$CONFIG_ID_LIST_TAG field absent")
 
             return Notification(
                 title,
                 referenceId,
                 source,
                 severity,
-                configIdList,
-                overallStatus,
                 tags,
                 statusList
             )
@@ -131,10 +119,8 @@ data class Notification(
         title = input.readString(),
         referenceId = input.readString(),
         source = input.readEnum(SourceType::class.java),
-        overallStatus = input.readEnum(StatusType::class.java),
         severity = input.readEnum(SeverityType::class.java),
         tags = input.readStringList(),
-        configIdList = input.readStringList(),
         statusList = input.readList(NotificationStatus.reader)
     )
 
@@ -145,10 +131,8 @@ data class Notification(
         output.writeString(title)
         output.writeString(referenceId)
         output.writeEnum(source)
-        output.writeEnum(overallStatus)
         output.writeEnum(severity)
         output.writeStringCollection(tags)
-        output.writeStringCollection(configIdList)
         output.writeList(statusList)
     }
 
@@ -161,10 +145,8 @@ data class Notification(
             .field(TITLE_TAG, title)
             .field(REFERENCE_ID_TAG, referenceId)
             .field(SOURCE_TAG, source)
-            .field(OVERALL_STATUS_TAG, overallStatus)
             .field(SEVERITY_TAG, severity)
             .fieldIfNotNull(TAGS_TAG, tags)
-            .field(CONFIG_ID_LIST_TAG, configIdList)
             .field(STATUS_LIST_TAG, statusList)
             .endObject()
     }

@@ -47,7 +47,7 @@ data class NotificationStatus(
             NotificationConfig.ConfigType.Chime -> requireNotNull(deliveryStatus)
             NotificationConfig.ConfigType.Webhook -> requireNotNull(deliveryStatus)
             NotificationConfig.ConfigType.Slack -> requireNotNull(deliveryStatus)
-            NotificationConfig.ConfigType.Email -> require(emailRecipientStatus.isEmpty() && deliveryStatus == null)
+            NotificationConfig.ConfigType.Email -> require(emailRecipientStatus.isEmpty())
             NotificationConfig.ConfigType.None -> log.info("Some config field not recognized")
             else -> {
                 log.info("non-allowed config type for Status")
@@ -76,7 +76,7 @@ data class NotificationStatus(
             var configName: String? = null
             var configId: String? = null
             var configType: NotificationConfig.ConfigType? = null
-            var emailRecipientStatus: MutableList<EmailRecipientStatus> = mutableListOf()
+            var emailRecipientStatus: List<EmailRecipientStatus> = listOf()
             var deliveryStatus: DeliveryStatus? = null
 
             XContentParserUtils.ensureExpectedToken(
@@ -91,7 +91,7 @@ data class NotificationStatus(
                     CONFIG_NAME_TAG -> configName = parser.text()
                     CONFIG_ID_TAG -> configId = parser.text()
                     CONFIG_TYPE_TAG -> configType = valueOf(parser.text(), NotificationConfig.ConfigType.None)
-                    EMAIL_RECIPIENT_STATUS_TAG -> emailRecipientStatus = parser.objectList(EmailRecipientStatus.Companion::parse)
+                    EMAIL_RECIPIENT_STATUS_TAG -> emailRecipientStatus = parser.objectList { EmailRecipientStatus.parse(it) }
                     STATUS_DETAIL_TAG -> deliveryStatus = DeliveryStatus.parse(parser)
                     else -> {
                         parser.skipChildren()
