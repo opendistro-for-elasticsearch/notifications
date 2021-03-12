@@ -26,6 +26,7 @@ import org.elasticsearch.common.xcontent.XContentParser
 import org.elasticsearch.common.xcontent.XContentParserUtils
 import org.elasticsearch.common.xcontent.XContentType
 import org.elasticsearch.rest.RestRequest
+import kotlin.reflect.KFunction1
 
 internal fun StreamInput.createJsonParser(): XContentParser {
     return XContentType.JSON.xContent()
@@ -60,4 +61,13 @@ internal fun XContentBuilder.objectIfNotNull(name: String, xContentObject: ToXCo
         xContentObject.toXContent(this, ToXContent.EMPTY_PARAMS)
     }
     return this
+}
+
+internal fun <T : Any> XContentParser.objectList(parse: KFunction1<XContentParser, T>): MutableList<T> {
+    val retList: MutableList<T> = mutableListOf()
+    XContentParserUtils.ensureExpectedToken(XContentParser.Token.START_ARRAY, currentToken(), this::getTokenLocation)
+    while (nextToken() != XContentParser.Token.END_ARRAY) {
+        retList.add(parse(this))
+    }
+    return retList
 }

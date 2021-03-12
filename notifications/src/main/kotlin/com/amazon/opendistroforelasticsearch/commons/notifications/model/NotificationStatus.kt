@@ -32,23 +32,26 @@ import org.elasticsearch.common.xcontent.XContentParserUtils
 /**
  * Data class representing Notification Status.
  */
-data class Status(
+data class NotificationStatus(
     val configId: String,
     val configName: String,
     val configType: NotificationConfig.ConfigType,
-    val emailRecipientStatus: MutableList<EmailRecipientStatus> = mutableListOf(),
-    val statusDetail: StatusDetail? = null
+    val emailRecipientStatus: List<EmailRecipientStatus> = listOf(),
+    val deliveryStatus: DeliveryStatus? = null
 ) : Writeable, ToXContent {
 
     init {
         require(!Strings.isNullOrEmpty(configId)) { "config id is null or empty" }
-        require(!Strings.isNullOrEmpty(configName)) { "config name null or empty" }
+        require(!Strings.isNullOrEmpty(configName)) { "config name is null or empty" }
         when (configType) {
-            // TODO: Add email once available
-            NotificationConfig.ConfigType.Chime -> requireNotNull(statusDetail)
-            NotificationConfig.ConfigType.Webhook -> requireNotNull(statusDetail)
-            NotificationConfig.ConfigType.Slack -> requireNotNull(statusDetail)
+            NotificationConfig.ConfigType.Chime -> requireNotNull(deliveryStatus)
+            NotificationConfig.ConfigType.Webhook -> requireNotNull(deliveryStatus)
+            NotificationConfig.ConfigType.Slack -> requireNotNull(deliveryStatus)
+            NotificationConfig.ConfigType.Email -> require(emailRecipientStatus.isNotEmpty())
             NotificationConfig.ConfigType.None -> log.info("Some config field not recognized")
+            else -> {
+                log.info("non-allowed config type for Status")
+            }
         }
     }
 
@@ -58,23 +61,23 @@ data class Status(
         private const val CONFIG_NAME_TAG = "configName"
         private const val CONFIG_TYPE_TAG = "configType"
         private const val EMAIL_RECIPIENT_STATUS_TAG = "emailRecipientStatus"
-        private const val STATUS_DETAIL_TAG = "statusDetail"
+        private const val STATUS_DETAIL_TAG = "deliveryStatus"
 
         /**
          * reader to create instance of class from writable.
          */
-        val reader = Writeable.Reader { Status(it) }
+        val reader = Writeable.Reader { NotificationStatus(it) }
 
         /**
          * Creator used in REST communication.
          * @param parser XContentParser to deserialize data from.
          */
-        fun parse(parser: XContentParser): Status {
+        fun parse(parser: XContentParser): NotificationStatus {
             var configName: String? = null
             var configId: String? = null
             var configType: NotificationConfig.ConfigType? = null
             var emailRecipientStatus: MutableList<EmailRecipientStatus> = mutableListOf()
-            var statusDetail: StatusDetail? = null
+            var deliveryStatus: DeliveryStatus? = null
 
             XContentParserUtils.ensureExpectedToken(
                 XContentParser.Token.START_OBJECT,
@@ -89,9 +92,9 @@ data class Status(
                     CONFIG_ID_TAG -> configId = parser.text()
                     CONFIG_TYPE_TAG -> configType = valueOf(parser.text(), NotificationConfig.ConfigType.None)
                     EMAIL_RECIPIENT_STATUS_TAG -> emailRecipientStatus = parser.objectList(EmailRecipientStatus.Companion::parse)
-                    STATUS_DETAIL_TAG -> statusDetail = StatusDetail.parse(parser)
-
+                    STATUS_DETAIL_TAG -> deliveryStatus = DeliveryStatus.parse(parser)
                     else -> {
+                        parser.skipChildren()
                         log.info("Unexpected field: $fieldName, while parsing Notification Status")
                     }
                 }
@@ -100,12 +103,12 @@ data class Status(
             configId ?: throw IllegalArgumentException("$CONFIG_ID_TAG field absent")
             configType ?: throw IllegalArgumentException("$CONFIG_TYPE_TAG field absent")
 
-            return Status(
+            return NotificationStatus(
                 configId,
                 configName,
                 configType,
                 emailRecipientStatus,
-                statusDetail
+                deliveryStatus
             )
         }
     }
@@ -119,7 +122,7 @@ data class Status(
         configName = input.readString(),
         configType = input.readEnum(NotificationConfig.ConfigType::class.java),
         emailRecipientStatus = input.readList(EmailRecipientStatus.reader),
-        statusDetail = input.readOptionalWriteable(StatusDetail.reader)
+        deliveryStatus = input.readOptionalWriteable(DeliveryStatus.reader)
         )
 
     /**
@@ -130,7 +133,7 @@ data class Status(
         output.writeString(configName)
         output.writeEnum(configType)
         output.writeCollection(emailRecipientStatus)
-        output.writeOptionalWriteable(statusDetail)
+        output.writeOptionalWriteable(deliveryStatus)
     }
 
     /**
@@ -143,7 +146,7 @@ data class Status(
             .field(CONFIG_TYPE_TAG, configType)
             .field(CONFIG_NAME_TAG, configName)
             .fieldIfNotNull(EMAIL_RECIPIENT_STATUS_TAG, emailRecipientStatus)
-            .fieldIfNotNull(STATUS_DETAIL_TAG, statusDetail)
+            .fieldIfNotNull(STATUS_DETAIL_TAG, deliveryStatus)
             .endObject()
     }
 }

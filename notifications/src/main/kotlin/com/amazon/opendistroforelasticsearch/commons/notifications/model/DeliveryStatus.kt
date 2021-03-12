@@ -26,9 +26,9 @@ import org.elasticsearch.common.xcontent.XContentParser
 import org.elasticsearch.common.xcontent.XContentParserUtils
 
 /**
- * Data class representing Notification Status Detail.
+ * Data class representing Delivery Status.
  */
-data class StatusDetail(
+data class DeliveryStatus(
     val statusCode: String,
     val statusText: String
 ) : Writeable, ToXContent {
@@ -38,20 +38,20 @@ data class StatusDetail(
         require(!Strings.isNullOrEmpty(statusText)) { "statusText is null or empty" }
     }
     companion object {
-        private val log by logger(StatusDetail::class.java)
+        private val log by logger(DeliveryStatus::class.java)
         private const val STATUS_CODE_TAG = "statusCode"
         private const val STATUS_TEXT_TAG = "statusText"
 
         /**
          * reader to create instance of class from writable.
          */
-        val reader = Writeable.Reader { StatusDetail(it) }
+        val reader = Writeable.Reader { DeliveryStatus(it) }
 
         /**
          * Creator used in REST communication.
          * @param parser XContentParser to deserialize data from.
          */
-        fun parse(parser: XContentParser): StatusDetail {
+        fun parse(parser: XContentParser): DeliveryStatus {
             var statusCode: String? = null
             var statusText: String? = null
 
@@ -67,13 +67,14 @@ data class StatusDetail(
                     STATUS_CODE_TAG -> statusCode = parser.text()
                     STATUS_TEXT_TAG -> statusText = parser.text()
                     else -> {
-                        log.info("Unexpected field: $fieldName, while parsing StatusDetail")
+                        parser.skipChildren()
+                        log.info("Unexpected field: $fieldName, while parsing deliveryStatus")
                     }
                 }
             }
             statusCode ?: throw IllegalArgumentException("$STATUS_CODE_TAG field absent")
             statusText ?: throw IllegalArgumentException("$STATUS_TEXT_TAG field absent")
-            return StatusDetail(
+            return DeliveryStatus(
                 statusCode,
                 statusText
             )

@@ -19,15 +19,17 @@ package com.amazon.opendistroforelasticsearch.commons.notifications.model
 import com.amazon.opendistroforelasticsearch.notifications.createObjectFromJsonString
 import com.amazon.opendistroforelasticsearch.notifications.getJsonString
 import com.amazon.opendistroforelasticsearch.notifications.recreateObject
+import com.fasterxml.jackson.core.JsonParseException
 import org.elasticsearch.test.ESTestCase
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 
 internal class EmailRecipientStatusTests : ESTestCase() {
     @Test
     fun `EmailRecipientStatus serialize and deserialize should be equal`() {
         val sampleEmailRecipientStatus = EmailRecipientStatus(
             "sample@email.com",
-            StatusDetail("404", "invalid recipient")
+            DeliveryStatus("404", "invalid recipient")
         )
         val recreatedObject = recreateObject(sampleEmailRecipientStatus) { EmailRecipientStatus(it) }
         assertEquals(sampleEmailRecipientStatus, recreatedObject)
@@ -37,9 +39,44 @@ internal class EmailRecipientStatusTests : ESTestCase() {
     fun `EmailRecipientStatus serialize and deserialize using json should be equal`() {
         val sampleEmailRecipientStatus = EmailRecipientStatus(
             "sample@email.com",
-            StatusDetail("404", "invalid recipient")
+            DeliveryStatus("404", "invalid recipient")
         )
         val jsonString = getJsonString(sampleEmailRecipientStatus)
+        val recreatedObject = createObjectFromJsonString(jsonString) { EmailRecipientStatus.parse(it) }
+        assertEquals(sampleEmailRecipientStatus, recreatedObject)
+    }
+
+    @Test
+    fun `EmailRecipientStatus should throw exception for invalid recipient`() {
+        assertThrows<IllegalArgumentException>("Should throw an Exception for invalid recipient Slack") {
+            EmailRecipientStatus("slack", DeliveryStatus("404", "invalid recipient"))
+        }
+    }
+
+    @Test
+    fun `EmailRecipientStatus should throw exception when invalid json object is passed`() {
+        val jsonString = "sample message"
+        assertThrows<JsonParseException> {
+            createObjectFromJsonString(jsonString) { EmailRecipientStatus.parse(it) }
+        }
+    }
+
+    @Test
+    fun `EmailRecipientStatus should safely ignore extra field in json object`() {
+        val sampleEmailRecipientStatus = EmailRecipientStatus(
+            "sample@email.com",
+            DeliveryStatus("200", "Success")
+        )
+        val jsonString = """
+        {
+            "recipient": "sample@email.com",
+            "deliveryStatus": {
+                "statusCode": "200",
+                "statusText": "Success"
+            },
+            "extra": "field"
+        }
+        """.trimIndent()
         val recreatedObject = createObjectFromJsonString(jsonString) { EmailRecipientStatus.parse(it) }
         assertEquals(sampleEmailRecipientStatus, recreatedObject)
     }

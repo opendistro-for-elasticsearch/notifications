@@ -18,45 +18,47 @@ package com.amazon.opendistroforelasticsearch.commons.notifications.model
 import com.amazon.opendistroforelasticsearch.notifications.createObjectFromJsonString
 import com.amazon.opendistroforelasticsearch.notifications.getJsonString
 import com.amazon.opendistroforelasticsearch.notifications.recreateObject
+import com.fasterxml.jackson.core.JsonParseException
 import org.elasticsearch.test.ESTestCase
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 
-internal class StatusTests : ESTestCase() {
+internal class NotificationStatusTests : ESTestCase() {
 
     @Test
     fun `Notification Status serialize and deserialize should be equal`() {
-        val sampleStatus = Status(
+        val sampleStatus = NotificationStatus(
             "configId",
             "name",
             NotificationConfig.ConfigType.Slack,
-            statusDetail = StatusDetail("404", "invalid recipient")
+            deliveryStatus = DeliveryStatus("404", "invalid recipient")
         )
-        val recreatedObject = recreateObject(sampleStatus) { Status(it) }
+        val recreatedObject = recreateObject(sampleStatus) { NotificationStatus(it) }
         assertEquals(sampleStatus, recreatedObject)
     }
 
     @Test
     fun `Notification Status serialize and deserialize using json should be equal`() {
-        val sampleStatus = Status(
+        val sampleStatus = NotificationStatus(
             "configId",
             "name",
             NotificationConfig.ConfigType.Slack,
-            statusDetail = StatusDetail("404", "invalid recipient")
+            deliveryStatus = DeliveryStatus("404", "invalid recipient")
         )
 
         val jsonString = getJsonString(sampleStatus)
-        val recreatedObject = createObjectFromJsonString(jsonString) { Status.parse(it) }
+        val recreatedObject = createObjectFromJsonString(jsonString) { NotificationStatus.parse(it) }
         assertEquals(sampleStatus, recreatedObject)
     }
 
     @Test
     fun `Notification Status should safely ignore extra field in json object`() {
-        val sampleStatus = Status(
+        val sampleStatus = NotificationStatus(
             "configId",
             "name",
             NotificationConfig.ConfigType.Slack,
-            statusDetail = StatusDetail("404", "invalid recipient")
+            deliveryStatus = DeliveryStatus("404", "invalid recipient")
         )
         val jsonString = """
         {
@@ -64,7 +66,7 @@ internal class StatusTests : ESTestCase() {
            "configType":"Slack",
            "configName":"name",
            "emailRecipientStatus":[],
-           "statusDetail":
+           "deliveryStatus":
            {
                 "statusCode":"404",
                 "statusText":"invalid recipient"
@@ -72,14 +74,22 @@ internal class StatusTests : ESTestCase() {
            "extraField": "extra field"
         }
         """.trimIndent()
-        val recreatedObject = createObjectFromJsonString(jsonString) { Status.parse(it) }
+        val recreatedObject = createObjectFromJsonString(jsonString) { NotificationStatus.parse(it) }
         assertEquals(sampleStatus, recreatedObject)
     }
 
     @Test
-    fun `Notification throw exception if statusDetail is empty for config type Slack`() {
+    fun `Notification should throw exception when invalid json object is passed`() {
+        val jsonString = "sample message"
+        assertThrows<JsonParseException> {
+            createObjectFromJsonString(jsonString) { Notification.parse(it) }
+        }
+    }
+
+    @Test
+    fun `Notification throw exception if deliveryStatus is empty for config type Slack`() {
         Assertions.assertThrows(IllegalArgumentException::class.java) {
-            Status(
+            NotificationStatus(
                 "configId",
                 "name",
                 NotificationConfig.ConfigType.Slack

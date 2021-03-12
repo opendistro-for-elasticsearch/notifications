@@ -26,9 +26,3 @@ style:
   ReturnCount:
     active: true
     max: 10
-
-complexity:
-  TooManyFunctions:
-    excludes: ["**/util/**", "**/test/**"]
-  ComplexMethod:
-    threshold: 20

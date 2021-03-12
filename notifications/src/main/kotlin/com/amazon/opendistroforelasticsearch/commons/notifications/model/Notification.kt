@@ -36,11 +36,11 @@ data class Notification(
     val title: String,
     val referenceId: String,
     val source: SourceType,
-    val overallStatus: StatusType = StatusType.None,
     val severity: SeverityType,
-    val tags: List<String> = emptyList(),
     val configIdList: List<String>,
-    val statusList: MutableList<Status> = mutableListOf()
+    val overallStatus: StatusType = StatusType.None,
+    val tags: List<String> = listOf(),
+    val statusList: List<NotificationStatus> = listOf()
 ) : Writeable, ToXContent {
 
     init {
@@ -71,6 +71,7 @@ data class Notification(
          * Creator used in REST communication.
          * @param parser XContentParser to deserialize data from.
          */
+        @Suppress("ComplexMethod")
         fun parse(parser: XContentParser): Notification {
             var title: String? = null
             var referenceId: String? = null
@@ -79,7 +80,7 @@ data class Notification(
             var severity: SeverityType = SeverityType.Info
             var tags: List<String> = emptyList()
             var configIdList: List<String>? = null
-            var statusList: MutableList<Status> = mutableListOf()
+            var statusList: List<NotificationStatus> = listOf()
 
             XContentParserUtils.ensureExpectedToken(
                 XContentParser.Token.START_OBJECT,
@@ -97,8 +98,9 @@ data class Notification(
                     SEVERITY_TAG -> severity = valueOf(parser.text(), SeverityType.None)
                     TAGS_TAG -> tags = parser.stringList()
                     CONFIG_ID_LIST_TAG -> configIdList = parser.stringList()
-                    STATUS_LIST_TAG -> statusList = parser.objectList(Status.Companion::parse)
+                    STATUS_LIST_TAG -> statusList = parser.objectList(NotificationStatus.Companion::parse)
                     else -> {
+                        parser.skipChildren()
                         log.info("Unexpected field: $fieldName, while parsing notification")
                     }
                 }
@@ -112,10 +114,10 @@ data class Notification(
                 title,
                 referenceId,
                 source,
-                overallStatus,
                 severity,
-                tags,
                 configIdList,
+                overallStatus,
+                tags,
                 statusList
             )
         }
@@ -133,7 +135,7 @@ data class Notification(
         severity = input.readEnum(SeverityType::class.java),
         tags = input.readStringList(),
         configIdList = input.readStringList(),
-        statusList = input.readList(Status.reader)
+        statusList = input.readList(NotificationStatus.reader)
     )
 
     /**

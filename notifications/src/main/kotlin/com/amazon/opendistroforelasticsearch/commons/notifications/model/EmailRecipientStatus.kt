@@ -16,8 +16,8 @@
 
 package com.amazon.opendistroforelasticsearch.commons.notifications.model
 
+import com.amazon.opendistroforelasticsearch.notifications.util.isValidEmail
 import com.amazon.opendistroforelasticsearch.notifications.util.logger
-import org.elasticsearch.common.Strings
 import org.elasticsearch.common.io.stream.StreamInput
 import org.elasticsearch.common.io.stream.StreamOutput
 import org.elasticsearch.common.io.stream.Writeable
@@ -31,17 +31,17 @@ import org.elasticsearch.common.xcontent.XContentParserUtils
  */
 data class EmailRecipientStatus(
     val recipient: String,
-    val statusDetail: StatusDetail
+    val deliveryStatus: DeliveryStatus
 ) : Writeable, ToXContent {
 
     init {
-        require(!Strings.isNullOrEmpty(recipient)) { "recipient is null or empty" }
+        require(isValidEmail(recipient)) { "Invalid email address" }
     }
 
     companion object {
         private val log by logger(EmailRecipientStatus::class.java)
         private const val RECIPIENT_TAG = "recipient"
-        private const val STATUS_DETAIL_TAG = "statusDetail"
+        private const val STATUS_DETAIL_TAG = "deliveryStatus"
 
         /**
          * reader to create instance of class from writable.
@@ -54,7 +54,7 @@ data class EmailRecipientStatus(
          */
         fun parse(parser: XContentParser): EmailRecipientStatus {
             var recipient: String? = null
-            var statusDetail: StatusDetail? = null
+            var deliveryStatus: DeliveryStatus? = null
 
             XContentParserUtils.ensureExpectedToken(
                 XContentParser.Token.START_OBJECT,
@@ -66,15 +66,16 @@ data class EmailRecipientStatus(
                 parser.nextToken()
                 when (fieldName) {
                     RECIPIENT_TAG -> recipient = parser.text()
-                    STATUS_DETAIL_TAG -> statusDetail = StatusDetail.parse(parser)
+                    STATUS_DETAIL_TAG -> deliveryStatus = DeliveryStatus.parse(parser)
                     else -> {
-                        log.info("Unexpected field: $fieldName, while parsing Slack destination")
+                        parser.skipChildren()
+                        log.info("Unexpected field: $fieldName, while parsing Email Recipient Status")
                     }
                 }
             }
             recipient ?: throw IllegalArgumentException("$RECIPIENT_TAG field absent")
-            statusDetail ?: throw IllegalArgumentException("$STATUS_DETAIL_TAG field absent")
-            return EmailRecipientStatus(recipient, statusDetail)
+            deliveryStatus ?: throw IllegalArgumentException("$STATUS_DETAIL_TAG field absent")
+            return EmailRecipientStatus(recipient, deliveryStatus)
         }
     }
 
@@ -84,7 +85,7 @@ data class EmailRecipientStatus(
      */
     constructor(input: StreamInput) : this(
         recipient = input.readString(),
-        statusDetail = StatusDetail.reader.read(input)
+        deliveryStatus = DeliveryStatus.reader.read(input)
     )
 
     /**
@@ -92,7 +93,7 @@ data class EmailRecipientStatus(
      */
     override fun writeTo(output: StreamOutput) {
         output.writeString(recipient)
-        statusDetail.writeTo(output)
+        deliveryStatus.writeTo(output)
     }
 
     /**
@@ -102,7 +103,7 @@ data class EmailRecipientStatus(
         builder!!
         return builder.startObject()
             .field(RECIPIENT_TAG, recipient)
-            .field(STATUS_DETAIL_TAG, statusDetail)
+            .field(STATUS_DETAIL_TAG, deliveryStatus)
             .endObject()
     }
 }
