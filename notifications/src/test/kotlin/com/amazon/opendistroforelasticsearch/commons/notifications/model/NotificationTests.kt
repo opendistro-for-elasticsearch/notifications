@@ -30,7 +30,7 @@ internal class NotificationTests : ESTestCase() {
             "title",
             "referenceId",
             Notification.SourceType.Alerting,
-            severity = Notification.SeverityType.Info,
+            severity = Notification.SeverityType.Info
         )
         val recreatedObject = recreateObject(sampleNotification) { Notification(it) }
         assertEquals(sampleNotification, recreatedObject)
@@ -42,7 +42,7 @@ internal class NotificationTests : ESTestCase() {
             "title",
             "referenceId",
             Notification.SourceType.Alerting,
-            severity = Notification.SeverityType.Info,
+            severity = Notification.SeverityType.Info
         )
 
         val jsonString = getJsonString(sampleNotification)
@@ -57,7 +57,7 @@ internal class NotificationTests : ESTestCase() {
             "referenceId",
             Notification.SourceType.Alerting,
             tags = listOf("tag1", "tag2"),
-            severity = Notification.SeverityType.Info,
+            severity = Notification.SeverityType.Info
         )
         val jsonString = """
         { 
@@ -81,7 +81,7 @@ internal class NotificationTests : ESTestCase() {
             "referenceId",
             Notification.SourceType.None,
             tags = listOf("tag1", "tag2"),
-            severity = Notification.SeverityType.Info,
+            severity = Notification.SeverityType.Info
         )
         val jsonString = """
         {
@@ -105,7 +105,7 @@ internal class NotificationTests : ESTestCase() {
                 "referenceId",
                 Notification.SourceType.Alerting,
                 tags = listOf("tag1", "tag2"),
-                severity = Notification.SeverityType.Info,
+                severity = Notification.SeverityType.Info
             )
         }
     }

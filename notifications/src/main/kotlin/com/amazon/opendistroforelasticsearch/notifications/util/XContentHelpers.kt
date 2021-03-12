@@ -26,7 +26,6 @@ import org.elasticsearch.common.xcontent.XContentParser
 import org.elasticsearch.common.xcontent.XContentParserUtils
 import org.elasticsearch.common.xcontent.XContentType
 import org.elasticsearch.rest.RestRequest
-import kotlin.reflect.KFunction1
 
 internal fun StreamInput.createJsonParser(): XContentParser {
     return XContentType.JSON.xContent()
