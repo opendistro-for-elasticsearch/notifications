@@ -101,9 +101,9 @@ export class RecipientGroupsTable extends Component<
     ];
   }
 
-  async componentDidMount() {
-    // await this.getNotifications();
-  }
+  // TODO send request on component mount
+  // async componentDidMount() {
+  // }
 
   onTableChange = ({
     page: tablePage,
