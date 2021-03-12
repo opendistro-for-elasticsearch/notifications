@@ -47,7 +47,7 @@ data class NotificationStatus(
             NotificationConfig.ConfigType.Chime -> requireNotNull(deliveryStatus)
             NotificationConfig.ConfigType.Webhook -> requireNotNull(deliveryStatus)
             NotificationConfig.ConfigType.Slack -> requireNotNull(deliveryStatus)
-            NotificationConfig.ConfigType.Email -> require(emailRecipientStatus.isNotEmpty())
+            NotificationConfig.ConfigType.Email -> require(emailRecipientStatus.isEmpty() && deliveryStatus == null)
             NotificationConfig.ConfigType.None -> log.info("Some config field not recognized")
             else -> {
                 log.info("non-allowed config type for Status")
