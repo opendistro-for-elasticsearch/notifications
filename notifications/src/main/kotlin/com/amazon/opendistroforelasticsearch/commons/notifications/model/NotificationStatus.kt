@@ -145,7 +145,7 @@ data class NotificationStatus(
             .field(CONFIG_ID_TAG, configId)
             .field(CONFIG_TYPE_TAG, configType)
             .field(CONFIG_NAME_TAG, configName)
-            .fieldIfNotNull(EMAIL_RECIPIENT_STATUS_TAG, emailRecipientStatus)
+            .field(EMAIL_RECIPIENT_STATUS_TAG, emailRecipientStatus)
             .fieldIfNotNull(STATUS_DETAIL_TAG, deliveryStatus)
             .endObject()
     }

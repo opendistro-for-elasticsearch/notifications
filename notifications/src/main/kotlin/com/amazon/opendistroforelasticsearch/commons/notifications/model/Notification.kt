@@ -15,7 +15,6 @@
  */
 package com.amazon.opendistroforelasticsearch.commons.notifications.model
 
-import com.amazon.opendistroforelasticsearch.notifications.util.fieldIfNotNull
 import com.amazon.opendistroforelasticsearch.notifications.util.logger
 import com.amazon.opendistroforelasticsearch.notifications.util.objectList
 import com.amazon.opendistroforelasticsearch.notifications.util.stringList
@@ -146,7 +145,7 @@ data class Notification(
             .field(REFERENCE_ID_TAG, referenceId)
             .field(SOURCE_TAG, source)
             .field(SEVERITY_TAG, severity)
-            .fieldIfNotNull(TAGS_TAG, tags)
+            .field(TAGS_TAG, tags)
             .field(STATUS_LIST_TAG, statusList)
             .endObject()
     }
