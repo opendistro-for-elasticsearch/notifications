@@ -43,7 +43,7 @@ data class NotificationConfig(
         val configType: NotificationConfigType,
         val features: EnumSet<Feature>,
         val isEnabled: Boolean = true,
-        val channelDataList: List<ChannelData>,
+        val channelDataList: List<ChannelData?>,
 ) : Writeable, ToXContent {
 
     init {
@@ -51,7 +51,7 @@ data class NotificationConfig(
         if (configType == NotificationConfigType.NONE) {
             log.info("Some config field not recognized")
         } else {
-            val channelData = channelDataList.firstOrNull { item -> item.getChannelType().equals(configType) }
+            val channelData = channelDataList.firstOrNull { item -> item?.getChannelType()?.equals(configType) != null }
             requireNotNull(channelData)
         }
 
@@ -150,10 +150,10 @@ data class NotificationConfig(
             channelDataList = NotificationConfigType.values()
                     .filter { type -> type != NotificationConfigType.NONE }
                     .map { type ->
-                        input.readOptionalWriteable(type
-                                .getChannelReader())
+                        input.readOptionalWriteable(type.getChannelReader())
                     }
     )
+
 
     /**
      * {@inheritDoc}
@@ -182,7 +182,7 @@ data class NotificationConfig(
                 .field(IS_ENABLED_TAG, isEnabled)
 
         for (channelData in channelDataList) {
-            builder.field(channelData.getChannelType().getChannelTag(), channelData)
+            builder.field(channelData?.getChannelType()?.getChannelTag(), channelData)
         }
         builder.endObject()
 
