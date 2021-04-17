@@ -13,10 +13,11 @@
  * permissions and limitations under the License.
  *
  */
-package com.amazon.opendistroforelasticsearch.commons.notifications.model
+package com.amazon.opendistroforelasticsearch.commons.notifications.model.channel
 
-import com.amazon.opendistroforelasticsearch.commons.utils.logger
-import com.amazon.opendistroforelasticsearch.commons.utils.validateUrl
+import com.amazon.opendistroforelasticsearch.commons.notifications.model.NotificationConfigType
+import com.amazon.opendistroforelasticsearch.notifications.util.logger
+import com.amazon.opendistroforelasticsearch.notifications.util.validateUrl
 import org.elasticsearch.common.Strings
 import org.elasticsearch.common.io.stream.StreamInput
 import org.elasticsearch.common.io.stream.StreamOutput
@@ -26,13 +27,14 @@ import org.elasticsearch.common.xcontent.XContentBuilder
 import org.elasticsearch.common.xcontent.XContentParser
 import org.elasticsearch.common.xcontent.XContentParserUtils
 import java.io.IOException
+import kotlin.jvm.Throws
 
 /**
- * Data class representing Chime channel.
+ * Data class representing Webhook channel.
  */
-data class Chime(
-    val url: String
-) : BaseModel {
+data class Webhook(
+        val url: String
+) : ChannelData {
 
     init {
         require(!Strings.isNullOrEmpty(url)) { "URL is null or empty" }
@@ -40,13 +42,13 @@ data class Chime(
     }
 
     companion object {
-        private val log by logger(Chime::class.java)
+        private val log by logger(Webhook::class.java)
         private const val URL_TAG = "url"
 
         /**
          * reader to create instance of class from writable.
          */
-        val reader = Writeable.Reader { Chime(it) }
+        val reader = Writeable.Reader { Webhook(it) }
 
         /**
          * Creator used in REST communication.
@@ -54,7 +56,7 @@ data class Chime(
          */
         @JvmStatic
         @Throws(IOException::class)
-        fun parse(parser: XContentParser): Chime {
+        fun parse(parser: XContentParser): Webhook {
             var url: String? = null
 
             XContentParserUtils.ensureExpectedToken(
@@ -69,12 +71,12 @@ data class Chime(
                     URL_TAG -> url = parser.text()
                     else -> {
                         parser.skipChildren()
-                        log.info("Unexpected field: $fieldName, while parsing Chime destination")
+                        log.info("Unexpected field: $fieldName, while parsing Webhook destination")
                     }
                 }
             }
             url ?: throw IllegalArgumentException("$URL_TAG field absent")
-            return Chime(url)
+            return Webhook(url)
         }
     }
 
@@ -101,5 +103,9 @@ data class Chime(
         return builder.startObject()
             .field(URL_TAG, url)
             .endObject()
+    }
+
+    override fun getChannelType(): NotificationConfigType {
+        return NotificationConfigType.WEBHOOK
     }
 }

@@ -13,12 +13,14 @@
  * permissions and limitations under the License.
  *
  */
-package com.amazon.opendistroforelasticsearch.commons.notifications.model
+package com.amazon.opendistroforelasticsearch.commons.notifications.model.channel
 
-import com.amazon.opendistroforelasticsearch.commons.utils.fieldIfNotNull
-import com.amazon.opendistroforelasticsearch.commons.utils.isValidEmail
-import com.amazon.opendistroforelasticsearch.commons.utils.logger
-import com.amazon.opendistroforelasticsearch.commons.utils.valueOf
+import com.amazon.opendistroforelasticsearch.commons.notifications.model.NotificationConfig
+import com.amazon.opendistroforelasticsearch.commons.notifications.model.NotificationConfigType
+import com.amazon.opendistroforelasticsearch.notifications.util.fieldIfNotNull
+import com.amazon.opendistroforelasticsearch.notifications.util.isValidEmail
+import com.amazon.opendistroforelasticsearch.notifications.util.logger
+import com.amazon.opendistroforelasticsearch.notifications.util.valueOf
 import org.elasticsearch.common.Strings
 import org.elasticsearch.common.io.stream.StreamInput
 import org.elasticsearch.common.io.stream.StreamOutput
@@ -29,18 +31,19 @@ import org.elasticsearch.common.xcontent.XContentBuilder
 import org.elasticsearch.common.xcontent.XContentParser
 import org.elasticsearch.common.xcontent.XContentParserUtils
 import java.io.IOException
+import kotlin.jvm.Throws
 
 /**
  * Data class representing SMTP account channel.
  */
 data class SmtpAccount(
-    val host: String,
-    val port: Int,
-    val method: MethodType,
-    val fromAddress: String,
-    val username: SecureString? = null,
-    val password: SecureString? = null
-) : BaseModel {
+        val host: String,
+        val port: Int,
+        val method: MethodType,
+        val fromAddress: String,
+        val username: SecureString? = null,
+        val password: SecureString? = null
+) : ChannelData {
 
     init {
         require(!Strings.isNullOrEmpty(host)) { "host is null or empty" }
@@ -149,5 +152,9 @@ data class SmtpAccount(
         out.writeString(fromAddress)
         out.writeOptionalSecureString(username)
         out.writeOptionalSecureString(password)
+    }
+
+    override fun getChannelType(): NotificationConfigType {
+        return NotificationConfigType.SMTP_ACCOUNT
     }
 }

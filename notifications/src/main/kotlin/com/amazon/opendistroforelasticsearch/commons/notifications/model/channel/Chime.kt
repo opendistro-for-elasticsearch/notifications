@@ -13,11 +13,12 @@
  * permissions and limitations under the License.
  *
  */
-package com.amazon.opendistroforelasticsearch.commons.notifications.model
+package com.amazon.opendistroforelasticsearch.commons.notifications.model.channel
 
-import com.amazon.opendistroforelasticsearch.commons.utils.isValidEmail
-import com.amazon.opendistroforelasticsearch.commons.utils.logger
-import com.amazon.opendistroforelasticsearch.commons.utils.stringList
+import com.amazon.opendistroforelasticsearch.commons.notifications.model.NotificationConfigType
+import com.amazon.opendistroforelasticsearch.notifications.util.logger
+import com.amazon.opendistroforelasticsearch.notifications.util.validateUrl
+import org.elasticsearch.common.Strings
 import org.elasticsearch.common.io.stream.StreamInput
 import org.elasticsearch.common.io.stream.StreamOutput
 import org.elasticsearch.common.io.stream.Writeable
@@ -26,28 +27,28 @@ import org.elasticsearch.common.xcontent.XContentBuilder
 import org.elasticsearch.common.xcontent.XContentParser
 import org.elasticsearch.common.xcontent.XContentParserUtils
 import java.io.IOException
+import kotlin.jvm.Throws
 
 /**
- * Data class representing Email group.
+ * Data class representing Chime channel.
  */
-data class EmailGroup(
-    val recipients: List<String>
-) : BaseModel {
+data class Chime(
+        val url: String
+) : ChannelData {
 
     init {
-        recipients.forEach {
-            require(isValidEmail(it)) { "Invalid email address" }
-        }
+        require(!Strings.isNullOrEmpty(url)) { "URL is null or empty" }
+        validateUrl(url)
     }
 
     companion object {
-        private val log by logger(EmailGroup::class.java)
-        private const val RECIPIENTS_TAG = "recipients"
+        private val log by logger(Chime::class.java)
+        private const val URL_TAG = "url"
 
         /**
          * reader to create instance of class from writable.
          */
-        val reader = Writeable.Reader { EmailGroup(it) }
+        val reader = Writeable.Reader { Chime(it) }
 
         /**
          * Creator used in REST communication.
@@ -55,8 +56,8 @@ data class EmailGroup(
          */
         @JvmStatic
         @Throws(IOException::class)
-        fun parse(parser: XContentParser): EmailGroup {
-            var recipients: List<String>? = null
+        fun parse(parser: XContentParser): Chime {
+            var url: String? = null
 
             XContentParserUtils.ensureExpectedToken(
                 XContentParser.Token.START_OBJECT,
@@ -67,15 +68,15 @@ data class EmailGroup(
                 val fieldName = parser.currentName()
                 parser.nextToken()
                 when (fieldName) {
-                    RECIPIENTS_TAG -> recipients = parser.stringList()
+                    URL_TAG -> url = parser.text()
                     else -> {
                         parser.skipChildren()
-                        log.info("Unexpected field: $fieldName, while parsing EmailGroup")
+                        log.info("Unexpected field: $fieldName, while parsing Chime destination")
                     }
                 }
             }
-            recipients ?: throw IllegalArgumentException("$RECIPIENTS_TAG field absent")
-            return EmailGroup(recipients)
+            url ?: throw IllegalArgumentException("$URL_TAG field absent")
+            return Chime(url)
         }
     }
 
@@ -84,14 +85,14 @@ data class EmailGroup(
      * @param input StreamInput stream to deserialize data from.
      */
     constructor(input: StreamInput) : this(
-        recipients = input.readStringList()
+        url = input.readString()
     )
 
     /**
      * {@inheritDoc}
      */
     override fun writeTo(output: StreamOutput) {
-        output.writeStringCollection(recipients)
+        output.writeString(url)
     }
 
     /**
@@ -100,7 +101,11 @@ data class EmailGroup(
     override fun toXContent(builder: XContentBuilder?, params: ToXContent.Params?): XContentBuilder {
         builder!!
         return builder.startObject()
-            .field(RECIPIENTS_TAG, recipients)
+            .field(URL_TAG, url)
             .endObject()
+    }
+
+    override fun getChannelType(): NotificationConfigType {
+        return NotificationConfigType.CHIME
     }
 }

@@ -13,11 +13,12 @@
  * permissions and limitations under the License.
  *
  */
-package com.amazon.opendistroforelasticsearch.commons.notifications.model
+package com.amazon.opendistroforelasticsearch.commons.notifications.model.channel
 
-import com.amazon.opendistroforelasticsearch.commons.utils.logger
-import com.amazon.opendistroforelasticsearch.commons.utils.validateUrl
-import org.elasticsearch.common.Strings
+import com.amazon.opendistroforelasticsearch.commons.notifications.model.NotificationConfigType
+import com.amazon.opendistroforelasticsearch.notifications.util.isValidEmail
+import com.amazon.opendistroforelasticsearch.notifications.util.logger
+import com.amazon.opendistroforelasticsearch.notifications.util.stringList
 import org.elasticsearch.common.io.stream.StreamInput
 import org.elasticsearch.common.io.stream.StreamOutput
 import org.elasticsearch.common.io.stream.Writeable
@@ -28,25 +29,26 @@ import org.elasticsearch.common.xcontent.XContentParserUtils
 import java.io.IOException
 
 /**
- * Data class representing Webhook channel.
+ * Data class representing Email group.
  */
-data class Webhook(
-    val url: String
-) : BaseModel {
+data class EmailGroup(
+        val recipients: List<String>
+) : ChannelData {
 
     init {
-        require(!Strings.isNullOrEmpty(url)) { "URL is null or empty" }
-        validateUrl(url)
+        recipients.forEach {
+            require(isValidEmail(it)) { "Invalid email address" }
+        }
     }
 
     companion object {
-        private val log by logger(Webhook::class.java)
-        private const val URL_TAG = "url"
+        private val log by logger(EmailGroup::class.java)
+        private const val RECIPIENTS_TAG = "recipients"
 
         /**
          * reader to create instance of class from writable.
          */
-        val reader = Writeable.Reader { Webhook(it) }
+        val reader = Writeable.Reader { EmailGroup(it) }
 
         /**
          * Creator used in REST communication.
@@ -54,8 +56,8 @@ data class Webhook(
          */
         @JvmStatic
         @Throws(IOException::class)
-        fun parse(parser: XContentParser): Webhook {
-            var url: String? = null
+        fun parse(parser: XContentParser): EmailGroup {
+            var recipients: List<String>? = null
 
             XContentParserUtils.ensureExpectedToken(
                 XContentParser.Token.START_OBJECT,
@@ -66,15 +68,15 @@ data class Webhook(
                 val fieldName = parser.currentName()
                 parser.nextToken()
                 when (fieldName) {
-                    URL_TAG -> url = parser.text()
+                    RECIPIENTS_TAG -> recipients = parser.stringList()
                     else -> {
                         parser.skipChildren()
-                        log.info("Unexpected field: $fieldName, while parsing Webhook destination")
+                        log.info("Unexpected field: $fieldName, while parsing EmailGroup")
                     }
                 }
             }
-            url ?: throw IllegalArgumentException("$URL_TAG field absent")
-            return Webhook(url)
+            recipients ?: throw IllegalArgumentException("$RECIPIENTS_TAG field absent")
+            return EmailGroup(recipients)
         }
     }
 
@@ -83,14 +85,14 @@ data class Webhook(
      * @param input StreamInput stream to deserialize data from.
      */
     constructor(input: StreamInput) : this(
-        url = input.readString()
+        recipients = input.readStringList()
     )
 
     /**
      * {@inheritDoc}
      */
     override fun writeTo(output: StreamOutput) {
-        output.writeString(url)
+        output.writeStringCollection(recipients)
     }
 
     /**
@@ -99,7 +101,11 @@ data class Webhook(
     override fun toXContent(builder: XContentBuilder?, params: ToXContent.Params?): XContentBuilder {
         builder!!
         return builder.startObject()
-            .field(URL_TAG, url)
+            .field(RECIPIENTS_TAG, recipients)
             .endObject()
+    }
+
+    override fun getChannelType(): NotificationConfigType {
+        return NotificationConfigType.EMAIL_GROUP
     }
 }
