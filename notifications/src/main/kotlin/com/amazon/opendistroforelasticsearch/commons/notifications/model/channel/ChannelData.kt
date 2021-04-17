@@ -16,13 +16,12 @@
 
 package com.amazon.opendistroforelasticsearch.commons.notifications.model.channel
 
+import com.amazon.opendistroforelasticsearch.commons.notifications.model.BaseModel
 import com.amazon.opendistroforelasticsearch.commons.notifications.model.NotificationConfigType
-import org.elasticsearch.common.io.stream.Writeable
-import org.elasticsearch.common.xcontent.ToXContent
 
 /*
   Interface need to be implemented by the concrete ChannelData classes.
  */
-interface ChannelData : Writeable, ToXContent {
+interface ChannelData : BaseModel {
     fun getChannelType(): NotificationConfigType
 }
