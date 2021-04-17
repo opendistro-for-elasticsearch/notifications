@@ -16,9 +16,9 @@
 package com.amazon.opendistroforelasticsearch.commons.notifications.model.channel
 
 import com.amazon.opendistroforelasticsearch.commons.notifications.model.NotificationConfigType
-import com.amazon.opendistroforelasticsearch.notifications.util.isValidEmail
-import com.amazon.opendistroforelasticsearch.notifications.util.logger
-import com.amazon.opendistroforelasticsearch.notifications.util.stringList
+import com.amazon.opendistroforelasticsearch.commons.utils.isValidEmail
+import com.amazon.opendistroforelasticsearch.commons.utils.logger
+import com.amazon.opendistroforelasticsearch.commons.utils.stringList
 import org.elasticsearch.common.io.stream.StreamInput
 import org.elasticsearch.common.io.stream.StreamOutput
 import org.elasticsearch.common.io.stream.Writeable
@@ -27,6 +27,7 @@ import org.elasticsearch.common.xcontent.XContentBuilder
 import org.elasticsearch.common.xcontent.XContentParser
 import org.elasticsearch.common.xcontent.XContentParserUtils
 import java.io.IOException
+import kotlin.jvm.Throws
 
 /**
  * Data class representing Email group.

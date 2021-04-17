@@ -23,7 +23,7 @@ import com.amazon.opendistroforelasticsearch.commons.notifications.model.Notific
 import com.amazon.opendistroforelasticsearch.commons.notifications.model.NotificationConfig.Companion.SMTP_ACCOUNT_TAG
 import com.amazon.opendistroforelasticsearch.commons.notifications.model.NotificationConfig.Companion.WEBHOOK_TAG
 import com.amazon.opendistroforelasticsearch.commons.notifications.model.channel.ChannelData
-import com.amazon.opendistroforelasticsearch.notifications.util.logger
+import com.amazon.opendistroforelasticsearch.commons.utils.logger
 import org.elasticsearch.common.io.stream.Writeable.Reader
 import org.elasticsearch.common.xcontent.XContentParser
 import java.lang.UnsupportedOperationException

@@ -17,10 +17,10 @@ package com.amazon.opendistroforelasticsearch.commons.notifications.model.channe
 
 import com.amazon.opendistroforelasticsearch.commons.notifications.model.NotificationConfig
 import com.amazon.opendistroforelasticsearch.commons.notifications.model.NotificationConfigType
-import com.amazon.opendistroforelasticsearch.notifications.util.fieldIfNotNull
-import com.amazon.opendistroforelasticsearch.notifications.util.isValidEmail
-import com.amazon.opendistroforelasticsearch.notifications.util.logger
-import com.amazon.opendistroforelasticsearch.notifications.util.valueOf
+import com.amazon.opendistroforelasticsearch.commons.utils.fieldIfNotNull
+import com.amazon.opendistroforelasticsearch.commons.utils.isValidEmail
+import com.amazon.opendistroforelasticsearch.commons.utils.logger
+import com.amazon.opendistroforelasticsearch.commons.utils.valueOf
 import org.elasticsearch.common.Strings
 import org.elasticsearch.common.io.stream.StreamInput
 import org.elasticsearch.common.io.stream.StreamOutput

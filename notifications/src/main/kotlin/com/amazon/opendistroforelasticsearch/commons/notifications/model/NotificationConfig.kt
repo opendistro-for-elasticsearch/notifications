@@ -20,7 +20,6 @@ import com.amazon.opendistroforelasticsearch.commons.notifications.model.channel
 import com.amazon.opendistroforelasticsearch.commons.notifications.model.channel.ChannelDataFactory.Companion.createChannelData
 import com.amazon.opendistroforelasticsearch.commons.notifications.model.channel.ChannelDataFactory.Companion.isValidChannelTag
 import com.amazon.opendistroforelasticsearch.commons.utils.enumSet
-import com.amazon.opendistroforelasticsearch.commons.utils.fieldIfNotNull
 import com.amazon.opendistroforelasticsearch.commons.utils.logger
 import com.amazon.opendistroforelasticsearch.commons.utils.valueOf
 import org.elasticsearch.common.Strings
@@ -45,7 +44,7 @@ data class NotificationConfig(
         val configType: NotificationConfigType,
         val features: EnumSet<Feature>,
         val isEnabled: Boolean = true,
-        val channelDataList: List<ChannelData>,
+        val channelDataList: List<ChannelData?>,
 ) : BaseModel {
 
     init {
@@ -53,13 +52,11 @@ data class NotificationConfig(
         if (configType == NotificationConfigType.NONE) {
             log.info("Some config field not recognized")
         } else {
-            val channelData = channelDataList.firstOrNull { item -> item.getChannelType().equals(configType) }
+            val channelData = channelDataList.firstOrNull { item -> item?.getChannelType()?.equals(configType) != null }
             requireNotNull(channelData)
         }
 
     }
-
-    enum class Feature { None, Alerting, IndexManagement, Reports }
 
     companion object {
         private val log by logger(NotificationConfig::class.java)
@@ -96,9 +93,9 @@ data class NotificationConfig(
             val channelDataList = ArrayList<ChannelData>()
 
             XContentParserUtils.ensureExpectedToken(
-                XContentParser.Token.START_OBJECT,
-                parser.currentToken(),
-                parser
+                    XContentParser.Token.START_OBJECT,
+                    parser.currentToken(),
+                    parser
             )
 
             while (parser.nextToken() != XContentParser.Token.END_OBJECT) {
@@ -152,10 +149,10 @@ data class NotificationConfig(
             channelDataList = NotificationConfigType.values()
                     .filter { type -> type != NotificationConfigType.NONE }
                     .map { type ->
-                        input.readOptionalWriteable(type
-                                .getChannelReader())
+                        input.readOptionalWriteable(type.getChannelReader())
                     }
     )
+
 
     /**
      * {@inheritDoc}
@@ -184,7 +181,7 @@ data class NotificationConfig(
                 .field(IS_ENABLED_TAG, isEnabled)
 
         for (channelData in channelDataList) {
-            builder.field(channelData.getChannelType().getChannelTag(), channelData)
+            builder.field(channelData?.getChannelType()?.getChannelTag(), channelData)
         }
         builder.endObject()
 

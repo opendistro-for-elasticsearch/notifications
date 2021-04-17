@@ -16,9 +16,9 @@
 package com.amazon.opendistroforelasticsearch.commons.notifications.model.channel
 
 import com.amazon.opendistroforelasticsearch.commons.notifications.model.NotificationConfigType
-import com.amazon.opendistroforelasticsearch.notifications.util.isValidEmail
-import com.amazon.opendistroforelasticsearch.notifications.util.logger
-import com.amazon.opendistroforelasticsearch.notifications.util.stringList
+import com.amazon.opendistroforelasticsearch.commons.utils.isValidEmail
+import com.amazon.opendistroforelasticsearch.commons.utils.logger
+import com.amazon.opendistroforelasticsearch.commons.utils.stringList
 import org.elasticsearch.common.Strings
 import org.elasticsearch.common.io.stream.StreamInput
 import org.elasticsearch.common.io.stream.StreamOutput
