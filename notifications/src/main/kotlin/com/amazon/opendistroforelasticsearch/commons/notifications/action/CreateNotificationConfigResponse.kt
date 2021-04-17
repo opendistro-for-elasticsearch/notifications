@@ -26,6 +26,7 @@ import org.elasticsearch.common.xcontent.XContentBuilder
 import org.elasticsearch.common.xcontent.XContentParser
 import org.elasticsearch.common.xcontent.XContentParserUtils
 import java.io.IOException
+import kotlin.jvm.Throws
 
 /**
  * Action Response for creating new configuration.

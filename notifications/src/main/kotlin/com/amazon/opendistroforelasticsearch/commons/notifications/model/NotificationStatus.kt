@@ -29,29 +29,28 @@ import org.elasticsearch.common.xcontent.XContentBuilder
 import org.elasticsearch.common.xcontent.XContentParser
 import org.elasticsearch.common.xcontent.XContentParserUtils
 import java.io.IOException
+import kotlin.jvm.Throws
 
 /**
  * Data class representing Notification Status.
  */
 data class NotificationStatus(
-    val configId: String,
-    val configName: String,
-    val configType: NotificationConfig.ConfigType,
-    val emailRecipientStatus: List<EmailRecipientStatus> = listOf(),
-    val deliveryStatus: DeliveryStatus? = null
+        val configId: String,
+        val configName: String,
+        val configType: NotificationConfigType,
+        val emailRecipientStatus: List<EmailRecipientStatus> = listOf(),
+        val deliveryStatus: DeliveryStatus? = null
 ) : Writeable, ToXContent {
 
     init {
         require(!Strings.isNullOrEmpty(configId)) { "config id is null or empty" }
         require(!Strings.isNullOrEmpty(configName)) { "config name is null or empty" }
         when (configType) {
-            NotificationConfig.ConfigType.Chime -> requireNotNull(deliveryStatus)
-            NotificationConfig.ConfigType.Webhook -> requireNotNull(deliveryStatus)
-            NotificationConfig.ConfigType.Slack -> requireNotNull(deliveryStatus)
-            NotificationConfig.ConfigType.Email -> require(emailRecipientStatus.isEmpty())
-            NotificationConfig.ConfigType.None -> log.info("Some config field not recognized")
+            NotificationConfigType.NONE -> log.info("Some config field not recognized")
+            NotificationConfigType.EMAIL_GROUP -> log.info("non-allowed config type for Status")
+            NotificationConfigType.EMAIL -> require(emailRecipientStatus.isEmpty())
             else -> {
-                log.info("non-allowed config type for Status")
+                configType.validateDeliveryStatus(deliveryStatus)
             }
         }
     }
@@ -78,14 +77,14 @@ data class NotificationStatus(
         fun parse(parser: XContentParser): NotificationStatus {
             var configName: String? = null
             var configId: String? = null
-            var configType: NotificationConfig.ConfigType? = null
+            var configType: NotificationConfigType? = null
             var emailRecipientStatus: List<EmailRecipientStatus> = listOf()
             var deliveryStatus: DeliveryStatus? = null
 
             XContentParserUtils.ensureExpectedToken(
-                XContentParser.Token.START_OBJECT,
-                parser.currentToken(),
-                parser
+                    XContentParser.Token.START_OBJECT,
+                    parser.currentToken(),
+                    parser
             )
             while (parser.nextToken() != XContentParser.Token.END_OBJECT) {
                 val fieldName = parser.currentName()
@@ -93,7 +92,7 @@ data class NotificationStatus(
                 when (fieldName) {
                     CONFIG_NAME_TAG -> configName = parser.text()
                     CONFIG_ID_TAG -> configId = parser.text()
-                    CONFIG_TYPE_TAG -> configType = valueOf(parser.text(), NotificationConfig.ConfigType.None)
+                    CONFIG_TYPE_TAG -> configType = valueOf(parser.text(), NotificationConfigType.NONE)
                     EMAIL_RECIPIENT_STATUS_TAG -> emailRecipientStatus = parser.objectList { EmailRecipientStatus.parse(it) }
                     STATUS_DETAIL_TAG -> deliveryStatus = DeliveryStatus.parse(parser)
                     else -> {
@@ -107,11 +106,11 @@ data class NotificationStatus(
             configType ?: throw IllegalArgumentException("$CONFIG_TYPE_TAG field absent")
 
             return NotificationStatus(
-                configId,
-                configName,
-                configType,
-                emailRecipientStatus,
-                deliveryStatus
+                    configId,
+                    configName,
+                    configType,
+                    emailRecipientStatus,
+                    deliveryStatus
             )
         }
     }
@@ -121,12 +120,12 @@ data class NotificationStatus(
      * @param input StreamInput stream to deserialize data from.
      */
     constructor(input: StreamInput) : this(
-        configId = input.readString(),
-        configName = input.readString(),
-        configType = input.readEnum(NotificationConfig.ConfigType::class.java),
-        emailRecipientStatus = input.readList(EmailRecipientStatus.reader),
-        deliveryStatus = input.readOptionalWriteable(DeliveryStatus.reader)
-        )
+            configId = input.readString(),
+            configName = input.readString(),
+            configType = input.readEnum(NotificationConfigType::class.java),
+            emailRecipientStatus = input.readList(EmailRecipientStatus.reader),
+            deliveryStatus = input.readOptionalWriteable(DeliveryStatus.reader)
+    )
 
     /**
      * {@inheritDoc}
@@ -145,11 +144,11 @@ data class NotificationStatus(
     override fun toXContent(builder: XContentBuilder?, params: ToXContent.Params?): XContentBuilder {
         builder!!
         return builder.startObject()
-            .field(CONFIG_ID_TAG, configId)
-            .field(CONFIG_TYPE_TAG, configType)
-            .field(CONFIG_NAME_TAG, configName)
-            .field(EMAIL_RECIPIENT_STATUS_TAG, emailRecipientStatus)
-            .fieldIfNotNull(STATUS_DETAIL_TAG, deliveryStatus)
-            .endObject()
+                .field(CONFIG_ID_TAG, configId)
+                .field(CONFIG_TYPE_TAG, configType)
+                .field(CONFIG_NAME_TAG, configName)
+                .field(EMAIL_RECIPIENT_STATUS_TAG, emailRecipientStatus)
+                .fieldIfNotNull(STATUS_DETAIL_TAG, deliveryStatus)
+                .endObject()
     }
 }

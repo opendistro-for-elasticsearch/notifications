@@ -15,8 +15,10 @@
  */
 package com.amazon.opendistroforelasticsearch.commons.notifications.model
 
+import com.amazon.opendistroforelasticsearch.commons.notifications.model.channel.*
+import com.amazon.opendistroforelasticsearch.commons.notifications.model.channel.ChannelDataFactory.Companion.createChannelData
+import com.amazon.opendistroforelasticsearch.commons.notifications.model.channel.ChannelDataFactory.Companion.isValidChannelTag
 import com.amazon.opendistroforelasticsearch.notifications.util.enumSet
-import com.amazon.opendistroforelasticsearch.notifications.util.fieldIfNotNull
 import com.amazon.opendistroforelasticsearch.notifications.util.logger
 import com.amazon.opendistroforelasticsearch.notifications.util.valueOf
 import org.elasticsearch.common.Strings
@@ -28,54 +30,48 @@ import org.elasticsearch.common.xcontent.XContentBuilder
 import org.elasticsearch.common.xcontent.XContentParser
 import org.elasticsearch.common.xcontent.XContentParserUtils
 import java.io.IOException
+import java.util.ArrayList
 import java.util.EnumSet
+import kotlin.jvm.Throws
 
 /**
  * Data class representing Notification config.
  */
 data class NotificationConfig(
-    val name: String,
-    val description: String,
-    val configType: ConfigType,
-    val features: EnumSet<Feature>,
-    val isEnabled: Boolean = true,
-    val slack: Slack? = null,
-    val chime: Chime? = null,
-    val webhook: Webhook? = null,
-    val email: Email? = null,
-    val smtpAccount: SmtpAccount? = null,
-    val emailGroup: EmailGroup? = null
+        val name: String,
+        val description: String,
+        val configType: NotificationConfigType,
+        val features: EnumSet<Feature>,
+        val isEnabled: Boolean = true,
+        val channelDataList: List<ChannelData>,
 ) : Writeable, ToXContent {
 
     init {
         require(!Strings.isNullOrEmpty(name)) { "name is null or empty" }
-        when (configType) {
-            ConfigType.Slack -> requireNotNull(slack)
-            ConfigType.Chime -> requireNotNull(chime)
-            ConfigType.Webhook -> requireNotNull(webhook)
-            ConfigType.Email -> requireNotNull(email)
-            ConfigType.SmtpAccount -> requireNotNull(smtpAccount)
-            ConfigType.EmailGroup -> requireNotNull(emailGroup)
-            ConfigType.None -> log.info("Some config field not recognized")
+        if (configType == NotificationConfigType.NONE) {
+            log.info("Some config field not recognized")
+        } else {
+            val channelData = channelDataList.firstOrNull { item -> item.getChannelType().equals(configType) }
+            requireNotNull(channelData)
         }
+
     }
 
-    enum class ConfigType { None, Slack, Chime, Webhook, Email, SmtpAccount, EmailGroup }
     enum class Feature { None, Alerting, IndexManagement, Reports }
 
     companion object {
         private val log by logger(NotificationConfig::class.java)
-        private const val NAME_TAG = "name"
-        private const val DESCRIPTION_TAG = "description"
-        private const val CONFIG_TYPE_TAG = "configType"
-        private const val FEATURES_TAG = "features"
-        private const val IS_ENABLED_TAG = "isEnabled"
-        private const val SLACK_TAG = "slack"
-        private const val CHIME_TAG = "chime"
-        private const val WEBHOOK_TAG = "webhook"
-        private const val EMAIL_TAG = "email"
-        private const val SMTP_ACCOUNT_TAG = "smtpAccount"
-        private const val EMAIL_GROUP_TAG = "emailGroup"
+        const val NAME_TAG = "name"
+        const val DESCRIPTION_TAG = "description"
+        const val CONFIG_TYPE_TAG = "configType"
+        const val FEATURES_TAG = "features"
+        const val IS_ENABLED_TAG = "isEnabled"
+        const val SLACK_TAG = "slack"
+        const val CHIME_TAG = "chime"
+        const val WEBHOOK_TAG = "webhook"
+        const val EMAIL_TAG = "email"
+        const val SMTP_ACCOUNT_TAG = "smtpAccount"
+        const val EMAIL_GROUP_TAG = "emailGroup"
 
         /**
          * reader to create instance of class from writable.
@@ -92,36 +88,35 @@ data class NotificationConfig(
         fun parse(parser: XContentParser): NotificationConfig {
             var name: String? = null
             var description = ""
-            var configType: ConfigType? = null
+            var configType: NotificationConfigType? = null
             var features: EnumSet<Feature>? = null
             var isEnabled = true
-            var slack: Slack? = null
-            var chime: Chime? = null
-            var webhook: Webhook? = null
-            var email: Email? = null
-            var smtpAccount: SmtpAccount? = null
-            var emailGroup: EmailGroup? = null
+            val channelDataList = ArrayList<ChannelData>()
 
             XContentParserUtils.ensureExpectedToken(
-                XContentParser.Token.START_OBJECT,
-                parser.currentToken(),
-                parser
+                    XContentParser.Token.START_OBJECT,
+                    parser.currentToken(),
+                    parser
             )
+
             while (parser.nextToken() != XContentParser.Token.END_OBJECT) {
                 val fieldName = parser.currentName()
                 parser.nextToken()
+
+                if (isValidChannelTag(fieldName)) {
+                    val channelData = createChannelData(fieldName, parser)
+                    if (channelData != null) {
+                        channelDataList.add(channelData)
+                    }
+                    continue
+                }
+
                 when (fieldName) {
                     NAME_TAG -> name = parser.text()
                     DESCRIPTION_TAG -> description = parser.text()
-                    CONFIG_TYPE_TAG -> configType = valueOf(parser.text(), ConfigType.None)
+                    CONFIG_TYPE_TAG -> configType = valueOf(parser.text(), NotificationConfigType.NONE)
                     FEATURES_TAG -> features = parser.enumSet(Feature.None)
                     IS_ENABLED_TAG -> isEnabled = parser.booleanValue()
-                    SLACK_TAG -> slack = Slack.parse(parser)
-                    CHIME_TAG -> chime = Chime.parse(parser)
-                    WEBHOOK_TAG -> webhook = Webhook.parse(parser)
-                    EMAIL_TAG -> email = Email.parse(parser)
-                    SMTP_ACCOUNT_TAG -> smtpAccount = SmtpAccount.parse(parser)
-                    EMAIL_GROUP_TAG -> emailGroup = EmailGroup.parse(parser)
                     else -> {
                         parser.skipChildren()
                         log.info("Unexpected field: $fieldName, while parsing configuration")
@@ -132,17 +127,12 @@ data class NotificationConfig(
             configType ?: throw IllegalArgumentException("$CONFIG_TYPE_TAG field absent")
             features ?: throw IllegalArgumentException("$FEATURES_TAG field absent")
             return NotificationConfig(
-                name,
-                description,
-                configType,
-                features,
-                isEnabled,
-                slack,
-                chime,
-                webhook,
-                email,
-                smtpAccount,
-                emailGroup
+                    name,
+                    description,
+                    configType,
+                    features,
+                    isEnabled,
+                    channelDataList
             )
         }
     }
@@ -152,17 +142,17 @@ data class NotificationConfig(
      * @param input StreamInput stream to deserialize data from.
      */
     constructor(input: StreamInput) : this(
-        name = input.readString(),
-        description = input.readString(),
-        configType = input.readEnum(ConfigType::class.java),
-        features = input.readEnumSet(Feature::class.java),
-        isEnabled = input.readBoolean(),
-        slack = input.readOptionalWriteable(Slack.reader),
-        chime = input.readOptionalWriteable(Chime.reader),
-        webhook = input.readOptionalWriteable(Webhook.reader),
-        email = input.readOptionalWriteable(Email.reader),
-        smtpAccount = input.readOptionalWriteable(SmtpAccount.reader),
-        emailGroup = input.readOptionalWriteable(EmailGroup.reader)
+            name = input.readString(),
+            description = input.readString(),
+            configType = input.readEnum(NotificationConfigType::class.java),
+            features = input.readEnumSet(Feature::class.java),
+            isEnabled = input.readBoolean(),
+            channelDataList = NotificationConfigType.values()
+                    .filter { type -> type != NotificationConfigType.NONE }
+                    .map { type ->
+                        input.readOptionalWriteable(type
+                                .getChannelReader())
+                    }
     )
 
     /**
@@ -174,12 +164,9 @@ data class NotificationConfig(
         output.writeEnum(configType)
         output.writeEnumSet(features)
         output.writeBoolean(isEnabled)
-        output.writeOptionalWriteable(slack)
-        output.writeOptionalWriteable(chime)
-        output.writeOptionalWriteable(webhook)
-        output.writeOptionalWriteable(email)
-        output.writeOptionalWriteable(smtpAccount)
-        output.writeOptionalWriteable(emailGroup)
+        for (channelData in channelDataList) {
+            output.writeOptionalWriteable(channelData)
+        }
     }
 
     /**
@@ -187,18 +174,18 @@ data class NotificationConfig(
      */
     override fun toXContent(builder: XContentBuilder?, params: ToXContent.Params?): XContentBuilder {
         builder!!
-        return builder.startObject()
-            .field(NAME_TAG, name)
-            .field(DESCRIPTION_TAG, description)
-            .field(CONFIG_TYPE_TAG, configType)
-            .field(FEATURES_TAG, features)
-            .field(IS_ENABLED_TAG, isEnabled)
-            .fieldIfNotNull(SLACK_TAG, slack)
-            .fieldIfNotNull(CHIME_TAG, chime)
-            .fieldIfNotNull(WEBHOOK_TAG, webhook)
-            .fieldIfNotNull(EMAIL_TAG, email)
-            .fieldIfNotNull(SMTP_ACCOUNT_TAG, smtpAccount)
-            .fieldIfNotNull(EMAIL_GROUP_TAG, emailGroup)
-            .endObject()
+        builder.startObject()
+                .field(NAME_TAG, name)
+                .field(DESCRIPTION_TAG, description)
+                .field(CONFIG_TYPE_TAG, configType)
+                .field(FEATURES_TAG, features)
+                .field(IS_ENABLED_TAG, isEnabled)
+
+        for (channelData in channelDataList) {
+            builder.field(channelData.getChannelType().getChannelTag(), channelData)
+        }
+        builder.endObject()
+
+        return builder
     }
 }
