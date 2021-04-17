@@ -13,8 +13,9 @@
  * permissions and limitations under the License.
  *
  */
-package com.amazon.opendistroforelasticsearch.commons.notifications.model
+package com.amazon.opendistroforelasticsearch.commons.notifications.model.channel
 
+import com.amazon.opendistroforelasticsearch.commons.notifications.model.NotificationConfigType
 import com.amazon.opendistroforelasticsearch.notifications.util.isValidEmail
 import com.amazon.opendistroforelasticsearch.notifications.util.logger
 import com.amazon.opendistroforelasticsearch.notifications.util.stringList
@@ -26,13 +27,14 @@ import org.elasticsearch.common.xcontent.XContentBuilder
 import org.elasticsearch.common.xcontent.XContentParser
 import org.elasticsearch.common.xcontent.XContentParserUtils
 import java.io.IOException
+import kotlin.jvm.Throws
 
 /**
  * Data class representing Email group.
  */
 data class EmailGroup(
-    val recipients: List<String>
-) : Writeable, ToXContent {
+        val recipients: List<String>
+) : ChannelData {
 
     init {
         recipients.forEach {
@@ -59,9 +61,9 @@ data class EmailGroup(
             var recipients: List<String>? = null
 
             XContentParserUtils.ensureExpectedToken(
-                XContentParser.Token.START_OBJECT,
-                parser.currentToken(),
-                parser
+                    XContentParser.Token.START_OBJECT,
+                    parser.currentToken(),
+                    parser
             )
             while (parser.nextToken() != XContentParser.Token.END_OBJECT) {
                 val fieldName = parser.currentName()
@@ -84,7 +86,7 @@ data class EmailGroup(
      * @param input StreamInput stream to deserialize data from.
      */
     constructor(input: StreamInput) : this(
-        recipients = input.readStringList()
+            recipients = input.readStringList()
     )
 
     /**
@@ -100,7 +102,11 @@ data class EmailGroup(
     override fun toXContent(builder: XContentBuilder?, params: ToXContent.Params?): XContentBuilder {
         builder!!
         return builder.startObject()
-            .field(RECIPIENTS_TAG, recipients)
-            .endObject()
+                .field(RECIPIENTS_TAG, recipients)
+                .endObject()
+    }
+
+    override fun getChannelType(): NotificationConfigType {
+        return NotificationConfigType.EMAIL_GROUP
     }
 }

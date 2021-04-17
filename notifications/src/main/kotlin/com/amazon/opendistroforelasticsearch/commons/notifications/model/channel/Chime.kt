@@ -13,11 +13,11 @@
  * permissions and limitations under the License.
  *
  */
-package com.amazon.opendistroforelasticsearch.commons.notifications.model
+package com.amazon.opendistroforelasticsearch.commons.notifications.model.channel
 
-import com.amazon.opendistroforelasticsearch.notifications.util.isValidEmail
+import com.amazon.opendistroforelasticsearch.commons.notifications.model.NotificationConfigType
 import com.amazon.opendistroforelasticsearch.notifications.util.logger
-import com.amazon.opendistroforelasticsearch.notifications.util.stringList
+import com.amazon.opendistroforelasticsearch.notifications.util.validateUrl
 import org.elasticsearch.common.Strings
 import org.elasticsearch.common.io.stream.StreamInput
 import org.elasticsearch.common.io.stream.StreamOutput
@@ -27,33 +27,28 @@ import org.elasticsearch.common.xcontent.XContentBuilder
 import org.elasticsearch.common.xcontent.XContentParser
 import org.elasticsearch.common.xcontent.XContentParserUtils
 import java.io.IOException
+import kotlin.jvm.Throws
 
 /**
- * Data class representing Email account and default recipients.
+ * Data class representing Chime channel.
  */
-data class Email(
-    val emailAccountID: String,
-    val defaultRecipients: List<String>,
-    val defaultEmailGroupIds: List<String>
-) : Writeable, ToXContent {
+data class Chime(
+        val url: String
+) : ChannelData {
 
     init {
-        require(!Strings.isNullOrEmpty(emailAccountID)) { "emailAccountID is null or empty" }
-        defaultRecipients.forEach {
-            require(isValidEmail(it)) { "Invalid email address" }
-        }
+        require(!Strings.isNullOrEmpty(url)) { "URL is null or empty" }
+        validateUrl(url)
     }
 
     companion object {
-        private val log by logger(Email::class.java)
-        private const val EMAIL_ACCOUNT_ID_TAG = "emailAccountID"
-        private const val DEFAULT_RECIPIENTS_TAG = "defaultRecipients"
-        private const val DEFAULT_EMAIL_GROUPS_TAG = "defaultEmailGroupIds"
+        private val log by logger(Chime::class.java)
+        private const val URL_TAG = "url"
 
         /**
          * reader to create instance of class from writable.
          */
-        val reader = Writeable.Reader { Email(it) }
+        val reader = Writeable.Reader { Chime(it) }
 
         /**
          * Creator used in REST communication.
@@ -61,31 +56,27 @@ data class Email(
          */
         @JvmStatic
         @Throws(IOException::class)
-        fun parse(parser: XContentParser): Email {
-            var emailAccountID: String? = null
-            var recipients: List<String> = listOf()
-            var emailGroupIds: List<String> = listOf()
+        fun parse(parser: XContentParser): Chime {
+            var url: String? = null
 
             XContentParserUtils.ensureExpectedToken(
-                XContentParser.Token.START_OBJECT,
-                parser.currentToken(),
-                parser
+                    XContentParser.Token.START_OBJECT,
+                    parser.currentToken(),
+                    parser
             )
             while (parser.nextToken() != XContentParser.Token.END_OBJECT) {
                 val fieldName = parser.currentName()
                 parser.nextToken()
                 when (fieldName) {
-                    EMAIL_ACCOUNT_ID_TAG -> emailAccountID = parser.text()
-                    DEFAULT_RECIPIENTS_TAG -> recipients = parser.stringList()
-                    DEFAULT_EMAIL_GROUPS_TAG -> emailGroupIds = parser.stringList()
+                    URL_TAG -> url = parser.text()
                     else -> {
                         parser.skipChildren()
-                        log.info("Unexpected field: $fieldName, while parsing Email")
+                        log.info("Unexpected field: $fieldName, while parsing Chime destination")
                     }
                 }
             }
-            emailAccountID ?: throw IllegalArgumentException("$EMAIL_ACCOUNT_ID_TAG field absent")
-            return Email(emailAccountID, recipients, emailGroupIds)
+            url ?: throw IllegalArgumentException("$URL_TAG field absent")
+            return Chime(url)
         }
     }
 
@@ -94,18 +85,14 @@ data class Email(
      * @param input StreamInput stream to deserialize data from.
      */
     constructor(input: StreamInput) : this(
-        emailAccountID = input.readString(),
-        defaultRecipients = input.readStringList(),
-        defaultEmailGroupIds = input.readStringList()
+            url = input.readString()
     )
 
     /**
      * {@inheritDoc}
      */
     override fun writeTo(output: StreamOutput) {
-        output.writeString(emailAccountID)
-        output.writeStringCollection(defaultRecipients)
-        output.writeStringCollection(defaultEmailGroupIds)
+        output.writeString(url)
     }
 
     /**
@@ -114,9 +101,11 @@ data class Email(
     override fun toXContent(builder: XContentBuilder?, params: ToXContent.Params?): XContentBuilder {
         builder!!
         return builder.startObject()
-            .field(EMAIL_ACCOUNT_ID_TAG, emailAccountID)
-            .field(DEFAULT_RECIPIENTS_TAG, defaultRecipients)
-            .field(DEFAULT_EMAIL_GROUPS_TAG, defaultEmailGroupIds)
-            .endObject()
+                .field(URL_TAG, url)
+                .endObject()
+    }
+
+    override fun getChannelType(): NotificationConfigType {
+        return NotificationConfigType.CHIME
     }
 }

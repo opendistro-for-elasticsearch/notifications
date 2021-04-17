@@ -13,8 +13,10 @@
  * permissions and limitations under the License.
  *
  */
-package com.amazon.opendistroforelasticsearch.commons.notifications.model
+package com.amazon.opendistroforelasticsearch.commons.notifications.model.channel
 
+import com.amazon.opendistroforelasticsearch.commons.notifications.model.NotificationConfig
+import com.amazon.opendistroforelasticsearch.commons.notifications.model.NotificationConfigType
 import com.amazon.opendistroforelasticsearch.notifications.util.fieldIfNotNull
 import com.amazon.opendistroforelasticsearch.notifications.util.isValidEmail
 import com.amazon.opendistroforelasticsearch.notifications.util.logger
@@ -29,18 +31,19 @@ import org.elasticsearch.common.xcontent.XContentBuilder
 import org.elasticsearch.common.xcontent.XContentParser
 import org.elasticsearch.common.xcontent.XContentParserUtils
 import java.io.IOException
+import kotlin.jvm.Throws
 
 /**
  * Data class representing SMTP account channel.
  */
 data class SmtpAccount(
-    val host: String,
-    val port: Int,
-    val method: MethodType,
-    val fromAddress: String,
-    val username: SecureString? = null,
-    val password: SecureString? = null
-) : Writeable, ToXContent {
+        val host: String,
+        val port: Int,
+        val method: MethodType,
+        val fromAddress: String,
+        val username: SecureString? = null,
+        val password: SecureString? = null
+) : ChannelData {
 
     init {
         require(!Strings.isNullOrEmpty(host)) { "host is null or empty" }
@@ -76,9 +79,9 @@ data class SmtpAccount(
             var password: SecureString? = null
 
             XContentParserUtils.ensureExpectedToken(
-                XContentParser.Token.START_OBJECT,
-                parser.currentToken(),
-                parser
+                    XContentParser.Token.START_OBJECT,
+                    parser.currentToken(),
+                    parser
             )
             while (parser.nextToken() != XContentParser.Token.END_OBJECT) {
                 val fieldName = parser.currentName()
@@ -101,12 +104,12 @@ data class SmtpAccount(
             method ?: throw IllegalArgumentException("$METHOD_FIELD field absent")
             fromAddress ?: throw IllegalArgumentException("$FROM_ADDRESS_FIELD field absent")
             return SmtpAccount(
-                host,
-                port,
-                method,
-                fromAddress,
-                username,
-                password
+                    host,
+                    port,
+                    method,
+                    fromAddress,
+                    username,
+                    password
             )
         }
     }
@@ -118,11 +121,11 @@ data class SmtpAccount(
         builder!!
         builder.startObject()
         builder.field(HOST_FIELD, host)
-            .field(PORT_FIELD, port)
-            .field(METHOD_FIELD, method)
-            .field(FROM_ADDRESS_FIELD, fromAddress)
-            .fieldIfNotNull(USERNAME_FIELD, username?.toString())
-            .fieldIfNotNull(PASSWORD_FIELD, password?.toString())
+                .field(PORT_FIELD, port)
+                .field(METHOD_FIELD, method)
+                .field(FROM_ADDRESS_FIELD, fromAddress)
+                .fieldIfNotNull(USERNAME_FIELD, username?.toString())
+                .fieldIfNotNull(PASSWORD_FIELD, password?.toString())
         return builder.endObject()
     }
 
@@ -131,12 +134,12 @@ data class SmtpAccount(
      * @param input StreamInput stream to deserialize data from.
      */
     constructor(input: StreamInput) : this(
-        host = input.readString(),
-        port = input.readInt(),
-        method = input.readEnum(MethodType::class.java),
-        fromAddress = input.readString(),
-        username = input.readOptionalSecureString(),
-        password = input.readOptionalSecureString()
+            host = input.readString(),
+            port = input.readInt(),
+            method = input.readEnum(MethodType::class.java),
+            fromAddress = input.readString(),
+            username = input.readOptionalSecureString(),
+            password = input.readOptionalSecureString()
     )
 
     /**
@@ -149,5 +152,9 @@ data class SmtpAccount(
         out.writeString(fromAddress)
         out.writeOptionalSecureString(username)
         out.writeOptionalSecureString(password)
+    }
+
+    override fun getChannelType(): NotificationConfigType {
+        return NotificationConfigType.SMTP_ACCOUNT
     }
 }

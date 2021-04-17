@@ -13,8 +13,9 @@
  * permissions and limitations under the License.
  *
  */
-package com.amazon.opendistroforelasticsearch.commons.notifications.model
+package com.amazon.opendistroforelasticsearch.commons.notifications.model.channel
 
+import com.amazon.opendistroforelasticsearch.commons.notifications.model.NotificationConfigType
 import com.amazon.opendistroforelasticsearch.notifications.util.logger
 import com.amazon.opendistroforelasticsearch.notifications.util.validateUrl
 import org.elasticsearch.common.Strings
@@ -26,13 +27,14 @@ import org.elasticsearch.common.xcontent.XContentBuilder
 import org.elasticsearch.common.xcontent.XContentParser
 import org.elasticsearch.common.xcontent.XContentParserUtils
 import java.io.IOException
+import kotlin.jvm.Throws
 
 /**
- * Data class representing Chime channel.
+ * Data class representing Slack channel.
  */
-data class Chime(
-    val url: String
-) : Writeable, ToXContent {
+data class Slack(
+        val url: String
+) : ChannelData {
 
     init {
         require(!Strings.isNullOrEmpty(url)) { "URL is null or empty" }
@@ -40,13 +42,13 @@ data class Chime(
     }
 
     companion object {
-        private val log by logger(Chime::class.java)
+        private val log by logger(Slack::class.java)
         private const val URL_TAG = "url"
 
         /**
          * reader to create instance of class from writable.
          */
-        val reader = Writeable.Reader { Chime(it) }
+        val reader = Writeable.Reader { Slack(it) }
 
         /**
          * Creator used in REST communication.
@@ -54,13 +56,13 @@ data class Chime(
          */
         @JvmStatic
         @Throws(IOException::class)
-        fun parse(parser: XContentParser): Chime {
+        fun parse(parser: XContentParser): Slack {
             var url: String? = null
 
             XContentParserUtils.ensureExpectedToken(
-                XContentParser.Token.START_OBJECT,
-                parser.currentToken(),
-                parser
+                    XContentParser.Token.START_OBJECT,
+                    parser.currentToken(),
+                    parser
             )
             while (parser.nextToken() != XContentParser.Token.END_OBJECT) {
                 val fieldName = parser.currentName()
@@ -69,12 +71,12 @@ data class Chime(
                     URL_TAG -> url = parser.text()
                     else -> {
                         parser.skipChildren()
-                        log.info("Unexpected field: $fieldName, while parsing Chime destination")
+                        log.info("Unexpected field: $fieldName, while parsing Slack destination")
                     }
                 }
             }
             url ?: throw IllegalArgumentException("$URL_TAG field absent")
-            return Chime(url)
+            return Slack(url)
         }
     }
 
@@ -83,7 +85,7 @@ data class Chime(
      * @param input StreamInput stream to deserialize data from.
      */
     constructor(input: StreamInput) : this(
-        url = input.readString()
+            url = input.readString()
     )
 
     /**
@@ -99,7 +101,11 @@ data class Chime(
     override fun toXContent(builder: XContentBuilder?, params: ToXContent.Params?): XContentBuilder {
         builder!!
         return builder.startObject()
-            .field(URL_TAG, url)
-            .endObject()
+                .field(URL_TAG, url)
+                .endObject()
+    }
+
+    override fun getChannelType(): NotificationConfigType {
+        return NotificationConfigType.Slack
     }
 }

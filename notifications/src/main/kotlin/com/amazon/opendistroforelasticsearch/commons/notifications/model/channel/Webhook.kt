@@ -13,8 +13,9 @@
  * permissions and limitations under the License.
  *
  */
-package com.amazon.opendistroforelasticsearch.commons.notifications.model
+package com.amazon.opendistroforelasticsearch.commons.notifications.model.channel
 
+import com.amazon.opendistroforelasticsearch.commons.notifications.model.NotificationConfigType
 import com.amazon.opendistroforelasticsearch.notifications.util.logger
 import com.amazon.opendistroforelasticsearch.notifications.util.validateUrl
 import org.elasticsearch.common.Strings
@@ -26,13 +27,14 @@ import org.elasticsearch.common.xcontent.XContentBuilder
 import org.elasticsearch.common.xcontent.XContentParser
 import org.elasticsearch.common.xcontent.XContentParserUtils
 import java.io.IOException
+import kotlin.jvm.Throws
 
 /**
- * Data class representing Slack channel.
+ * Data class representing Webhook channel.
  */
-data class Slack(
-    val url: String
-) : Writeable, ToXContent {
+data class Webhook(
+        val url: String
+) : ChannelData {
 
     init {
         require(!Strings.isNullOrEmpty(url)) { "URL is null or empty" }
@@ -40,13 +42,13 @@ data class Slack(
     }
 
     companion object {
-        private val log by logger(Slack::class.java)
+        private val log by logger(Webhook::class.java)
         private const val URL_TAG = "url"
 
         /**
          * reader to create instance of class from writable.
          */
-        val reader = Writeable.Reader { Slack(it) }
+        val reader = Writeable.Reader { Webhook(it) }
 
         /**
          * Creator used in REST communication.
@@ -54,13 +56,13 @@ data class Slack(
          */
         @JvmStatic
         @Throws(IOException::class)
-        fun parse(parser: XContentParser): Slack {
+        fun parse(parser: XContentParser): Webhook {
             var url: String? = null
 
             XContentParserUtils.ensureExpectedToken(
-                XContentParser.Token.START_OBJECT,
-                parser.currentToken(),
-                parser
+                    XContentParser.Token.START_OBJECT,
+                    parser.currentToken(),
+                    parser
             )
             while (parser.nextToken() != XContentParser.Token.END_OBJECT) {
                 val fieldName = parser.currentName()
@@ -69,12 +71,12 @@ data class Slack(
                     URL_TAG -> url = parser.text()
                     else -> {
                         parser.skipChildren()
-                        log.info("Unexpected field: $fieldName, while parsing Slack destination")
+                        log.info("Unexpected field: $fieldName, while parsing Webhook destination")
                     }
                 }
             }
             url ?: throw IllegalArgumentException("$URL_TAG field absent")
-            return Slack(url)
+            return Webhook(url)
         }
     }
 
@@ -83,7 +85,7 @@ data class Slack(
      * @param input StreamInput stream to deserialize data from.
      */
     constructor(input: StreamInput) : this(
-        url = input.readString()
+            url = input.readString()
     )
 
     /**
@@ -99,7 +101,11 @@ data class Slack(
     override fun toXContent(builder: XContentBuilder?, params: ToXContent.Params?): XContentBuilder {
         builder!!
         return builder.startObject()
-            .field(URL_TAG, url)
-            .endObject()
+                .field(URL_TAG, url)
+                .endObject()
+    }
+
+    override fun getChannelType(): NotificationConfigType {
+        return NotificationConfigType.WEBHOOK
     }
 }
